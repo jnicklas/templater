@@ -1,5 +1,13 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
+describe Templater::Generator, '.new' do
+  it "should remember the destination" do
+    @generator_class = Class.new(Templater::Generator)
+    instance = @generator_class.new('/path/to/destination')
+    instance.destination.should == '/path/to/destination'
+  end
+end
+
 describe Templater::Generator, '.argument' do
 
   before do
@@ -9,7 +17,7 @@ describe Templater::Generator, '.argument' do
   it "should create accessors" do
     @generator_class.argument(0, :monkey)
     
-    instance = @generator_class.new
+    instance = @generator_class.new('/tmp')
     instance.monkey = 'a test'
     instance.monkey.should == 'a test'
   end
@@ -17,7 +25,7 @@ describe Templater::Generator, '.argument' do
   it "should pass an initial value to the argument" do
     @generator_class.argument(0, :monkey)
     
-    instance = @generator_class.new('i am a monkey')
+    instance = @generator_class.new('/tmp', 'i am a monkey')
     instance.monkey.should == 'i am a monkey'
   end
   
@@ -26,7 +34,7 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(1, :llama)
     @generator_class.argument(2, :herd)
     
-    instance = @generator_class.new
+    instance = @generator_class.new('/tmp')
     instance.monkey = 'a monkey'
     instance.monkey.should == 'a monkey'
     instance.llama = 'a llama'
@@ -40,7 +48,7 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(1, :llama)
     @generator_class.argument(2, :herd)
     
-    instance = @generator_class.new('a monkey', 'a llama', 'a herd')
+    instance = @generator_class.new('/tmp', 'a monkey', 'a llama', 'a herd')
     instance.monkey.should == 'a monkey'
     instance.llama.should == 'a llama'
     instance.herd.should == 'a herd'
@@ -52,7 +60,7 @@ describe Templater::Generator, '.argument' do
     @generator_class.third_argument(:herd)
     @generator_class.fourth_argument(:elephant)
     
-    instance = @generator_class.new('a monkey', 'a llama', 'a herd', 'an elephant')
+    instance = @generator_class.new('/tmp', 'a monkey', 'a llama', 'a herd', 'an elephant')
     instance.monkey.should == 'a monkey'
     instance.llama.should == 'a llama'
     instance.herd.should == 'a herd'
@@ -63,14 +71,14 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(0, :monkey)
     @generator_class.argument(1, :llama)
     
-    lambda { @generator_class.new('a monkey', 'a llama', 'a herd') }.should raise_error(Templater::TooManyArgumentsError)
+    lambda { @generator_class.new('/tmp', 'a monkey', 'a llama', 'a herd') }.should raise_error(Templater::TooManyArgumentsError)
   end
   
   it "should allow assignment of hashes to arguments that should be hashes ;)" do
     @generator_class.argument(0, :monkey)
     @generator_class.argument(1, :llama, :as => :hash)
     
-    instance = @generator_class.new('a monkey', { :hash => 'blah' })
+    instance = @generator_class.new('/tmp', 'a monkey', { :hash => 'blah' })
     
     instance.monkey.should == 'a monkey'
     instance.llama[:hash].should == 'blah'
@@ -83,8 +91,8 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(0, :monkey)
     @generator_class.argument(1, :llama, :as => :hash)
     
-    lambda { @generator_class.new('a monkey', 'a llama') }.should raise_error(Templater::MalformattedArgumentError)
-    instance = @generator_class.new
+    lambda { @generator_class.new('/tmp', 'a monkey', 'a llama') }.should raise_error(Templater::MalformattedArgumentError)
+    instance = @generator_class.new('/tmp')
     lambda { instance.llama = :not_a_hash }.should raise_error(Templater::MalformattedArgumentError)
   end
   
@@ -93,7 +101,7 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(1, :elephant, :required => true)
     @generator_class.argument(2, :llama)
     
-    instance = @generator_class.new('enough', 'arguments')
+    instance = @generator_class.new('/tmp', 'enough', 'arguments')
     instance.monkey.should == "enough"
     instance.elephant.should == "arguments"
     instance.llama.should be_nil
@@ -104,13 +112,13 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(1, :elephant, :required => true)
     @generator_class.argument(2, :llama)
     
-    lambda { @generator_class.new('too few argument') }.should raise_error(Templater::TooFewArgumentsError)    
+    lambda { @generator_class.new('/tmp', 'too few argument') }.should raise_error(Templater::TooFewArgumentsError)    
   end
   
   it "should an error if nil is assigned to a require argument" do
     @generator_class.argument(0, :monkey, :required => true)
     
-    instance = @generator_class.new('test')
+    instance = @generator_class.new('/tmp', 'test')
     
     lambda { instance.monkey = nil }.should raise_error(Templater::TooFewArgumentsError)    
   end
@@ -124,7 +132,7 @@ describe Templater::Generator, '.argument' do
     end
     @generator_class.argument(2, :llama)
     
-    instance = @generator_class.new('blah', 'urgh')
+    instance = @generator_class.new('/tmp', 'blah', 'urgh')
     instance.monkey.should == 'blah'
     instance.elephant.should == 'urgh'
     
@@ -137,9 +145,9 @@ describe Templater::Generator, '.argument' do
       throw :invalid, 'this is not a valid monkey, bad monkey!'
     end
     
-    lambda { @generator_class.new('blah') }.should raise_error(Templater::ArgumentError, 'this is not a valid monkey, bad monkey!')
+    lambda { @generator_class.new('/tmp', 'blah') }.should raise_error(Templater::ArgumentError, 'this is not a valid monkey, bad monkey!')
     
-    instance = @generator_class.new
+    instance = @generator_class.new('/tmp')
     
     lambda { instance.monkey = :anything }.should raise_error(Templater::ArgumentError, 'this is not a valid monkey, bad monkey!')
   end

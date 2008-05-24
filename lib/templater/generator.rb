@@ -5,6 +5,10 @@ module Templater
       
       attr_accessor :arguments
       
+      def arguments
+        @arguments ||= []
+      end
+      
       def first_argument(*args); argument(0, *args); end
       def second_argument(*args); argument(1, *args); end
       def third_argument(*args); argument(2, *args); end
@@ -26,9 +30,10 @@ module Templater
       
     end
     
-    attr_accessor :arguments
+    attr_accessor :destination, :arguments, :templates
     
-    def initialize(*args)
+    def initialize(destination, *args)
+      @destination = destination
       @arguments = []
       args.each_with_index do |arg, i|
         set_argument(i, arg)

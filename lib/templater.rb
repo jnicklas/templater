@@ -3,6 +3,8 @@ path = File.dirname(__FILE__) + '/templater/'
 require path + 'parser'
 require path + 'template'
 require path + 'generator'
+require path + 'template_proxy'
+
 require 'erb'
 
 module Templater
