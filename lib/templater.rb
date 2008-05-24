@@ -9,8 +9,11 @@ module Templater
   
   class TemplaterError < StandardError; end
   class GeneratorError < TemplaterError; end
-  class TooManyArgumentsError < GeneratorError; end
-  class MalformattedArgumentError < GeneratorError; end
+  class ArgumentError < GeneratorError; end
+  class TooManyArgumentsError < ArgumentError; end
+  class TooFewArgumentsError < ArgumentError; end
+  class JustTheRightAmountOfArgumentsError < ArgumentError; end
+  class MalformattedArgumentError < ArgumentError; end
   
   def self.generators
     @generators ||= {}
