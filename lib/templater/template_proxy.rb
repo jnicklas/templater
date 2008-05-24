@@ -2,26 +2,29 @@ module Templater
   
   class TemplateProxy
     
-    def initialize(&block)
-      self.block = block
+    def initialize(name, &block)
+      @block = block
+      @name = name.to_sym
     end
     
-    attr_accessor :block, :generator, :source, :destination, :use
+    def source(source)
+      @source = source
+    end
     
-    
-    
-    def source
-      
+    def destination(dest)
+      @destination = dest
     end
     
     def to_template(generator)
-      self.generator = generator
-      Templater::Template.new(source, destination)
+      @generator = generator
+      instance_eval(&@block)
+      @generator = nil
+      Templater::Template.new(@name, generator, @source, @destination)
     end
     
-    def method_missing(:method, *args, &block)
-      if self.generator
-        self.generator.send(:method, *args, &block)
+    def method_missing(method, *args, &block)
+      if @generator
+        @generator.send(method, *args, &block)
       else
         super
       end

@@ -3,11 +3,10 @@ module Templater
   class Generator
     class << self
       
-      attr_accessor :arguments
+      attr_accessor :arguments, :template_proxies
       
-      def arguments
-        @arguments ||= []
-      end
+      def arguments; @arguments ||= []; end
+      def template_proxies; @template_proxies ||= []; end
       
       def first_argument(*args); argument(0, *args); end
       def second_argument(*args); argument(1, *args); end
@@ -28,6 +27,10 @@ module Templater
         CLASS
       end
       
+      def template(name, &block)
+        @template_proxies.push(Templater::TemplateProxy.new(name, &block))
+      end
+      
     end
     
     attr_accessor :destination, :arguments, :templates
@@ -35,10 +38,16 @@ module Templater
     def initialize(destination, *args)
       @destination = destination
       @arguments = []
+      # convert the template proxies to actual templates
+      @templates = self.class.template_proxies.map { |t| t.to_template(self) }
       args.each_with_index do |arg, i|
         set_argument(i, arg)
       end
       valid_arguments?
+    end
+    
+    def invoke!
+      templates.each { |t| t.invoke! }
     end
     
     protected
