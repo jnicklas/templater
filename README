@@ -1,0 +1,74 @@
+templater
+=========
+
+Templater is an alternative to Rubigen, or in other words: It generates stuff.
+
+It will also have a nice DSL, at some point, which I think will look something like this:
+
+    class ModelTemplater < Merb::Templater do
+
+      first_argument :class_name
+      remaining_arguments :properties, :as => :keyed_pair
+
+      option :testing_framework do
+        with :none, :rspec do
+          template(:spec) do
+            source('models/model_spec.rbt'),
+            destination('spec/models/' + name + '_spec.rb')
+          end
+        end
+  
+        with :test_unit do
+          template(:test) do
+            source('models/model_test.rbt'),
+            destination('test/models/' + name + '_test.rb')
+          end
+        end
+      end
+  
+      option :generate_migration do
+        invocation :migration do
+          MigrationTemplater.new(destination, options).invoke!
+        end
+      end
+
+      template(:model) do
+        source('models/model.rbt'),
+        destination('app/models/' + name + '.rb')
+      end
+  
+      def name
+        class_name.downcase
+      end
+  
+      def self._template_location
+        '/path/to/source'
+      end
+
+    end
+
+    # Parsing of command line options is handled by a different class
+
+    templater = ModelTemplater.new('/path/to/destination', 'User', { :login => :string, :email => :string, :description => :text})
+
+    templater.templates # => [<Template :model>, <Template :spec>]
+    templater.testing_framework = :test_unit
+    templater.templates # => [<Template :model>, <Template :test_unit>]
+
+    template = templater.template(:model)
+
+    template.destination # => '/path/to/destination/app/models/user.rb'
+    template.source # => '/path/to/source/models/user.rb'
+    template.render # => Renders the template, and returns the result as a string
+    template.exists? # => returns true if the destination file exists.
+    template.identical? # => returns true if the content of the file at the destination are identical to the rendered result.
+    template.invoke! # => Renders the template and copies it to the destination
+
+    template.name # => :model
+    template.name = :monkey
+
+    templater.add_template template
+    templater.templates # => [<Template :model>, <Template :test_unit>, <Template :monkey>]
+    templater.remove_template :monkey
+
+    templater.invoke! # => Renders all templates and copies them to their destinations
