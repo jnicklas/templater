@@ -19,7 +19,7 @@ module Templater
       @generator = generator
       instance_eval(&@block)
       @generator = nil
-      Templater::Template.new(@name, generator, @source, @destination)
+      Templater::Template.new(generator, @name, generator.source_root + @source, generator.destination_root + @destination)
     end
     
     def method_missing(method, *args, &block)

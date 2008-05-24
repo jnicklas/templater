@@ -28,15 +28,15 @@ module Templater
       end
       
       def template(name, &block)
-        @template_proxies.push(Templater::TemplateProxy.new(name, &block))
+        self.template_proxies.push(Templater::TemplateProxy.new(name, &block))
       end
       
     end
     
-    attr_accessor :destination, :arguments, :templates
+    attr_accessor :destination_root, :arguments, :templates
     
-    def initialize(destination, *args)
-      @destination = destination
+    def initialize(destination_root, *args)
+      @destination_root = destination_root
       @arguments = []
       # convert the template proxies to actual templates
       @templates = self.class.template_proxies.map { |t| t.to_template(self) }
@@ -46,8 +46,16 @@ module Templater
       valid_arguments?
     end
     
+    def template(name)
+      @templates.find {|t| t.name == name }
+    end
+    
     def invoke!
       templates.each { |t| t.invoke! }
+    end
+    
+    def source_root
+      raise "Subclasses of Templater::Generator must override the source_root method, to specify where source templates are located."
     end
     
     protected

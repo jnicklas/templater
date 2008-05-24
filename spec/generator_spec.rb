@@ -1,13 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-describe Templater::Generator, '.new' do
-  it "should remember the destination" do
-    @generator_class = Class.new(Templater::Generator)
-    instance = @generator_class.new('/path/to/destination')
-    instance.destination.should == '/path/to/destination'
-  end
-end
-
 describe Templater::Generator, '.argument' do
 
   before do
@@ -152,4 +144,92 @@ describe Templater::Generator, '.argument' do
     lambda { instance.monkey = :anything }.should raise_error(Templater::ArgumentError, 'this is not a valid monkey, bad monkey!')
   end
 
+end
+
+describe Templater::Generator, '.template' do
+
+  before do
+    @generator_class = Class.new(Templater::Generator)
+  end
+
+  it "should add a template proxy" do
+    Templater::TemplateProxy.should_receive(:new).with(:my_template) # TODO: Figure out how to set an expectation for the passed block
+    @generator_class.template(:my_template) {}
+  end
+  
+  it "should convert template proxies to templates on initialization" do
+    template_proxy = mock('a template proxy')
+
+    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(template_proxy)
+    @generator_class.template(:my_template) {}
+    
+    template_proxy.should_receive(:to_template)
+    @generator_class.new('/tmp')
+  end
+end
+
+describe Templater::Generator, '#template' do
+
+  before do
+    @generator_class = Class.new(Templater::Generator)
+  end
+
+  it "should get a template by name" do
+    template_proxy = mock('a template proxy')
+    template = mock('a template')
+    template.stub!(:name).and_return(:my_template)
+
+    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(template_proxy)
+    @generator_class.template(template.name) {}
+    
+    template_proxy.should_receive(:to_template).and_return(template)
+    instance = @generator_class.new('/tmp')
+    
+    instance.template(:my_template).should == template
+  end
+end
+
+describe Templater::Generator, '#templates' do
+
+  before do
+    @generator_class = Class.new(Templater::Generator)
+  end
+
+  it "should return all templates" do
+    template_proxy = mock('a template proxy')
+    template = mock('a template')
+    template.stub!(:name).and_return(:my_template)
+    template_proxy2 = mock('a template proxy')
+    template2 = mock('a template')
+    template2.stub!(:name).and_return(:another_template)
+
+    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(:another_template).and_return(template_proxy2)
+    @generator_class.template(template.name) {}
+    @generator_class.template(template2.name) {}
+    
+    template_proxy.should_receive(:to_template).and_return(template)
+    template_proxy2.should_receive(:to_template).and_return(template2)
+    instance = @generator_class.new('/tmp')
+    
+    instance.templates.should == [template, template2]
+  end
+end
+
+describe Templater::Generator, '#destination_root' do
+  it "should be remembered" do
+    @generator_class = Class.new(Templater::Generator)
+    instance = @generator_class.new('/path/to/destination')
+    instance.destination_root.should == '/path/to/destination'
+  end
+end
+
+describe Templater::Generator, '#source_root' do
+  it "should raise an error, complaining that source_root must be overridden" do
+    @generator_class = Class.new(Templater::Generator)
+    @generator_class.argument(0, :monkey)
+    instance = @generator_class.new('/tmp')
+    
+    lambda { @instance.source_root }.should raise_error
+  end
 end
