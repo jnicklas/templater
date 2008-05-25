@@ -251,6 +251,39 @@ describe Templater::Generator, '#templates' do
   end
 end
 
+describe Templater::Generator, '#invoke!' do
+
+  before do
+    @generator_class = Class.new(Templater::Generator)
+  end
+
+  it "should invoke all templates" do
+    # boring mocking setup
+    template_proxy = mock('a template proxy')
+    template = mock('a template')
+    template.stub!(:name).and_return(:my_template)
+    template_proxy2 = mock('a template proxy')
+    template2 = mock('a template')
+    template2.stub!(:name).and_return(:another_template)
+
+    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(:another_template).and_return(template_proxy2)
+    @generator_class.template(template.name) {}
+    @generator_class.template(template2.name) {}
+    
+    template_proxy.should_receive(:to_template).and_return(template)
+    template_proxy2.should_receive(:to_template).and_return(template2)
+    instance = @generator_class.new('/tmp')
+    
+    # the meaty stuff here
+    template.should_receive(:invoke!)
+    template2.should_receive(:invoke!)
+    
+    instance.invoke!
+  end
+end
+
+
 describe Templater::Generator, '#destination_root' do
   it "should be remembered" do
     @generator_class = Class.new(Templater::Generator)
