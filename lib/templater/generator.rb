@@ -40,8 +40,9 @@ module Templater
         CLASS
       end
       
-      def template(name, &block)
-        self.template_proxies.push(Templater::TemplateProxy.new(name, &block))
+      def template(name, options={}, &block)
+        # note that the proxies are stored as an array of arrays, paired with the passed in options.
+        self.template_proxies.push([Templater::TemplateProxy.new(name, &block), options])
       end
       
     end
@@ -53,7 +54,7 @@ module Templater
       @arguments = []
       @options = {}
       # convert the template proxies to actual templates
-      @templates = self.class.template_proxies.map { |t| t.to_template(self) }
+      @templates = self.class.template_proxies.map { |t| [t[0].to_template(self), t[1]] }
       args.each_with_index do |arg, i|
         set_argument(i, arg)
       end
@@ -61,7 +62,11 @@ module Templater
     end
     
     def template(name)
-      @templates.find {|t| t.name == name }
+      @templates.find {|t| t[0].name == name }[0]
+    end
+    
+    def templates
+      @templates.map { |t| t[0] }
     end
     
     def invoke!

@@ -249,6 +249,8 @@ describe Templater::Generator, '#templates' do
     
     instance.templates.should == [template, template2]
   end
+  
+  it "should not return templates with an option that does not match."
 end
 
 describe Templater::Generator, '#invoke!' do
