@@ -5,7 +5,7 @@ require 'date'
 
 PLUGIN = "templater"
 NAME = "templater"
-GEM_VERSION = "0.0.1"
+GEM_VERSION = "0.1"
 AUTHOR = "Jonas Nicklas"
 EMAIL = "jonas.nicklas@gmail.com"
 HOMEPAGE = "http://merb-plugins.rubyforge.org/templater/"
@@ -22,10 +22,15 @@ spec = Gem::Specification.new do |s|
   s.author = AUTHOR
   s.email = EMAIL
   s.homepage = HOMEPAGE
-  s.add_dependency('merb', '>= 0.4.0')
   s.require_path = 'lib'
   s.autorequire = PLUGIN
   s.files = %w(LICENSE README Rakefile TODO) + Dir.glob("{lib,spec}/**/*")
+
+  # toggle to test command line interface
+  if true
+    s.bindir = "bin"
+    s.executables = %w( templater )
+  end
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
