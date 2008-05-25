@@ -5,35 +5,30 @@ Templater is an alternative to Rubigen, or in other words: It generates stuff.
 
 It will also have a nice DSL, at some point, which I think will look something like this:
 
-    class ModelTemplater < Merb::Templater do
+    class ModelTemplater < Merb::Templater
 
-      first_argument :class_name
-      remaining_arguments :properties, :as => :keyed_pair
+      first_argument :class_name, :required => true
+      second_argument :properties, :as => :hash
 
-      option :testing_framework do
-        with :none, :rspec do
-          template(:spec) do
-            source('models/model_spec.rbt'),
-            destination('spec/models/' + name + '_spec.rb')
-          end
-        end
-  
-        with :test_unit do
-          template(:test) do
-            source('models/model_test.rbt'),
-            destination('test/models/' + name + '_test.rb')
-          end
-        end
+      option :testing_framework, :default => :spec
+      option :generate_migation, :default => true
+
+      template(:spec, :testing_framework => :spec) do
+        source('models/model_spec.rbt')
+        destination('spec/models/' + name + '_spec.rb')
       end
   
-      option :generate_migration do
-        invocation :migration do
-          MigrationTemplater.new(destination, options).invoke!
-        end
+      template(:test, :testing_framework => :test) do
+        source('models/model_test.rbt')
+        destination('test/models/' + name + '_test.rb')
+      end
+  
+      invocation(:migration, :generate_migration => true) do
+        MigrationTemplater.new(destination, options).invoke!
       end
 
       template(:model) do
-        source('models/model.rbt'),
+        source('models/model.rbt')
         destination('app/models/' + name + '.rb')
       end
   
@@ -41,7 +36,7 @@ It will also have a nice DSL, at some point, which I think will look something l
         class_name.downcase
       end
   
-      def self._template_location
+      def source_root
         '/path/to/source'
       end
 
