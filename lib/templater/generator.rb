@@ -31,11 +31,11 @@ module Templater
         self.options[name.to_sym] = options
         class_eval <<-CLASS
           def #{name}
-            @options[:name] || self.class.options[:#{name}][:default]
+            @options[:#{name}] || self.class.options[:#{name}][:default]
           end
           
           def #{name}=(set)
-            @options[:name] = set
+            @options[:#{name}] = set
           end
         CLASS
       end
@@ -49,10 +49,12 @@ module Templater
     
     attr_accessor :destination_root, :arguments, :templates
     
-    def initialize(destination_root, *args)
+    def initialize(destination_root, options = {}, *args)
+      # FIXME: options as a second argument is kinda stupid, since it forces silly syntax, but since *args
+      # might contain hashes, I can't come up with another way of making this unambiguous. 
       @destination_root = destination_root
       @arguments = []
-      @options = {}
+      @options = options
       # convert the template proxies to actual templates
       @templates = self.class.template_proxies.map { |t| [t[0].to_template(self), t[1]] }
       args.each_with_index do |arg, i|
@@ -65,8 +67,13 @@ module Templater
       @templates.find {|t| t[0].name == name }[0]
     end
     
-    def templates
-      @templates.map { |t| t[0] }
+    def templates(all=false)
+      templates = @templates.map do |t|
+        template, template_options = t
+        # check to see if either 'all' is true, or if all template option match the generator options
+        (all || template_options.all? {|tok, tov| @options[tok] == tov }) ? template : nil
+      end
+      templates.compact
     end
     
     def invoke!
@@ -75,6 +82,10 @@ module Templater
     
     def source_root
       raise "Subclasses of Templater::Generator must override the source_root method, to specify where source templates are located."
+    end
+    
+    def destination_root
+      @destination_root # just here so it can be documented.
     end
     
     protected

@@ -17,7 +17,7 @@ describe Templater::Generator, '.argument' do
   it "should pass an initial value to the argument" do
     @generator_class.argument(0, :monkey)
     
-    instance = @generator_class.new('/tmp', 'i am a monkey')
+    instance = @generator_class.new('/tmp', {}, 'i am a monkey')
     instance.monkey.should == 'i am a monkey'
   end
   
@@ -40,7 +40,7 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(1, :llama)
     @generator_class.argument(2, :herd)
     
-    instance = @generator_class.new('/tmp', 'a monkey', 'a llama', 'a herd')
+    instance = @generator_class.new('/tmp', {}, 'a monkey', 'a llama', 'a herd')
     instance.monkey.should == 'a monkey'
     instance.llama.should == 'a llama'
     instance.herd.should == 'a herd'
@@ -52,7 +52,7 @@ describe Templater::Generator, '.argument' do
     @generator_class.third_argument(:herd)
     @generator_class.fourth_argument(:elephant)
     
-    instance = @generator_class.new('/tmp', 'a monkey', 'a llama', 'a herd', 'an elephant')
+    instance = @generator_class.new('/tmp', {}, 'a monkey', 'a llama', 'a herd', 'an elephant')
     instance.monkey.should == 'a monkey'
     instance.llama.should == 'a llama'
     instance.herd.should == 'a herd'
@@ -63,14 +63,14 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(0, :monkey)
     @generator_class.argument(1, :llama)
     
-    lambda { @generator_class.new('/tmp', 'a monkey', 'a llama', 'a herd') }.should raise_error(Templater::TooManyArgumentsError)
+    lambda { @generator_class.new('/tmp', {}, 'a monkey', 'a llama', 'a herd') }.should raise_error(Templater::TooManyArgumentsError)
   end
   
   it "should allow assignment of hashes to arguments that should be hashes ;)" do
     @generator_class.argument(0, :monkey)
     @generator_class.argument(1, :llama, :as => :hash)
     
-    instance = @generator_class.new('/tmp', 'a monkey', { :hash => 'blah' })
+    instance = @generator_class.new('/tmp', {}, 'a monkey', { :hash => 'blah' })
     
     instance.monkey.should == 'a monkey'
     instance.llama[:hash].should == 'blah'
@@ -83,7 +83,7 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(0, :monkey)
     @generator_class.argument(1, :llama, :as => :hash)
     
-    lambda { @generator_class.new('/tmp', 'a monkey', 'a llama') }.should raise_error(Templater::MalformattedArgumentError)
+    lambda { @generator_class.new('/tmp', {}, 'a monkey', 'a llama') }.should raise_error(Templater::MalformattedArgumentError)
     instance = @generator_class.new('/tmp')
     lambda { instance.llama = :not_a_hash }.should raise_error(Templater::MalformattedArgumentError)
   end
@@ -93,7 +93,7 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(1, :elephant, :required => true)
     @generator_class.argument(2, :llama)
     
-    instance = @generator_class.new('/tmp', 'enough', 'arguments')
+    instance = @generator_class.new('/tmp', {}, 'enough', 'arguments')
     instance.monkey.should == "enough"
     instance.elephant.should == "arguments"
     instance.llama.should be_nil
@@ -104,13 +104,13 @@ describe Templater::Generator, '.argument' do
     @generator_class.argument(1, :elephant, :required => true)
     @generator_class.argument(2, :llama)
     
-    lambda { @generator_class.new('/tmp', 'too few argument') }.should raise_error(Templater::TooFewArgumentsError)    
+    lambda { @generator_class.new('/tmp', {}, 'too few arguments') }.should raise_error(Templater::TooFewArgumentsError)    
   end
   
   it "should an error if nil is assigned to a require argument" do
     @generator_class.argument(0, :monkey, :required => true)
     
-    instance = @generator_class.new('/tmp', 'test')
+    instance = @generator_class.new('/tmp', {}, 'test')
     
     lambda { instance.monkey = nil }.should raise_error(Templater::TooFewArgumentsError)    
   end
@@ -124,7 +124,7 @@ describe Templater::Generator, '.argument' do
     end
     @generator_class.argument(2, :llama)
     
-    instance = @generator_class.new('/tmp', 'blah', 'urgh')
+    instance = @generator_class.new('/tmp', {}, 'blah', 'urgh')
     instance.monkey.should == 'blah'
     instance.elephant.should == 'urgh'
     
@@ -137,7 +137,7 @@ describe Templater::Generator, '.argument' do
       throw :invalid, 'this is not a valid monkey, bad monkey!'
     end
     
-    lambda { @generator_class.new('/tmp', 'blah') }.should raise_error(Templater::ArgumentError, 'this is not a valid monkey, bad monkey!')
+    lambda { @generator_class.new('/tmp', {}, 'blah') }.should raise_error(Templater::ArgumentError, 'this is not a valid monkey, bad monkey!')
     
     instance = @generator_class.new('/tmp')
     
@@ -201,6 +201,16 @@ describe Templater::Generator, '.option' do
     instance.test = "monkey"  
     instance.test.should == "monkey"  
   end
+  
+  it "should allow passing in of options on generator creation" do
+    @generator_class.option(:test, :default => 'elephant')
+
+    instance = @generator_class.new('/tmp', { :test => 'freebird' })
+  
+    instance.test.should == "freebird"  
+    instance.test = "monkey"  
+    instance.test.should == "monkey"  
+  end
 end
 
 describe Templater::Generator, '#template' do
@@ -228,29 +238,71 @@ describe Templater::Generator, '#templates' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
+    
+    @template_proxy = mock('a template proxy')
+    @template = mock('a template')
+    @template.stub!(:name).and_return(:my_template)
+    @template_proxy.stub!(:to_template).and_return(@template)
+    
+    @template_proxy2 = mock('a second template proxy')
+    @template2 = mock('a second template')
+    @template2.stub!(:name).and_return(:another_template)
+    @template_proxy2.stub!(:to_template).and_return(@template2)
+    
+    @template_proxy3 = mock('a third template proxy')
+    @template3 = mock('a third template')
+    @template3.stub!(:name).and_return(:third_template)
+    @template_proxy3.stub!(:to_template).and_return(@template3)
   end
 
   it "should return all templates" do
-    template_proxy = mock('a template proxy')
-    template = mock('a template')
-    template.stub!(:name).and_return(:my_template)
-    template_proxy2 = mock('a template proxy')
-    template2 = mock('a template')
-    template2.stub!(:name).and_return(:another_template)
-
-    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(template_proxy)
-    Templater::TemplateProxy.should_receive(:new).with(:another_template).and_return(template_proxy2)
-    @generator_class.template(template.name) {}
-    @generator_class.template(template2.name) {}
+    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(@template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(:another_template).and_return(@template_proxy2)
+    @generator_class.template(@template.name) {}
+    @generator_class.template(@template2.name) {}
     
-    template_proxy.should_receive(:to_template).and_return(template)
-    template_proxy2.should_receive(:to_template).and_return(template2)
     instance = @generator_class.new('/tmp')
     
-    instance.templates.should == [template, template2]
+    instance.templates.should == [@template, @template2]
   end
   
-  it "should not return templates with an option that does not match."
+  it "should not return templates with an option that does not match." do
+    @generator_class.option :framework
+    
+    Templater::TemplateProxy.should_receive(:new).with(@template.name).and_return(@template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(@template2.name).and_return(@template_proxy2)
+    Templater::TemplateProxy.should_receive(:new).with(@template3.name).and_return(@template_proxy3)
+    @generator_class.template(@template.name, :framework => :merb) {}
+    @generator_class.template(@template2.name, :framework => :rails) {}
+    @generator_class.template(@template3.name) {}
+    
+    instance = @generator_class.new('/tmp')
+
+    instance.framework = :merb
+    instance.templates.should == [@template, @template3]
+
+    instance.framework = :rails
+    instance.templates.should == [@template2, @template3]
+    
+    instance.framework = nil
+    instance.templates.should == [@template3]
+  end
+  
+  it "should return all templates, even thos with an option that does not match, if 'all' is true." do
+    @generator_class.option :framework
+    
+    Templater::TemplateProxy.should_receive(:new).with(@template.name).and_return(@template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(@template2.name).and_return(@template_proxy2)
+    Templater::TemplateProxy.should_receive(:new).with(@template3.name).and_return(@template_proxy3)
+    @generator_class.template(@template.name, :framework => :merb) {}
+    @generator_class.template(@template2.name, :framework => :rails) {}
+    @generator_class.template(@template3.name) {}
+    
+    instance = @generator_class.new('/tmp')
+
+    instance.framework = :merb
+    instance.templates(true).should == [@template, @template2, @template3]
+  end
 end
 
 describe Templater::Generator, '#invoke!' do
