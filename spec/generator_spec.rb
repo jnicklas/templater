@@ -46,6 +46,13 @@ describe Templater::Generator, '.argument' do
     instance.herd.should == 'a herd'
   end
   
+  it "should set a default value for an argument" do
+    @generator_class.argument(0, :monkey, :default => 'a revision')
+    
+    instance = @generator_class.new('/tmp')
+    instance.monkey.should == 'a revision'
+  end
+  
   it "should allow some syntactic sugar declaration" do
     @generator_class.first_argument(:monkey)
     @generator_class.second_argument(:llama)
@@ -107,7 +114,7 @@ describe Templater::Generator, '.argument' do
     lambda { @generator_class.new('/tmp', {}, 'too few arguments') }.should raise_error(Templater::TooFewArgumentsError)    
   end
   
-  it "should an error if nil is assigned to a require argument" do
+  it "should raise an error if nil is assigned to a require argument" do
     @generator_class.argument(0, :monkey, :required => true)
     
     instance = @generator_class.new('/tmp', {}, 'test')
@@ -152,16 +159,36 @@ describe Templater::Generator, '.template' do
     @generator_class = Class.new(Templater::Generator)
   end
 
-  it "should add a template proxy" do
-    Templater::TemplateProxy.should_receive(:new).with(:my_template) # TODO: Figure out how to set an expectation for the passed block
+  it "should add a template proxy with a block" do
+    Templater::TemplateProxy.should_receive(:new).with(:my_template, nil, nil) # TODO: Figure out how to set an expectation for the passed block
     @generator_class.template(:my_template) {}
   end
   
   it "should convert template proxies to templates on initialization" do
     template_proxy = mock('a template proxy')
 
-    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(:my_template, nil, nil).and_return(template_proxy)
     @generator_class.template(:my_template) {}
+    
+    template_proxy.should_receive(:to_template)
+    @generator_class.new('/tmp')
+  end
+  
+  it "should convert template proxies with source and destination to templates on initialization" do
+    template_proxy = mock('a template proxy')
+
+    Templater::TemplateProxy.should_receive(:new).with(:my_template, 'a/source.rbt', 'a/destination.rb').and_return(template_proxy)
+    @generator_class.template(:my_template, 'a/source.rbt', 'a/destination.rb')
+    
+    template_proxy.should_receive(:to_template)
+    @generator_class.new('/tmp')
+  end
+  
+  it "should convert template proxies with destination only to templates on initialization, and infer the source name" do
+    template_proxy = mock('a template proxy')
+
+    Templater::TemplateProxy.should_receive(:new).with(:my_template, 'a/destination.rbt', 'a/destination.rb').and_return(template_proxy)
+    @generator_class.template(:my_template, 'a/destination.rb')
     
     template_proxy.should_receive(:to_template)
     @generator_class.new('/tmp')
@@ -224,7 +251,7 @@ describe Templater::Generator, '#template' do
     template = mock('a template')
     template.stub!(:name).and_return(:my_template)
 
-    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(:my_template, nil, nil).and_return(template_proxy)
     @generator_class.template(template.name) {}
     
     template_proxy.should_receive(:to_template).and_return(template)
@@ -256,8 +283,8 @@ describe Templater::Generator, '#templates' do
   end
 
   it "should return all templates" do
-    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(@template_proxy)
-    Templater::TemplateProxy.should_receive(:new).with(:another_template).and_return(@template_proxy2)
+    Templater::TemplateProxy.should_receive(:new).with(:my_template, nil, nil).and_return(@template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(:another_template, nil, nil).and_return(@template_proxy2)
     @generator_class.template(@template.name) {}
     @generator_class.template(@template2.name) {}
     
@@ -269,9 +296,9 @@ describe Templater::Generator, '#templates' do
   it "should not return templates with an option that does not match." do
     @generator_class.option :framework
     
-    Templater::TemplateProxy.should_receive(:new).with(@template.name).and_return(@template_proxy)
-    Templater::TemplateProxy.should_receive(:new).with(@template2.name).and_return(@template_proxy2)
-    Templater::TemplateProxy.should_receive(:new).with(@template3.name).and_return(@template_proxy3)
+    Templater::TemplateProxy.should_receive(:new).with(@template.name, nil, nil).and_return(@template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(@template2.name, nil, nil).and_return(@template_proxy2)
+    Templater::TemplateProxy.should_receive(:new).with(@template3.name, nil, nil).and_return(@template_proxy3)
     @generator_class.template(@template.name, :framework => :merb) {}
     @generator_class.template(@template2.name, :framework => :rails) {}
     @generator_class.template(@template3.name) {}
@@ -291,9 +318,9 @@ describe Templater::Generator, '#templates' do
   it "should return all templates, even thos with an option that does not match, if 'all' is true." do
     @generator_class.option :framework
     
-    Templater::TemplateProxy.should_receive(:new).with(@template.name).and_return(@template_proxy)
-    Templater::TemplateProxy.should_receive(:new).with(@template2.name).and_return(@template_proxy2)
-    Templater::TemplateProxy.should_receive(:new).with(@template3.name).and_return(@template_proxy3)
+    Templater::TemplateProxy.should_receive(:new).with(@template.name, nil, nil).and_return(@template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(@template2.name, nil, nil).and_return(@template_proxy2)
+    Templater::TemplateProxy.should_receive(:new).with(@template3.name, nil, nil).and_return(@template_proxy3)
     @generator_class.template(@template.name, :framework => :merb) {}
     @generator_class.template(@template2.name, :framework => :rails) {}
     @generator_class.template(@template3.name) {}
@@ -320,8 +347,8 @@ describe Templater::Generator, '#invoke!' do
     template2 = mock('a template')
     template2.stub!(:name).and_return(:another_template)
 
-    Templater::TemplateProxy.should_receive(:new).with(:my_template).and_return(template_proxy)
-    Templater::TemplateProxy.should_receive(:new).with(:another_template).and_return(template_proxy2)
+    Templater::TemplateProxy.should_receive(:new).with(:my_template, nil, nil).and_return(template_proxy)
+    Templater::TemplateProxy.should_receive(:new).with(:another_template, nil, nil).and_return(template_proxy2)
     @generator_class.template(template.name) {}
     @generator_class.template(template2.name) {}
     

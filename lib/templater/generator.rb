@@ -40,9 +40,14 @@ module Templater
         CLASS
       end
       
-      def template(name, options={}, &block)
+      def template(name, *args, &block)
+        options = args.last.is_a?(Hash) ? args.pop : {}
+        source = args[0]
+        destination = args[1]
+        source, destination = source + 't', source if destination.nil? and not source.nil?
+        
         # note that the proxies are stored as an array of arrays, paired with the passed in options.
-        self.template_proxies.push([Templater::TemplateProxy.new(name, &block), options])
+        self.template_proxies.push([Templater::TemplateProxy.new(name, source, destination, &block), options])
       end
       
     end
@@ -98,7 +103,7 @@ module Templater
     end
     
     def get_argument(n)
-      @arguments[n]
+      @arguments[n] || self.class.arguments[n][1][:default]
     end
     
     def valid_argument?(arg, options, &block)

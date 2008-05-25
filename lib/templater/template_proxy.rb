@@ -2,9 +2,11 @@ module Templater
   
   class TemplateProxy
     
-    def initialize(name, &block)
+    def initialize(name, source = nil, destination = nil, &block)
       @block = block
       @name = name.to_sym
+      @source = source
+      @destination = destination
     end
     
     def source(source)
@@ -17,9 +19,9 @@ module Templater
     
     def to_template(generator)
       @generator = generator
-      instance_eval(&@block)
+      instance_eval(&@block) if @block
       @generator = nil
-      Templater::Template.new(generator, @name, generator.source_root + @source, generator.destination_root + @destination)
+      Templater::Template.new(generator, @name, File.join(generator.source_root, @source.to_s), File.join(generator.destination_root, @destination.to_s))
     end
     
     def method_missing(method, *args, &block)

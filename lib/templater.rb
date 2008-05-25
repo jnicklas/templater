@@ -4,6 +4,8 @@ require path + 'parser'
 require path + 'template'
 require path + 'generator'
 require path + 'template_proxy'
+require path + 'manifold'
+require path + 'cli'
 
 require 'erb'
 
@@ -17,9 +19,7 @@ module Templater
   class JustTheRightAmountOfArgumentsError < ArgumentError; end
   class MalformattedArgumentError < ArgumentError; end
   
-  def self.generators
-    @generators ||= {}
-  end
+  VERSION = '0.1'
   
   def self.register_generator(name, generator)
     generators[name] = generator
