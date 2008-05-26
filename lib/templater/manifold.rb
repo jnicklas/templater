@@ -26,8 +26,13 @@ module Templater
       @generators[name.to_sym]
     end
     
-    def run_cli(args)
-      Templater::CLI.run(self, ['arg', 'blah'])
+    def run_cli(destination_root, name, version, args)
+      Templater::CLI.run(destination_root, self, name, version, args)
+    end
+    
+    def desc(text = nil)
+      @text = text if text
+      return @text
     end
     
   end

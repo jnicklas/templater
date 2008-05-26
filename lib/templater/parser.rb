@@ -6,7 +6,7 @@ module Templater
 
   class Parser
 
-    def self.parse(args, name = 'bin/templater', version = Templater::VERSION)
+    def self.parse(args)
       # The options specified on the command line will be collected in *options*.
       # We set default values here.
       options = OpenStruct.new
@@ -15,19 +15,19 @@ module Templater
       options.skip = false
       options.quiet = false
       options.verbose = false
-
+      options.help = false
+      options.version = false
 
       opts = OptionParser.new do |opts|
-        opts.banner = "Usage: #{name} generator_name [options] [args]"
+
+        opts.banner = ""
 
         if block_given?
-          opts.separator ""
           opts.separator "Options specific for this generator:"
           
           yield opts, options
         end
 
-        opts.separator ""
         opts.separator "General options:"
 
         opts.on("-p", "--pretend", "Run, but do not make any changes.") do |s|
@@ -50,17 +50,19 @@ module Templater
           options.verbose = v
         end
 
-        opts.on_tail("-h", "--help", "Show this message") do
-          puts opts
-          exit
+        opts.on("-h", "--help", "Show this message") do
+          options.help = true
         end
       
-        opts.on_tail("--version", "Show the version") do
-          puts version
-          exit
+        opts.on("--version", "Show the version") do
+          options.version = true
         end
 
       end
+      
+      def opts.inspect; "<#OptionParser #{object_id}>"; end
+      
+      options.opts = opts
 
       opts.parse!(args)
       options

@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-describe Templater::Manifold do
+describe Templater::Manifold, '#add' do
   
   it "should allow addition of generators and remember them" do
     generator = mock('a generator')
@@ -18,6 +18,10 @@ describe Templater::Manifold do
     manifold.add(:monkey, generator)
     manifold.monkey.should == generator
   end
+  
+end
+
+describe Templater::Manifold, '#remove' do
   
   it "should allow removal of generators" do
     generator = mock('a generator')
@@ -38,16 +42,30 @@ describe Templater::Manifold do
     manifold.remove(:monkey)
     manifold.should_not respond_to(:monkey)
   end
-  
+
+end
+
+describe Templater::Manifold, '#run_cli' do
+
   it "should run the command line interface" do
-    generator = mock('a generator')
     manifold = class << self; self end
     manifold.extend Templater::Manifold
         
-    Templater::CLI.should_receive(:run).with(manifold, ['arg', 'blah'])
+    Templater::CLI.should_receive(:run).with('/path/to/destination', manifold, 'gen', '0.3', ['arg', 'blah'])
     
-    manifold.run_cli(['arg', 'blah'])
+    manifold.run_cli('/path/to/destination', 'gen', '0.3', ['arg', 'blah'])
   end
 
-  
+end
+
+describe Templater::Manifold, '#desc' do
+
+  it "should append text when called with an argument, and return it when called with no argument" do
+    manifold = class << self; self end
+    manifold.extend Templater::Manifold
+    
+    manifold.desc "some text"
+    manifold.desc.should == "some text"
+  end
+
 end

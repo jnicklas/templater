@@ -60,12 +60,12 @@ module Templater
       @destination_root = destination_root
       @arguments = []
       @options = options
-      # convert the template proxies to actual templates
-      @templates = self.class.template_proxies.map { |t| [t[0].to_template(self), t[1]] }
       args.each_with_index do |arg, i|
         set_argument(i, arg)
       end
       valid_arguments?
+      # convert the template proxies to actual templates
+      @templates = self.class.template_proxies.map { |t| [t[0].to_template(self), t[1]] }
     end
     
     def template(name)
