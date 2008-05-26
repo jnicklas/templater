@@ -23,10 +23,11 @@ module Templater
             end
           end
           
-          generator = generator_class.new(destination_root, *arguments)
-          
           self.help if @options.help
+          self.help if arguments.first == 'help'
           self.version if @options.version
+          
+          generator = generator_class.new(destination_root, *arguments)
           
           step_through_templates(generator.templates)
         else
