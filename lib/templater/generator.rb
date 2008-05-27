@@ -60,9 +60,9 @@ module Templater
       @destination_root = destination_root
       @arguments = []
       @options = options
-      args.each_with_index do |arg, i|
-        set_argument(i, arg)
-      end
+      
+      extract_arguments(*args)
+      
       valid_arguments?
       # convert the template proxies to actual templates
       @templates = self.class.template_proxies.map { |t| [t[0].to_template(self), t[1]] }
@@ -97,7 +97,6 @@ module Templater
     
     def set_argument(n, arg)
       name, options, block = self.class.arguments[n]
-      raise Templater::TooManyArgumentsError, "This generator does not take this many Arguments" if name.nil?
       valid_argument?(arg, options, &block)
       @arguments[n] = arg
     end
@@ -107,14 +106,13 @@ module Templater
     end
     
     def valid_argument?(arg, options, &block)
-      
       if arg.nil? and options[:required]
         raise Templater::TooFewArgumentsError
       elsif not arg.nil?
         if options[:as] == :hash and not arg.is_a?(Hash)
           raise Templater::MalformattedArgumentError, "Expected the argument to be a hash, but was '#{arg.inspect}'"
         end
-      
+           
         invalid = catch :invalid do
           yield if block_given?
           throw :invalid, :not_invalid
@@ -127,6 +125,35 @@ module Templater
       self.class.arguments.each_with_index do |arg, i|
         name, options, block = arg
         valid_argument?(@arguments[i], options, &block)
+      end
+    end
+    
+    def extract_arguments(*args)
+      args.each_with_index do |arg, i|      
+        name, options, block = self.class.arguments[i]
+        raise Templater::TooManyArgumentsError, "This generator does not take this many Arguments" if name.nil?
+      
+        # When one of the arguments has :as set to :hash or :list, the remaining arguments should be consumed
+        # and converted to a Hash or an Array respectively
+        case options[:as]
+        when :hash
+          if arg.is_a?(String)
+            pairs = args[i..-1]
+            
+            hash = pairs.inject({}) do |h, pair|
+              key, value = pair.split(':')
+              raise Templater::MalformattedArgumentError, "Expected '#{arg.inspect}' to be a key/value pair" unless key and value
+              h[key] = value
+              h
+            end
+            
+            set_argument(i, hash) and return
+          else
+            set_argument(i, arg)
+          end
+        else
+          set_argument(i, arg)
+        end
       end
     end
   end
