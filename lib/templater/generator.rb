@@ -110,7 +110,9 @@ module Templater
         raise Templater::TooFewArgumentsError
       elsif not arg.nil?
         if options[:as] == :hash and not arg.is_a?(Hash)
-          raise Templater::MalformattedArgumentError, "Expected the argument to be a hash, but was '#{arg.inspect}'"
+          raise Templater::MalformattedArgumentError, "Expected the argument to be a Hash, but was '#{arg.inspect}'"
+        elsif options[:as] == :array and not arg.is_a?(Array)
+          raise Templater::MalformattedArgumentError, "Expected the argument to be an Array, but was '#{arg.inspect}'"
         end
            
         invalid = catch :invalid do
@@ -151,6 +153,8 @@ module Templater
           else
             set_argument(i, arg)
           end
+        when :array
+          set_argument(i, args[i..-1].flatten) and return
         else
           set_argument(i, arg)
         end
