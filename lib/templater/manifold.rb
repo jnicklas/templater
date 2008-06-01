@@ -32,7 +32,7 @@ module Templater
     
     def desc(text = nil)
       @text = text if text
-      return @text
+      return @text.realign_indentation
     end
     
   end

@@ -12,7 +12,7 @@ module Templater
   
     # Renders the template, and returns the result as a string
     def render
-      ERB.new(File.read(source)).result(context.send(:binding))
+      ERB.new(File.read(source), nil, '-').result(context.send(:binding))
     end
 
     # returns true if the destination file exists.

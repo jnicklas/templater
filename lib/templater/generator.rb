@@ -14,6 +14,11 @@ module Templater
       def third_argument(*args); argument(2, *args); end
       def fourth_argument(*args); argument(3, *args); end
 
+      def desc(text = nil)
+        @text = text.realign_indentation if text
+        return @text
+      end
+
       def argument(n, name, options={}, &block)
         self.arguments[n] = [name, options, block]
         class_eval <<-CLASS
