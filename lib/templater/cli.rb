@@ -39,7 +39,7 @@ module Templater
       puts ''
       puts @manifold.desc
       puts ''
-      puts @options.opts
+      puts @options[:opts]
       puts ''
       exit
     end
@@ -60,7 +60,7 @@ module Templater
       puts ''
       puts @generator_class.desc
       puts ''
-      puts @options.opts
+      puts @options[:opts]
       puts ''
       exit
     end
@@ -77,9 +77,9 @@ module Templater
         end
       end
       
-      self.help if @options.help
+      self.help if @options[:help]
       self.help if arguments.first == 'help'
-      self.version if @options.version
+      self.version if @options[:version]
     
       generator = @generator_class.new(@destination_root, @options, *arguments)
     
