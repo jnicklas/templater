@@ -27,6 +27,7 @@ module Templater
   
     # Renders the template and copies it to the destination
     def invoke!
+      FileUtils.mkdir_p(File.dirname(destination))
       File.open(destination, 'w') {|f| f.write render }
     end
   

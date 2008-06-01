@@ -85,4 +85,17 @@ describe Templater::Template, '#invoke!' do
     
     FileUtils.rm(result_path('test.rbs'))
   end
+  
+  it "should render the template and copy it to the destination, creating any required subdirectories" do  
+    template = Templater::Template.new(@context, :monkey, template_path('simple_erb.rbt'), result_path('path/to/subdir/test.rbs'))
+    
+    template.invoke!
+    
+    File.exists?(result_path('path/to/subdir/test.rbs')).should be_true
+    File.read(result_path('path/to/subdir/test.rbs')).should == "test2test"
+    
+    # cleanup
+    FileUtils.rm(result_path('path/to/subdir/test.rbs'))
+    FileUtils.rm_rf(result_path('path'))
+  end
 end
