@@ -6,6 +6,7 @@ require path + 'generator'
 require path + 'template_proxy'
 require path + 'manifold'
 require path + 'cli'
+require path + 'core_ext/string'
 
 require 'erb'
 
