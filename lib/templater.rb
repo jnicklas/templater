@@ -1,5 +1,10 @@
 path = File.dirname(__FILE__) + '/templater/'
 
+require 'rubygems'
+require 'highline'
+require "highline/import"
+require 'diff/lcs'
+
 require path + 'parser'
 require path + 'template'
 require path + 'generator'
@@ -21,13 +26,5 @@ module Templater
   class MalformattedArgumentError < ArgumentError; end
   
   VERSION = '0.1'
-  
-  def self.register_generator(name, generator)
-    generators[name] = generator
-  end
-  
-  def invoke!(name)
-    self.generators[name].invoke!
-  end
   
 end

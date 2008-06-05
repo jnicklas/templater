@@ -25,29 +25,35 @@ module Templater
           opts.separator "Options specific for this generator:"
           
           yield opts, options
+          opts.separator ""
         end
 
         opts.separator "General options:"
 
         opts.on("-p", "--pretend", "Run, but do not make any changes.") do |s|
-          options[:skip] = s
+          options[:pretend] = s
         end
 
         opts.on("-f", "--force", "Overwrite files that already exist.") do |s|
-          options[:skip] = s
+          options[:force] = s
         end
 
         opts.on("-s", "--skip", "Skip files that already exist.") do |s|
           options[:skip] = s
         end
-
-        opts.on("-q", "--quiet", "Suppress normal output.") do |q|
-          options[:quit] = q
+        
+        opts.on("--no-color", "Don't colorize the output") do
+          options[:no_color] = true
         end
 
-        opts.on("-v", "--verbose", "Run verbosely") do |v|
-          options[:verbose] = v
-        end
+        # these could be implemented in the future, but they are not used right now.
+        #opts.on("-q", "--quiet", "Suppress normal output.") do |q|
+        #  options[:quit] = q
+        #end
+        #
+        #opts.on("-v", "--verbose", "Run verbosely") do |v|
+        #  options[:verbose] = v
+        #end
 
         opts.on("-h", "--help", "Show this message") do
           options[:help] = true
