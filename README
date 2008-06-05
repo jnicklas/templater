@@ -3,10 +3,10 @@ templater
 
 Templater is an alternative to Rubigen, or in other words: It generates stuff.
 
-It will also have a nice DSL, at some point, which I think will look something like this:
+It has a neat API for specyfying where things should go:
 
-    class ModelTemplater < Merb::Templater
-
+    class ModelGenerator < Templater::Generator
+    
       first_argument :class_name, :required => true
       second_argument :properties, :as => :hash
 
@@ -42,9 +42,9 @@ It will also have a nice DSL, at some point, which I think will look something l
 
     end
 
-    # Parsing of command line options is handled by a different class
+You can then do a lot of fancy stuff with this generator:
 
-    templater = ModelTemplater.new('/path/to/destination', 'User', { :login => :string, :email => :string, :description => :text})
+    templater = ModelGenerator.new('/path/to/destination', 'User', { :login => :string, :email => :string, :description => :text})
 
     templater.templates # => [<Template :model>, <Template :spec>]
     templater.testing_framework = :test_unit
