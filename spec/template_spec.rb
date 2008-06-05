@@ -10,6 +10,13 @@ describe Templater::Template, '.new' do
   end
 end
 
+describe Templater::Template, '#relative_destination' do
+  it "should get the destination relative to the pwd" do
+    Dir.stub!(:pwd).and_return('/path/to')
+    template = Templater::Template.new('some_context', :monkey, '/path/to/source', '/path/to/destination/with/some/more/subdirs')
+    template.relative_destination.should == 'destination/with/some/more/subdirs'
+  end
+end
 
 describe Templater::Template, '#render' do
   before do

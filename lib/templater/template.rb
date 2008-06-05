@@ -9,6 +9,10 @@ module Templater
       @source = source
       @destination = destination
     end
+    
+    def relative_destination
+      @destination.sub(Dir.pwd + '/', '')
+    end
   
     # Renders the template, and returns the result as a string
     def render
