@@ -364,7 +364,7 @@ describe Templater::Generator, '#templates' do
   end
   
   it "should not return templates with an option that does not match." do
-    @generator_class.option :framework
+    @generator_class.option :framework, :default => :rails
     
     Templater::TemplateProxy.should_receive(:new).with(@template.name, nil, nil).and_return(@template_proxy)
     Templater::TemplateProxy.should_receive(:new).with(@template2.name, nil, nil).and_return(@template_proxy2)
@@ -374,6 +374,8 @@ describe Templater::Generator, '#templates' do
     @generator_class.template(@template3.name) {}
     
     instance = @generator_class.new('/tmp')
+
+    instance.templates.should == [@template2, @template3]
 
     instance.framework = :merb
     instance.templates.should == [@template, @template3]

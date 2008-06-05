@@ -36,11 +36,11 @@ module Templater
         self.options[name.to_sym] = options
         class_eval <<-CLASS
           def #{name}
-            @options[:#{name}] || self.class.options[:#{name}][:default]
+            get_option(:#{name})
           end
           
-          def #{name}=(set)
-            @options[:#{name}] = set
+          def #{name}=(arg)
+            set_option(:#{name}, arg)
           end
         CLASS
       end
@@ -66,6 +66,10 @@ module Templater
       @arguments = []
       @options = options
       
+      self.class.options.each do |name, o|
+        @options[name] ||= o[:default]
+      end
+      
       extract_arguments(*args)
       
       valid_arguments?
@@ -81,7 +85,7 @@ module Templater
       templates = @templates.map do |t|
         template, template_options = t
         # check to see if either 'all' is true, or if all template option match the generator options
-        (all || template_options.all? {|tok, tov| @options[tok] == tov }) ? template : nil
+        (all || template_options.all? {|tok, tov| get_option(tok) == tov }) ? template : nil
       end
       templates.compact
     end
@@ -108,6 +112,14 @@ module Templater
     
     def get_argument(n)
       @arguments[n] || self.class.arguments[n][1][:default]
+    end
+    
+    def set_option(name, arg)
+      @options[name] = arg
+    end
+    
+    def get_option(name)
+      @options[name]
     end
     
     def valid_argument?(arg, options, &block)
