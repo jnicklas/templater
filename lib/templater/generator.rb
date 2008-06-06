@@ -3,11 +3,12 @@ module Templater
   class Generator
     class << self
       
-      attr_accessor :arguments, :options, :template_proxies
+      attr_accessor :arguments, :options, :template_proxies, :generates
       
       def arguments; @arguments ||= []; end
       def options; @options ||= {}; end
       def template_proxies; @template_proxies ||= []; end
+      def generates; @generates ||= []; end
       
       def first_argument(*args); argument(0, *args); end
       def second_argument(*args); argument(1, *args); end
@@ -45,6 +46,10 @@ module Templater
         CLASS
       end
       
+      def generate(name)
+        self.generates << [name.to_sym]
+      end
+      
       def template(name, *args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
         source = args[0]
@@ -80,21 +85,24 @@ module Templater
       extract_arguments(*args)
       
       valid_arguments?
-      # convert the template proxies to actual templates
-      @templates = self.class.template_proxies.map { |t| [t[0].to_template(self), t[1]] }
     end
     
     def template(name)
-      @templates.find {|t| t[0].name == name }[0]
+      self.templates.find {|t| t.name == name }
     end
     
-    def templates(all=false)
-      templates = @templates.map do |t|
+    def templates
+      templates = self.class.template_proxies.map { |t| [t[0].to_template(self), t[1]] }
+      templates.map! do |t|
         template, template_options = t
         # check to see if either 'all' is true, or if all template option match the generator options
-        (all || template_options.all? {|tok, tov| get_option(tok) == tov }) ? template : nil
+        (template_options.all? {|tok, tov| get_option(tok) == tov }) ? template : nil
       end
       templates.compact
+    end
+    
+    def generates(all=false)
+      
     end
     
     def invoke!
