@@ -55,6 +55,13 @@ module Templater
         self.template_proxies.push([Templater::TemplateProxy.new(name, source, destination, &block), options])
       end
       
+      def list(list)
+        list.to_a.each do |item|
+          item = item.to_s.chomp.strip
+          self.template(item.gsub(/[\.\/]/, '_').to_sym, item)
+        end
+      end
+      
     end
     
     attr_accessor :destination_root, :arguments, :templates

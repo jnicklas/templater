@@ -265,6 +265,37 @@ describe Templater::Generator, '.template' do
   end
 end
 
+describe Templater::Generator, '.list' do
+  
+  it "should add a series of templates given a list as heredoc" do
+    @generator_class = Class.new(Templater::Generator)
+    
+    @generator_class.should_receive(:template).with(:app_model_rb, 'app/model.rb')
+    @generator_class.should_receive(:template).with(:spec_model_rb, 'spec/model.rb')
+    @generator_class.should_receive(:template).with(:donkey_poo_css, 'donkey/poo.css')
+    @generator_class.should_receive(:template).with(:john_smith_file_rb, 'john/smith/file.rb')
+    
+    @generator_class.list <<-LIST
+      app/model.rb
+      spec/model.rb
+      donkey/poo.css
+      john/smith/file.rb
+    LIST
+  end
+  
+  it "should add a series of templates given a list as array" do
+    @generator_class = Class.new(Templater::Generator)
+    
+    @generator_class.should_receive(:template).with(:app_model_rb, 'app/model.rb')
+    @generator_class.should_receive(:template).with(:spec_model_rb, 'spec/model.rb')
+    @generator_class.should_receive(:template).with(:donkey_poo_css, 'donkey/poo.css')
+    @generator_class.should_receive(:template).with(:john_smith_file_rb, 'john/smith/file.rb')
+    
+    @generator_class.list(%w(app/model.rb spec/model.rb donkey/poo.css john/smith/file.rb))
+  end
+  
+end
+
 describe Templater::Generator, '.option' do
 
   before do
