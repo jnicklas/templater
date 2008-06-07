@@ -276,7 +276,17 @@ describe Templater::Generator, '.generate' do
     @generator_class.generate(:migration)
     @instance = @generator_class.new('/tmp', {}, 'test', 'argument')
     
-    @instance.generate[0].should == [:migration, 'test', 'argument']
+    @instance.generates[0].should == [:migration, 'test', 'argument']
+  end
+  
+  it "with a block should append the results of the block" do
+    @generator_class.generate(:migration) do
+      ['blah', 'monkey', some_method]
+    end
+    @instance = @generator_class.new('/tmp', {}, 'test', 'argument')
+    @instance.should_receive(:some_method).and_return('da')
+    
+    @instance.generates[0].should == [:migration, 'blah', 'monkey', 'da']
   end
   
 end
@@ -368,7 +378,7 @@ describe Templater::Generator, '#template' do
     end
   end
 
-  it "should a templates by name" do
+  it "should find a template by name" do
     @generator_class.template(:blah1, 'blah.rb')
     @generator_class.template(:blah2, 'blah2.rb')
     
@@ -447,6 +457,52 @@ describe Templater::Generator, '#templates' do
     
     instance.framework = nil
     instance.templates[0].name.should == :none
+  end
+end
+
+describe Templater::Generator, '#generates' do
+
+  before do
+    @generator_class = Class.new(Templater::Generator)
+    @generator_class.class_eval do
+      def source_root
+        '/tmp/source'
+      end
+    end
+  end
+
+  it "should return all generates" do
+    @generator_class.generate(:blah1)
+    @generator_class.generate(:blah2)
+    
+    instance = @generator_class.new('/tmp')
+    
+    instance.generates[0].first.should == :blah1
+    instance.generates[1].first.should == :blah2
+  end
+  
+  it "should not return templates with an option that does not match." do
+    @generator_class.option :framework, :default => :rails
+    
+    @generator_class.generate(:merb, :framework => :merb)
+    @generator_class.generate(:rails, :framework => :rails)
+    @generator_class.generate(:none)
+    
+    instance = @generator_class.new('/tmp')
+
+    instance.generates[0].first.should == :rails
+    instance.generates[1].first.should == :none
+
+    instance.framework = :merb
+    instance.generates[0].first.should == :merb
+    instance.generates[1].first.should == :none
+
+    instance.framework = :rails
+    instance.generates[0].first.should == :rails
+    instance.generates[1].first.should == :none
+    
+    instance.framework = nil
+    instance.generates[0].first.should == :none
   end
 end
 

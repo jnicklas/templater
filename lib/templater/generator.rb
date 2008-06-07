@@ -46,8 +46,8 @@ module Templater
         CLASS
       end
       
-      def generate(name)
-        self.generates << [name.to_sym]
+      def generate(name, options={}, &block)
+        self.generates << [name.to_sym, options, block]
       end
       
       def template(name, *args, &block)
@@ -101,8 +101,14 @@ module Templater
       templates.compact
     end
     
-    def generates(all=false)
-      
+    def generates
+      generates = self.class.generates.map do |t|
+        generator, generator_options, block = t
+        args = block ? instance_eval(&block) : @arguments
+        # check to see if all options match the generator options
+        (generator_options.all? {|tok, tov| get_option(tok) == tov }) ? [generator, *args] : nil
+      end
+      generates.compact
     end
     
     def invoke!
