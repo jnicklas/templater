@@ -264,7 +264,7 @@ describe Templater::Generator, '.template' do
   
 end
 
-describe Templater::Generator, '.generate' do
+describe Templater::Generator, '.invoke' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
@@ -273,20 +273,20 @@ describe Templater::Generator, '.generate' do
   end
 
   it "with no block should add an array passing along own arguments" do
-    @generator_class.generate(:migration)
+    @generator_class.invoke(:migration)
     @instance = @generator_class.new('/tmp', {}, 'test', 'argument')
     
-    @instance.generates[0].should == [:migration, 'test', 'argument']
+    @instance.invocations[0].should == [:migration, 'test', 'argument']
   end
   
   it "with a block should append the results of the block" do
-    @generator_class.generate(:migration) do
+    @generator_class.invoke(:migration) do
       ['blah', 'monkey', some_method]
     end
     @instance = @generator_class.new('/tmp', {}, 'test', 'argument')
     @instance.should_receive(:some_method).and_return('da')
     
-    @instance.generates[0].should == [:migration, 'blah', 'monkey', 'da']
+    @instance.invocations[0].should == [:migration, 'blah', 'monkey', 'da']
   end
   
 end
@@ -472,37 +472,37 @@ describe Templater::Generator, '#generates' do
   end
 
   it "should return all generates" do
-    @generator_class.generate(:blah1)
-    @generator_class.generate(:blah2)
+    @generator_class.invoke(:blah1)
+    @generator_class.invoke(:blah2)
     
     instance = @generator_class.new('/tmp')
     
-    instance.generates[0].first.should == :blah1
-    instance.generates[1].first.should == :blah2
+    instance.invocations[0].first.should == :blah1
+    instance.invocations[1].first.should == :blah2
   end
   
   it "should not return templates with an option that does not match." do
     @generator_class.option :framework, :default => :rails
     
-    @generator_class.generate(:merb, :framework => :merb)
-    @generator_class.generate(:rails, :framework => :rails)
-    @generator_class.generate(:none)
+    @generator_class.invoke(:merb, :framework => :merb)
+    @generator_class.invoke(:rails, :framework => :rails)
+    @generator_class.invoke(:none)
     
     instance = @generator_class.new('/tmp')
 
-    instance.generates[0].first.should == :rails
-    instance.generates[1].first.should == :none
+    instance.invocations[0].first.should == :rails
+    instance.invocations[1].first.should == :none
 
     instance.framework = :merb
-    instance.generates[0].first.should == :merb
-    instance.generates[1].first.should == :none
+    instance.invocations[0].first.should == :merb
+    instance.invocations[1].first.should == :none
 
     instance.framework = :rails
-    instance.generates[0].first.should == :rails
-    instance.generates[1].first.should == :none
+    instance.invocations[0].first.should == :rails
+    instance.invocations[1].first.should == :none
     
     instance.framework = nil
-    instance.generates[0].first.should == :none
+    instance.invocations[0].first.should == :none
   end
 end
 

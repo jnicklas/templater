@@ -3,12 +3,12 @@ module Templater
   class Generator
     class << self
       
-      attr_accessor :arguments, :options, :template_proxies, :generates
+      attr_accessor :arguments, :options, :template_proxies, :invocations
       
       def arguments; @arguments ||= []; end
       def options; @options ||= {}; end
       def template_proxies; @template_proxies ||= []; end
-      def generates; @generates ||= []; end
+      def invocations; @invocations ||= []; end
       
       def first_argument(*args); argument(0, *args); end
       def second_argument(*args); argument(1, *args); end
@@ -46,8 +46,8 @@ module Templater
         CLASS
       end
       
-      def generate(name, options={}, &block)
-        self.generates << [name.to_sym, options, block]
+      def invoke(name, options={}, &block)
+        self.invocations << [name.to_sym, options, block]
       end
       
       def template(name, *args, &block)
@@ -101,14 +101,14 @@ module Templater
       templates.compact
     end
     
-    def generates
-      generates = self.class.generates.map do |t|
+    def invocations
+      invocations = self.class.invocations.map do |t|
         generator, generator_options, block = t
         args = block ? instance_eval(&block) : @arguments
         # check to see if all options match the generator options
         (generator_options.all? {|tok, tov| get_option(tok) == tov }) ? [generator, *args] : nil
       end
-      generates.compact
+      invocations.compact
     end
     
     def invoke!
