@@ -29,6 +29,7 @@ module Templater
       def run(arguments)
         generator_class = @generator_class # FIXME: closure wizardry, there has got to be a better way than this?
         @options = Templater::Parser.parse(arguments) do |opts, options|
+          opts.separator "Options specific for this generator:"
           # Loop through this generator's options and add them as valid command line options
           # so that they show up in help messages and such
           all_options(generator_class).each do |name, settings|

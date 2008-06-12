@@ -52,9 +52,8 @@ module Templater
       
       def template(name, *args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
-        source = args[0]
-        destination = args[1]
-        source, destination = source + 't', source if destination.nil? and not source.nil?
+        source, destination = args
+        source, destination = source + 't', source if args.size == 1
         
         # note that the proxies are stored as an array of arrays, paired with the passed in options.
         self.template_proxies.push([Templater::TemplateProxy.new(name, source, destination, &block), options])

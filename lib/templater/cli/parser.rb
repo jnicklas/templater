@@ -22,8 +22,6 @@ module Templater
         opts.banner = ""
 
         if block_given?
-          opts.separator "Options specific for this generator:"
-          
           yield opts, options
           opts.separator ""
         end
@@ -39,6 +37,14 @@ module Templater
         end
 
         opts.on("-s", "--skip", "Skip files that already exist.") do |s|
+          options[:skip] = s
+        end
+        
+        opts.on("-a", "--ask", "Ask about each file before generating it.") do |s|
+          options[:ask] = s
+        end
+        
+        opts.on("-d", "--delete", "Delete files that have previously been generated with this generator.") do |s|
           options[:skip] = s
         end
         
