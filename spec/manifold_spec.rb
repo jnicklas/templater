@@ -51,7 +51,7 @@ describe Templater::Manifold, '#run_cli' do
     manifold = class << self; self end
     manifold.extend Templater::Manifold
         
-    Templater::CLI.should_receive(:run).with('/path/to/destination', manifold, 'gen', '0.3', ['arg', 'blah'])
+    Templater::CLI::Manifold.should_receive(:run).with('/path/to/destination', manifold, 'gen', '0.3', ['arg', 'blah'])
     
     manifold.run_cli('/path/to/destination', 'gen', '0.3', ['arg', 'blah'])
   end

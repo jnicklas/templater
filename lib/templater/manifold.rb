@@ -27,7 +27,7 @@ module Templater
     end
     
     def run_cli(destination_root, name, version, args)
-      Templater::CLI.run(destination_root, self, name, version, args)
+      Templater::CLI::Manifold.run(destination_root, self, name, version, args)
     end
     
     def desc(text = nil)
