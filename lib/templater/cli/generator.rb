@@ -30,11 +30,16 @@ module Templater
         generator_class = @generator_class # FIXME: closure wizardry, there has got to be a better way than this?
         @options = Templater::Parser.parse(arguments) do |opts, options|
           opts.separator "Options specific for this generator:"
-          # Loop through this generator's options and add them as valid command line options
-          # so that they show up in help messages and such
-          all_options(generator_class).each do |name, settings|
-            opts.on("--#{name}", settings[:desc]) do |s|
-              options[name] = s.to_sym
+          p all_generators
+          # the reason this is reversed is so that the 'main' generator will always have the last word
+          # on the description of the option
+          all_generators.reverse.each do |generator|
+            # Loop through this generator's options and add them as valid command line options
+            # so that they show up in help messages and such
+            generator.options.each do |name, settings|
+              opts.on("--#{name}", settings[:desc]) do |s|
+                options[name] = s.to_sym
+              end
             end
           end
         end
@@ -43,6 +48,7 @@ module Templater
         self.help if arguments.first == 'help'
         self.version if @options[:version]
 
+        # Try to instantiate a generator, if the arguments to it were incorrect: show a help message
         begin
           generator = @generator_class.new(@destination_root, @options, *arguments)
         rescue Templater::ArgumentError
@@ -58,7 +64,7 @@ module Templater
       end
 
       def step_through_templates(templates)
-        templates.each do |template|
+        all_templates.each do |template|
           if template.identical?
             say_status('identical', template, :blue)
           elsif template.exists?
@@ -80,21 +86,21 @@ module Templater
 
       protected
 
+      def all_generators
+        subgenerators(@generator_class)
+      end
+
       def subgenerators(generator)
         generators = []
         generators.push(generator)
         generator.invocations.each do |invocation|
-          generators.push(*subgenerators(invocation))
+          generators.push(*subgenerators(invocation[0]))
         end
         return generators
       end
 
-      def all_templates(generator)
-        subgenerators(generator).map {|g| g.templates}.flatten
-      end
-
-      def all_options(generator)
-        subgenerators(generator).map {|g| g.options}.flatten
+      def all_templates
+        all_generators.map {|g| g.templates}.flatten
       end
 
       def conflict_menu(template)

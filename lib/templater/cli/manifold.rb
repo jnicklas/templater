@@ -17,9 +17,9 @@ module Templater
 
         if arguments.first and not arguments.first =~ /^-/ and not arguments.first == "help"
           generator_name = arguments.shift
-          GeneratorCLI.new(generator_name, destination_root, manifold, name, version).run(arguments)
+          Generator.new(generator_name, destination_root, manifold, name, version).run(arguments)
         else
-          ManifoldCLI.new(destination_root, manifold, name, version).run(arguments)
+          Manifold.new(destination_root, manifold, name, version).run(arguments)
         end
       end
 
