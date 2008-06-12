@@ -47,7 +47,7 @@ module Templater
       end
       
       def invoke(name, options={}, &block)
-        self.invocations << [name.to_sym, options, block]
+        self.invocations << [name, options, block]
       end
       
       def template(name, *args, &block)
@@ -106,7 +106,7 @@ module Templater
         generator, generator_options, block = t
         args = block ? instance_eval(&block) : @arguments
         # check to see if all options match the generator options
-        (generator_options.all? {|tok, tov| get_option(tok) == tov }) ? [generator, *args] : nil
+        (generator_options.all? {|tok, tov| get_option(tok) == tov }) ? generator.new(*args) : nil
       end
       invocations.compact
     end

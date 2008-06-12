@@ -272,21 +272,29 @@ describe Templater::Generator, '.invoke' do
     @generator_class.second_argument :test2
   end
 
-  it "with no block should add an array passing along own arguments" do
-    @generator_class.invoke(:migration)
+  it "with no block should instantiate another generator with own arguments" do
+    generator = mock('a generator')
+    instance = mock('an instance of the generator')
+
+    @generator_class.invoke(generator)
     @instance = @generator_class.new('/tmp', {}, 'test', 'argument')
-    
-    @instance.invocations[0].should == [:migration, 'test', 'argument']
+
+    generator.should_receive(:new).with('test', 'argument').and_return(instance)
+    @instance.invocations[0].should == instance
   end
   
   it "with a block should append the results of the block" do
-    @generator_class.invoke(:migration) do
+    generator = mock('a generator')
+    instance = mock('an instance of the generator')
+    
+    @generator_class.invoke(generator) do
       ['blah', 'monkey', some_method]
     end
     @instance = @generator_class.new('/tmp', {}, 'test', 'argument')
     @instance.should_receive(:some_method).and_return('da')
     
-    @instance.invocations[0].should == [:migration, 'blah', 'monkey', 'da']
+    generator.should_receive(:new).with('blah', 'monkey', 'da').and_return(instance)
+    @instance.invocations[0].should == instance
   end
   
 end
@@ -460,7 +468,7 @@ describe Templater::Generator, '#templates' do
   end
 end
 
-describe Templater::Generator, '#generates' do
+describe Templater::Generator, '#invocations' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
@@ -471,38 +479,55 @@ describe Templater::Generator, '#generates' do
     end
   end
 
-  it "should return all generates" do
-    @generator_class.invoke(:blah1)
-    @generator_class.invoke(:blah2)
+  it "should return all invocations" do
+    generator1 = mock('a generator')
+    instance1 = mock('an instance of the generator')
+    generator1.stub!(:new).and_return(instance1)
+    generator2 = mock('a generator')
+    instance2 = mock('an instance of the generator')
+    generator2.stub!(:new).and_return(instance2)
+    
+    @generator_class.invoke(generator1)
+    @generator_class.invoke(generator2)
     
     instance = @generator_class.new('/tmp')
     
-    instance.invocations[0].first.should == :blah1
-    instance.invocations[1].first.should == :blah2
+    instance.invocations[0].should == instance1
+    instance.invocations[1].should == instance2
   end
   
   it "should not return templates with an option that does not match." do
+    generator1 = mock('a generator for merb')
+    instance1 = mock('an instance of the generator for merb')
+    generator1.stub!(:new).and_return(instance1)
+    generator2 = mock('a generator for rails')
+    instance2 = mock('an instance of the generator for rails')
+    generator2.stub!(:new).and_return(instance2)
+    generator3 = mock('a generator for both')
+    instance3 = mock('an instance of the generator for both')
+    generator3.stub!(:new).and_return(instance3)
+    
     @generator_class.option :framework, :default => :rails
     
-    @generator_class.invoke(:merb, :framework => :merb)
-    @generator_class.invoke(:rails, :framework => :rails)
-    @generator_class.invoke(:none)
+    @generator_class.invoke(generator1, :framework => :merb)
+    @generator_class.invoke(generator2, :framework => :rails)
+    @generator_class.invoke(generator3)
     
     instance = @generator_class.new('/tmp')
 
-    instance.invocations[0].first.should == :rails
-    instance.invocations[1].first.should == :none
+    instance.invocations[0].should == instance2
+    instance.invocations[1].should == instance3
+                                      
+    instance.framework = :merb        
+    instance.invocations[0].should == instance1
+    instance.invocations[1].should == instance3
 
-    instance.framework = :merb
-    instance.invocations[0].first.should == :merb
-    instance.invocations[1].first.should == :none
+    instance.framework = :rails       
+    instance.invocations[0].should == instance2
+    instance.invocations[1].should == instance3
 
-    instance.framework = :rails
-    instance.invocations[0].first.should == :rails
-    instance.invocations[1].first.should == :none
-    
-    instance.framework = nil
-    instance.invocations[0].first.should == :none
+    instance.framework = nil          
+    instance.invocations[0].should == instance3
   end
 end
 
