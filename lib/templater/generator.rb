@@ -1,6 +1,9 @@
 module Templater
   
   class Generator
+    
+    include Templater::CaptureHelpers
+    
     class << self
       
       attr_accessor :arguments, :options, :template_proxies, :invocations

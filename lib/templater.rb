@@ -6,6 +6,7 @@ require "highline/import"
 require 'diff/lcs'
 
 
+require path + 'capture_helpers'
 require path + 'template'
 require path + 'generator'
 require path + 'template_proxy'
