@@ -71,7 +71,7 @@ module Templater
       
     end
     
-    attr_accessor :destination_root, :arguments, :templates
+    attr_accessor :destination_root, :arguments, :templates, :options
     
     def initialize(destination_root, options = {}, *args)
       # FIXME: options as a second argument is kinda stupid, since it forces silly syntax, but since *args
@@ -108,7 +108,7 @@ module Templater
         generator, generator_options, block = t
         args = block ? instance_eval(&block) : @arguments
         # check to see if all options match the generator options
-        (generator_options.all? {|tok, tov| get_option(tok) == tov }) ? generator.new(*args) : nil
+        (generator_options.all? {|tok, tov| get_option(tok) == tov }) ? generator.new(destination_root, options, *args) : nil
       end
       invocations.compact
     end

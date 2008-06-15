@@ -30,7 +30,6 @@ module Templater
         generator_class = @generator_class # FIXME: closure wizardry, there has got to be a better way than this?
         @options = Templater::Parser.parse(arguments) do |opts, options|
           opts.separator "Options specific for this generator:"
-          p all_generators
           # the reason this is reversed is so that the 'main' generator will always have the last word
           # on the description of the option
           all_generators.reverse.each do |generator|
@@ -50,7 +49,7 @@ module Templater
 
         # Try to instantiate a generator, if the arguments to it were incorrect: show a help message
         begin
-          generator = @generator_class.new(@destination_root, @options, *arguments)
+          @generator = @generator_class.new(@destination_root, @options, *arguments)
         rescue Templater::ArgumentError
           self.help
         end
@@ -60,10 +59,10 @@ module Templater
         else
           puts "Generating with #{@generator_name} generator:" 
         end
-        step_through_templates(generator.templates)
+        step_through_templates
       end
 
-      def step_through_templates(templates)
+      def step_through_templates
         all_templates.each do |template|
           if template.identical?
             say_status('identical', template, :blue)
@@ -100,7 +99,16 @@ module Templater
       end
 
       def all_templates
-        all_generators.map {|g| g.templates}.flatten
+        subtemplates(@generator)
+      end
+      
+      def subtemplates(generator)
+        templates = []
+        templates.push(*generator.templates)
+        generator.invocations.each do |invocation|
+          templates.push(*subtemplates(invocation))
+        end
+        return templates
       end
 
       def conflict_menu(template)
