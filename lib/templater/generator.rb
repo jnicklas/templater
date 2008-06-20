@@ -184,13 +184,13 @@ module Templater
     end
     
     def extract_arguments(*args)
-      args.each_with_index do |arg, i|      
-        argument = self.class.arguments[i]
-        raise Templater::TooManyArgumentsError, "This generator does not take this many Arguments" if argument.nil?
+      args.each_with_index do |arg, i|
+        expected = self.class.arguments[i]
+        raise Templater::TooManyArgumentsError, "This generator does not take this many Arguments" if expected.nil?
       
         # When one of the arguments has :as set to :hash or :list, the remaining arguments should be consumed
         # and converted to a Hash or an Array respectively
-        case argument[:options][:as]
+        case expected[:options][:as]
         when :hash
           if arg.is_a?(String)
             pairs = args[i..-1]
