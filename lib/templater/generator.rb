@@ -9,8 +9,8 @@ module Templater
       attr_accessor :arguments, :options, :template_proxies, :invocations
       
       def arguments; @arguments ||= []; end
-      def options; @options ||= {}; end
-      def template_proxies; @template_proxies ||= []; end
+      def options; @options ||= []; end
+      def templates; @templates ||= []; end
       def invocations; @invocations ||= []; end
       
       def first_argument(*args); argument(0, *args); end
@@ -24,7 +24,11 @@ module Templater
       end
 
       def argument(n, name, options={}, &block)
-        self.arguments[n] = [name, options, block]
+        self.arguments[n] = {
+          :name => name,
+          :options => options,
+          :block => block
+        }
         class_eval <<-CLASS
           def #{name}
             get_argument(#{n})
@@ -37,7 +41,10 @@ module Templater
       end
       
       def option(name, options={})
-        self.options[name.to_sym] = options
+        self.options << {
+          :name => name.to_sym,
+          :options => options
+        }
         class_eval <<-CLASS
           def #{name}
             get_option(:#{name})
@@ -50,7 +57,11 @@ module Templater
       end
       
       def invoke(name, options={}, &block)
-        self.invocations << [name, options, block]
+        self.invocations << {
+          :name => name,
+          :options => options,
+          :block => block
+        }
       end
       
       def template(name, *args, &block)
@@ -58,8 +69,13 @@ module Templater
         source, destination = args
         source, destination = source + 't', source if args.size == 1
         
-        # note that the proxies are stored as an array of arrays, paired with the passed in options.
-        self.template_proxies.push([Templater::TemplateProxy.new(name, source, destination, &block), options])
+        self.templates << {
+          :name => name,
+          :options => options,
+          :source => source,
+          :destination => destination,
+          :block => block
+        }
       end
       
       def list(list)
@@ -80,8 +96,8 @@ module Templater
       @arguments = []
       @options = options
       
-      self.class.options.each do |name, o|
-        @options[name] ||= o[:default]
+      self.class.options.each do |option|
+        @options[option[:name]] ||= option[:options][:default]
       end
       
       extract_arguments(*args)
@@ -94,21 +110,19 @@ module Templater
     end
     
     def templates
-      templates = self.class.template_proxies.map { |t| [t[0].to_template(self), t[1]] }
-      templates.map! do |t|
-        template, template_options = t
+      templates = self.class.templates.map do |t|
+        template = Templater::TemplateProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_template(self)
         # check to see if either 'all' is true, or if all template option match the generator options
-        (template_options.all? {|tok, tov| get_option(tok) == tov }) ? template : nil
+        (t[:options].all? {|tok, tov| get_option(tok) == tov }) ? template : nil
       end
       templates.compact
     end
     
     def invocations
-      invocations = self.class.invocations.map do |t|
-        generator, generator_options, block = t
-        args = block ? instance_eval(&block) : @arguments
+      invocations = self.class.invocations.map do |invocation|
+        args = invocation[:block] ? instance_eval(&invocation[:block]) : @arguments
         # check to see if all options match the generator options
-        (generator_options.all? {|tok, tov| get_option(tok) == tov }) ? generator.new(destination_root, options, *args) : nil
+        (invocation[:options].all? {|tok, tov| get_option(tok) == tov }) ? invocation[:name].new(destination_root, options, *args) : nil
       end
       invocations.compact
     end
@@ -128,13 +142,13 @@ module Templater
     protected
     
     def set_argument(n, arg)
-      name, options, block = self.class.arguments[n]
-      valid_argument?(arg, options, &block)
+      argument = self.class.arguments[n]
+      valid_argument?(arg, argument[:options], &argument[:block])
       @arguments[n] = arg
     end
     
     def get_argument(n)
-      @arguments[n] || self.class.arguments[n][1][:default]
+      @arguments[n] || self.class.arguments[n][:options][:default]
     end
     
     def set_option(name, arg)
@@ -165,19 +179,18 @@ module Templater
     
     def valid_arguments?
       self.class.arguments.each_with_index do |arg, i|
-        name, options, block = arg
-        valid_argument?(@arguments[i], options, &block)
+        valid_argument?(@arguments[i], arg[:options], &arg[:block])
       end
     end
     
     def extract_arguments(*args)
       args.each_with_index do |arg, i|      
-        name, options, block = self.class.arguments[i]
-        raise Templater::TooManyArgumentsError, "This generator does not take this many Arguments" if name.nil?
+        argument = self.class.arguments[i]
+        raise Templater::TooManyArgumentsError, "This generator does not take this many Arguments" if argument.nil?
       
         # When one of the arguments has :as set to :hash or :list, the remaining arguments should be consumed
         # and converted to a Hash or an Array respectively
-        case options[:as]
+        case argument[:options][:as]
         when :hash
           if arg.is_a?(String)
             pairs = args[i..-1]

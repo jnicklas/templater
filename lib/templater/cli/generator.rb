@@ -35,9 +35,9 @@ module Templater
           all_generators.reverse.each do |generator|
             # Loop through this generator's options and add them as valid command line options
             # so that they show up in help messages and such
-            generator.options.each do |name, settings|
-              opts.on("--#{name}", settings[:desc]) do |s|
-                options[name] = s.to_sym
+            generator.options.each do |option|
+              opts.on("--#{name}", option[:options][:desc]) do |s|
+                options[option[:name]] = s.to_sym
               end
             end
           end
@@ -93,7 +93,7 @@ module Templater
         generators = []
         generators.push(generator)
         generator.invocations.each do |invocation|
-          generators.push(*subgenerators(invocation[0]))
+          generators.push(*subgenerators(invocation[:name]))
         end
         return generators
       end

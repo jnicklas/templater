@@ -279,7 +279,7 @@ describe Templater::Generator, '.invoke' do
     @generator_class.invoke(generator)
     @instance = @generator_class.new('/tmp', {}, 'test', 'argument')
 
-    generator.should_receive(:new).with('test', 'argument').and_return(instance)
+    generator.should_receive(:new).with('/tmp', {}, 'test', 'argument').and_return(instance)
     @instance.invocations[0].should == instance
   end
   
@@ -293,7 +293,7 @@ describe Templater::Generator, '.invoke' do
     @instance = @generator_class.new('/tmp', {}, 'test', 'argument')
     @instance.should_receive(:some_method).and_return('da')
     
-    generator.should_receive(:new).with('blah', 'monkey', 'da').and_return(instance)
+    generator.should_receive(:new).with('/tmp', {}, 'blah', 'monkey', 'da').and_return(instance)
     @instance.invocations[0].should == instance
   end
   
