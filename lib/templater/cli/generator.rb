@@ -36,7 +36,7 @@ module Templater
             # Loop through this generator's options and add them as valid command line options
             # so that they show up in help messages and such
             generator.options.each do |option|
-              opts.on("--#{name}", option[:options][:desc]) do |s|
+              opts.on("--#{option[:name]} OPTION", option[:options][:desc]) do |s|
                 options[option[:name]] = s.to_sym
               end
             end
