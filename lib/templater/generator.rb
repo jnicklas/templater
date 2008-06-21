@@ -74,14 +74,37 @@ module Templater
           :options => options,
           :source => source,
           :destination => destination,
-          :block => block
+          :block => block,
+          :render => true
         }
       end
       
-      def list(list)
+      def file(name, *args, &block)
+        options = args.last.is_a?(Hash) ? args.pop : {}
+        source, destination = args
+        source, destination = source, source if args.size == 1
+        
+        self.templates << {
+          :name => name,
+          :options => options,
+          :source => source,
+          :destination => destination,
+          :block => block,
+          :render => false
+        }
+      end
+      
+      def template_list(list)
         list.to_a.each do |item|
           item = item.to_s.chomp.strip
           self.template(item.gsub(/[\.\/]/, '_').to_sym, item)
+        end
+      end
+      
+      def file_list(list)
+        list.to_a.each do |item|
+          item = item.to_s.chomp.strip
+          self.file(item.gsub(/[\.\/]/, '_').to_sym, item)
         end
       end
       
@@ -111,7 +134,7 @@ module Templater
     
     def templates
       templates = self.class.templates.map do |t|
-        template = Templater::TemplateProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_template(self)
+        template = Templater::TemplateProxy.new(t[:name], t[:source], t[:destination], t[:render], &t[:block]).to_template(self)
         # check to see if either 'all' is true, or if all template option match the generator options
         (t[:options].all? {|tok, tov| get_option(tok) == tov }) ? template : nil
       end

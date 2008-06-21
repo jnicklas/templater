@@ -1,13 +1,14 @@
 module Templater
   class Template
   
-    attr_accessor :context, :name, :source, :destination
+    attr_accessor :context, :name, :source, :destination, :options
   
-    def initialize(context, name, source, destination)
+    def initialize(context, name, source, destination, render = true)
       @context = context
       @name = name
       @source = source
       @destination = destination
+      @options = { :render => render }
     end
     
     def relative_destination
@@ -24,7 +25,7 @@ module Templater
       File.exists?(destination)
     end
   
-    # returns true if the content of the file at the destination are identical to the rendered result.
+    # returns true if the content of the file at the destination is identical to the rendered result.
     def identical?
       File.read(destination) == render if File.exists?(destination)
     end
@@ -32,7 +33,11 @@ module Templater
     # Renders the template and copies it to the destination
     def invoke!
       FileUtils.mkdir_p(File.dirname(destination))
-      File.open(destination, 'w') {|f| f.write render }
+      if options[:render]
+        File.open(destination, 'w') {|f| f.write render }
+      else
+        FileUtils.copy_file(source, destination)
+      end
     end
   
   end

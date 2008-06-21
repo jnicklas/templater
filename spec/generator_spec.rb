@@ -230,13 +230,13 @@ describe Templater::Generator, '.template' do
   end
 
   it "should add a template with source and destination" do
-    @generator_class.template(:my_template, 'path/to/souce.rbt', 'path/to/destination.rb')
+    @generator_class.template(:my_template, 'path/to/source.rbt', 'path/to/destination.rb')
     @instance = @generator_class.new('/tmp/destination')
     
     @instance.stub!(:source_root).and_return('/tmp/source')
     
-    @instance.template(:my_template).source = '/tmp/source/path/to/source.rbt'
-    @instance.template(:my_template).destination = '/tmp/destination/path/to/destination.rb'
+    @instance.template(:my_template).source.should == '/tmp/source/path/to/source.rbt'
+    @instance.template(:my_template).destination.should == '/tmp/destination/path/to/destination.rb'
   end
   
   it "should add a template with destination and infer the source" do
@@ -245,8 +245,8 @@ describe Templater::Generator, '.template' do
     
     @instance.stub!(:source_root).and_return('/tmp/source')
     
-    @instance.template(:my_template).source = '/tmp/source/path/to/destination.rbt'
-    @instance.template(:my_template).destination = '/tmp/destination/path/to/destination.rb'
+    @instance.template(:my_template).source.should == '/tmp/source/path/to/destination.rbt'
+    @instance.template(:my_template).destination.should == '/tmp/destination/path/to/destination.rb'
   end
   
   it "should add a template with a block" do
@@ -258,8 +258,38 @@ describe Templater::Generator, '.template' do
     
     @instance.stub!(:source_root).and_return('/tmp/source')
     
-    @instance.template(:my_template).source = '/tmp/source/blah.rbt'
-    @instance.template(:my_template).destination = "/tmp/destination/gurr#{Process.pid.to_s}.rb"
+    @instance.template(:my_template).source.should == '/tmp/source/blah.rbt'
+    @instance.template(:my_template).destination.should == "/tmp/destination/gurr#{Process.pid.to_s}.rb"
+  end
+  
+end
+
+describe Templater::Generator, '.file' do
+
+  before do
+    @generator_class = Class.new(Templater::Generator)
+  end
+
+  it "should add a file with source and destination" do
+    @generator_class.file(:my_template, 'path/to/source.rbt', 'path/to/destination.rb')
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.template(:my_template).source.should == '/tmp/source/path/to/source.rbt'
+    @instance.template(:my_template).destination.should == '/tmp/destination/path/to/destination.rb'
+    @instance.template(:my_template).options[:render].should be_false
+  end
+  
+  it "should add a file with source and infer destination " do
+    @generator_class.file(:my_template, 'path/to/file.rb')
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.template(:my_template).source.should == '/tmp/source/path/to/file.rb'
+    @instance.template(:my_template).destination.should == '/tmp/destination/path/to/file.rb'
+    @instance.template(:my_template).options[:render].should be_false
   end
   
 end
@@ -299,7 +329,7 @@ describe Templater::Generator, '.invoke' do
   
 end
 
-describe Templater::Generator, '.list' do
+describe Templater::Generator, '.template_list' do
   
   it "should add a series of templates given a list as heredoc" do
     @generator_class = Class.new(Templater::Generator)
@@ -309,7 +339,7 @@ describe Templater::Generator, '.list' do
     @generator_class.should_receive(:template).with(:donkey_poo_css, 'donkey/poo.css')
     @generator_class.should_receive(:template).with(:john_smith_file_rb, 'john/smith/file.rb')
     
-    @generator_class.list <<-LIST
+    @generator_class.template_list <<-LIST
       app/model.rb
       spec/model.rb
       donkey/poo.css
@@ -325,7 +355,38 @@ describe Templater::Generator, '.list' do
     @generator_class.should_receive(:template).with(:donkey_poo_css, 'donkey/poo.css')
     @generator_class.should_receive(:template).with(:john_smith_file_rb, 'john/smith/file.rb')
     
-    @generator_class.list(%w(app/model.rb spec/model.rb donkey/poo.css john/smith/file.rb))
+    @generator_class.template_list(%w(app/model.rb spec/model.rb donkey/poo.css john/smith/file.rb))
+  end
+  
+end
+
+describe Templater::Generator, '.file_list' do
+  
+  it "should add a series of files given a list as heredoc" do
+    @generator_class = Class.new(Templater::Generator)
+    
+    @generator_class.should_receive(:file).with(:app_model_rb, 'app/model.rb')
+    @generator_class.should_receive(:file).with(:spec_model_rb, 'spec/model.rb')
+    @generator_class.should_receive(:file).with(:donkey_poo_css, 'donkey/poo.css')
+    @generator_class.should_receive(:file).with(:john_smith_file_rb, 'john/smith/file.rb')
+    
+    @generator_class.file_list <<-LIST
+      app/model.rb
+      spec/model.rb
+      donkey/poo.css
+      john/smith/file.rb
+    LIST
+  end
+  
+  it "should add a series of files given a list as array" do
+    @generator_class = Class.new(Templater::Generator)
+    
+    @generator_class.should_receive(:file).with(:app_model_rb, 'app/model.rb')
+    @generator_class.should_receive(:file).with(:spec_model_rb, 'spec/model.rb')
+    @generator_class.should_receive(:file).with(:donkey_poo_css, 'donkey/poo.css')
+    @generator_class.should_receive(:file).with(:john_smith_file_rb, 'john/smith/file.rb')
+    
+    @generator_class.file_list(%w(app/model.rb spec/model.rb donkey/poo.css john/smith/file.rb))
   end
   
 end
