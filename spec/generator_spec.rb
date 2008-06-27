@@ -627,6 +627,6 @@ describe Templater::Generator, '#source_root' do
     @generator_class.argument(0, :monkey)
     instance = @generator_class.new('/tmp')
     
-    lambda { @instance.source_root }.should raise_error
+    lambda { instance.source_root }.should raise_error(Templater::SourceNotSpecifiedError)
   end
 end

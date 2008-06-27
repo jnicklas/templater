@@ -22,6 +22,7 @@ module Templater
   
   class TemplaterError < StandardError; end
   class GeneratorError < TemplaterError; end
+  class SourceNotSpecifiedError < TemplaterError; end
   class ArgumentError < GeneratorError; end
   class TooManyArgumentsError < ArgumentError; end
   class TooFewArgumentsError < ArgumentError; end
