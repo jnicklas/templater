@@ -33,6 +33,11 @@ describe Templater::Template, '#render' do
     template.render.should == "test2test"
   end
   
+  it "should render some erb and convert erb literals" do  
+    template = Templater::Template.new(@context, :monkey, template_path('literals_erb.rbt'), '/path/to/destination')
+    template.render.should == "test2test<%= 1+1 %>blah"
+  end
+  
   it "should render some erb fetching stuff from the context" do
     @context.should_receive(:funkydoodle).and_return('_doodle_')
     template = Templater::Template.new(@context, :monkey, template_path('erb.rbt'), '/path/to/destination')
