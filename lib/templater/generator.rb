@@ -343,10 +343,10 @@ module Templater
       if self.class.manifold
         invocations = self.class.invocations.map do |invocation|
           generator = self.class.manifold.generator(invocation[:name])
-          args = invocation[:block] ? instance_exec(generator, &invocation[:block]) : @arguments
-          # check to see if all options match the generator options
-          if invocation[:options].all? { |key, value| get_option(key) == value }
-            generator.new(destination_root, options, *args) if generator
+          if invocation[:block]
+            instance_exec(generator, &invocation[:block])
+          elsif invocation[:options].all? { |key, value| get_option(key) == value }
+            generator.new(destination_root, options, *@arguments) if generator
           end
         end
         invocations.compact
