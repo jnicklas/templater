@@ -322,6 +322,8 @@ module Templater
       self.templates.find {|t| t.name == name }
     end
     
+    alias_method :file, :template
+    
     # Finds and returns all templates whose options match the generator options.
     #
     # === Returns
@@ -334,6 +336,8 @@ module Templater
       end
       templates.compact
     end
+    
+    alias_method :files, :templates
     
     # Finds and returns all templates whose options match the generator options.
     #

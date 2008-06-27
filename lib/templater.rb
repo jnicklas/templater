@@ -9,6 +9,7 @@ require 'facets'
 
 require path + 'capture_helpers'
 require path + 'template'
+require path + 'file'
 require path + 'generator'
 require path + 'template_proxy'
 require path + 'manifold'

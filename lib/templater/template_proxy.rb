@@ -22,7 +22,11 @@ module Templater
       @generator = generator
       instance_eval(&@block) if @block
       @generator = nil
-      Templater::Template.new(generator, @name, File.join(generator.source_root, @source.to_s), File.join(generator.destination_root, @destination.to_s), @render)
+      if @render
+        Templater::Template.new(generator, @name, ::File.join(generator.source_root, @source.to_s), ::File.join(generator.destination_root, @destination.to_s), true)
+      else
+        Templater::File.new(@name, ::File.join(generator.source_root, @source.to_s), ::File.join(generator.destination_root, @destination.to_s))
+      end
     end
     
     def method_missing(method, *args, &block)
