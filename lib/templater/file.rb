@@ -24,6 +24,14 @@ module Templater
       @destination.sub(::Dir.pwd + '/', '')
     end
 
+    # Returns the contents of the source file as a String
+    #
+    # === Returns
+    # String:: The source file.
+    def render
+      ::File.read(source)
+    end
+
     # Checks if the destination file already exists.
     #
     # === Returns

@@ -17,6 +17,13 @@ describe Templater::File, '#relative_destination' do
   end
 end
 
+describe Templater::File, '#render' do
+  it "should output the file" do  
+    file = Templater::File.new(:monkey, template_path('simple_erb.rbt'), '/path/to/destination')
+    file.render.should == "test<%= 1+1 %>test"
+  end
+end
+
 describe Templater::File, '#exists?' do
   
   it "should exist if the destination file exists" do  
