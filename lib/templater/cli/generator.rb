@@ -70,40 +70,27 @@ module Templater
       end
 
       def step_through_templates
-        all_templates.each do |template|
-          if template.identical?
-            say_status('identical', template, :blue)
-          elsif template.exists?
+        @generator.actions.each do |action|
+          if action.identical?
+            say_status('identical', action, :blue)
+          elsif action.exists?
             if @options[:force]
-              say_status('forced', template, :yellow)
-              template.invoke! unless @options[:pretend]
+              say_status('forced', action, :yellow)
+              action.invoke! unless @options[:pretend]
             elsif @options[:skip]
-              say_status('skipped', template, :yellow)
+              say_status('skipped', action, :yellow)
             else
-              say_status('conflict', template, :red)
-              conflict_menu(template)
+              say_status('conflict', action, :red)
+              conflict_menu(action)
             end
           else
-            say_status('added', template, :green)
-            template.invoke! unless @options[:pretend]
+            say_status('added', action, :green)
+            action.invoke! unless @options[:pretend]
           end
         end
       end
 
       protected
-
-      def all_templates
-        subtemplates(@generator)
-      end
-      
-      def subtemplates(generator)
-        templates = []
-        templates.push(*generator.templates)
-        generator.invocations.each do |invocation|
-          templates.push(*subtemplates(invocation))
-        end
-        return templates
-      end
 
       def conflict_menu(template)
         choose do |menu|
