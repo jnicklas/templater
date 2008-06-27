@@ -344,19 +344,19 @@ module Templater
     # === Returns
     # Templater::Template:: The found template.
     def template(name)
-      self.templates.find {|t| t.name == name }
+      self.templates.find { |t| t.name == name }
     end
     
-    # Finds and returns the file of the given name. If that template's options don't match the generator
+    # Finds and returns the file of the given name. If that file's options don't match the generator
     # options, returns nil.
     #
     # === Parameters
-    # name<Symbol>:: The name of the template to look up.
+    # name<Symbol>:: The name of the file to look up.
     #
     # === Returns
-    # Templater::File:: The found template.
+    # Templater::File:: The found file.
     def file(name)
-      self.files.find {|f| f.name == name }
+      self.files.find { |f| f.name == name }
     end
     
     # Finds and returns all templates whose options match the generator options.
@@ -366,8 +366,7 @@ module Templater
     def templates
       templates = self.class.templates.map do |t|
         template = Templater::TemplateProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_template(self)
-        # check to see if either 'all' is true, or if all template option match the generator options
-        (t[:options].all? {|tok, tov| get_option(tok) == tov }) ? template : nil
+        match_options?(t[:options]) ? template : nil
       end
       templates.compact
     end
@@ -379,8 +378,7 @@ module Templater
     def files
       files = self.class.files.map do |t|
         file = Templater::FileProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_file(self)
-        # check to see if either 'all' is true, or if all template option match the generator options
-        (t[:options].all? {|tok, tov| get_option(tok) == tov }) ? file : nil
+        match_options?(t[:options]) ? file : nil
       end
       files.compact
     end
@@ -395,7 +393,7 @@ module Templater
           generator = self.class.manifold.generator(invocation[:name])
           if invocation[:block]
             instance_exec(generator, &invocation[:block])
-          elsif invocation[:options].all? { |key, value| get_option(key) == value }
+          elsif match_options?(invocation[:options])
             generator.new(destination_root, options, *@arguments) if generator
           end
         end
@@ -448,6 +446,10 @@ module Templater
       @options[name]
     end
     
+    def match_options?(options)
+      options.all? { |key, value| get_option(key) == value }
+    end
+        
     def valid_argument?(arg, options, &block)
       if arg.nil? and options[:required]
         raise Templater::TooFewArgumentsError
