@@ -308,7 +308,7 @@ module Templater
       
     end
     
-    attr_accessor :destination_root, :arguments, :templates, :options
+    attr_accessor :destination_root, :arguments, :options
     
     # Create a new generator. Checks the list of arguments agains the requirements set using +argument+.
     #
@@ -391,10 +391,10 @@ module Templater
       if self.class.manifold
         invocations = self.class.invocations.map do |invocation|
           generator = self.class.manifold.generator(invocation[:name])
-          if invocation[:block]
+          if generator and invocation[:block]
             instance_exec(generator, &invocation[:block])
-          elsif match_options?(invocation[:options])
-            generator.new(destination_root, options, *@arguments) if generator
+          elsif generator and match_options?(invocation[:options])
+            generator.new(destination_root, options, *@arguments)
           end
         end
         invocations.compact
