@@ -100,7 +100,6 @@ module Templater
         CLASS
       end
       
-      # FIXME: this doesn't currently work this way, it will in the future though ;)
       # Adds an invocation of another generator to this generator. This allows the interface to invoke
       # any templates in that target generator. This requires that the generator is part of a manifold. The name
       # provided is the name of the target generator in this generator's manifold.
@@ -325,12 +324,19 @@ module Templater
     # === Returns
     # [Templater::Generator]:: The found templates.
     def invocations
-      invocations = self.class.invocations.map do |invocation|
-        args = invocation[:block] ? instance_eval(&invocation[:block]) : @arguments
-        # check to see if all options match the generator options
-        (invocation[:options].all? {|tok, tov| get_option(tok) == tov }) ? invocation[:name].new(destination_root, options, *args) : nil
+      if self.class.manifold
+        invocations = self.class.invocations.map do |invocation|
+          generator = self.class.manifold.generator(invocation[:name])
+          args = invocation[:block] ? instance_exec(generator, &invocation[:block]) : @arguments
+          # check to see if all options match the generator options
+          if invocation[:options].all? { |key, value| get_option(key) == value }
+            generator.new(destination_root, options, *args) if generator
+          end
+        end
+        invocations.compact
+      else
+        []
       end
-      invocations.compact
     end
     
     # Invokes the templates for this generator

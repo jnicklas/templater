@@ -28,6 +28,8 @@ spec = Gem::Specification.new do |s|
   
   #s.add_dependency "highline", ">= 1.4.0"
   #s.add_dependency "diff-lcs", ">= 1.1.2"
+  # Templater uses facets only for a single instance_exec. This dependency might be a bit stupid.
+  #s.add_dependency "facets"
 
   # toggle to test command line interface
   if true

@@ -4,6 +4,7 @@ require 'rubygems'
 require 'highline'
 require "highline/import"
 require 'diff/lcs'
+require 'facets'
 
 
 require path + 'capture_helpers'
