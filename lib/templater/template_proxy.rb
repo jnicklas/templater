@@ -1,13 +1,10 @@
 module Templater
   
-  class TemplateProxy
+  class Proxy
     
-    def initialize(name, source, destination, render, &block)
-      @block = block
+    def initialize(name, source, destination, &block)
+      @block, @source, @destination = block, source, destination
       @name = name.to_sym
-      @source = source
-      @destination = destination
-      @render = render
     end
     
     def source(source)
@@ -18,23 +15,34 @@ module Templater
       @destination = dest
     end
     
-    def to_template(generator)
-      @generator = generator
-      instance_eval(&@block) if @block
-      @generator = nil
-      if @render
-        Templater::Template.new(generator, @name, ::File.join(generator.source_root, @source.to_s), ::File.join(generator.destination_root, @destination.to_s), true)
-      else
-        Templater::File.new(@name, ::File.join(generator.source_root, @source.to_s), ::File.join(generator.destination_root, @destination.to_s))
-      end
-    end
-    
     def method_missing(method, *args, &block)
       if @generator
         @generator.send(method, *args, &block)
       else
         super
       end
+    end
+    
+  end
+  
+  class TemplateProxy < Proxy
+    
+    def to_template(generator)
+      @generator = generator
+      instance_eval(&@block) if @block
+      @generator = nil
+      Templater::Template.new(generator, @name, ::File.join(generator.source_root, @source.to_s), ::File.join(generator.destination_root, @destination.to_s), true)
+    end
+    
+  end
+  
+  class FileProxy < Proxy
+    
+    def to_template(generator)
+      @generator = generator
+      instance_eval(&@block) if @block
+      @generator = nil
+      Templater::File.new(@name, ::File.join(generator.source_root, @source.to_s), ::File.join(generator.destination_root, @destination.to_s))
     end
     
   end

@@ -330,7 +330,11 @@ module Templater
     # [Templater::Template]:: The found templates.
     def templates
       templates = self.class.templates.map do |t|
-        template = Templater::TemplateProxy.new(t[:name], t[:source], t[:destination], t[:render], &t[:block]).to_template(self)
+        if t[:render]
+          template = Templater::TemplateProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_template(self)
+        else
+          template = Templater::FileProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_template(self)
+        end
         # check to see if either 'all' is true, or if all template option match the generator options
         (t[:options].all? {|tok, tov| get_option(tok) == tov }) ? template : nil
       end
