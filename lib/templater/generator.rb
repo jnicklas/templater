@@ -265,6 +265,22 @@ module Templater
         end
       end
       
+      # Returns a list of the classes of all generators (recursively) that are invoked together with this one.
+      # 
+      # === Returns
+      # Array[Templater::Generator]:: an array of generator classes.
+      def generators
+        if manifold
+          generators = invocations.map do |i|
+            generator = manifold.generator(i[:name])
+            generator ? generator.generators : nil
+          end
+          generators.unshift(self).flatten.compact
+        else
+          [self]
+        end
+      end
+      
     end
     
     attr_accessor :destination_root, :arguments, :templates, :options

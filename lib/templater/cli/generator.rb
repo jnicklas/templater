@@ -32,7 +32,7 @@ module Templater
           opts.separator "Options specific for this generator:"
           # the reason this is reversed is so that the 'main' generator will always have the last word
           # on the description of the option
-          all_generators.reverse.each do |generator|
+          generator_class.generators.reverse.each do |generator|
             # Loop through this generator's options and add them as valid command line options
             # so that they show up in help messages and such
             generator.options.each do |option|
@@ -91,19 +91,6 @@ module Templater
       end
 
       protected
-
-      def all_generators
-        subgenerators(@generator_class)
-      end
-
-      def subgenerators(generator)
-        generators = []
-        generators.push(generator)
-        generator.invocations.each do |invocation|
-          generators.push(*subgenerators(invocation[:name]))
-        end
-        return generators
-      end
 
       def all_templates
         subtemplates(@generator)
