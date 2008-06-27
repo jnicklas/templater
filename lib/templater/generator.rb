@@ -6,23 +6,48 @@ module Templater
     
     class << self
       
-      attr_accessor :manifold, :arguments, :options, :template_proxies, :invocations
+      attr_accessor :manifold
       
+      # Returns an array of hashes, where each hash describes a single argument.
+      #
+      # === Returns
+      # Array[Hash{Symbol=>Object}]:: A list of arguments
       def arguments; @arguments ||= []; end
+      
+      # Returns an array of options, where each hash describes a single option.
+      #
+      # === Returns
+      # Array[Hash{Symbol=>Object}]:: A list of options
       def options; @options ||= []; end
+      
+      # Returns an array of hashes, where each hash describes a single template.
+      #
+      # === Returns
+      # Array[Hash{Symbol=>Object}]:: A list of template
       def templates; @templates ||= []; end
+      
+      # Returns an array of hashes, where each hash describes a single file.
+      #
+      # === Returns
+      # Array[Hash{Symbol=>Object}]:: A list of files
+      def files; @files ||= []; end
+      
+      # Returns an array of hashes, where each hash describes a single invocation.
+      #
+      # === Returns
+      # Array[Hash{Symbol=>Object}]:: A list of invocations
       def invocations; @invocations ||= []; end
       
-      # A shorthand method for adding the first argument, see Templater::Generator.argument
+      # A shorthand method for adding the first argument, see +Templater::Generator.argument+
       def first_argument(*args); argument(0, *args); end
 
-      # A shorthand method for adding the second argument, see Templater::Generator.argument
+      # A shorthand method for adding the second argument, see +Templater::Generator.argument+
       def second_argument(*args); argument(1, *args); end
 
-      # A shorthand method for adding the third argument, see Templater::Generator.argument
+      # A shorthand method for adding the third argument, see +Templater::Generator.argument+
       def third_argument(*args); argument(2, *args); end
       
-      # A shorthand method for adding the fourth argument, see Templater::Generator.argument
+      # A shorthand method for adding the fourth argument, see +Templater::Generator.argument+
       def fourth_argument(*args); argument(3, *args); end
 
       # If the argument is omitted, simply returns the description for this generator, otherwise
@@ -210,7 +235,7 @@ module Templater
         source, destination = args
         source, destination = source, source if args.size == 1
         
-        self.templates << {
+        self.files << {
           :name => name,
           :options => options,
           :source => source,
@@ -322,7 +347,17 @@ module Templater
       self.templates.find {|t| t.name == name }
     end
     
-    alias_method :file, :template
+    # Finds and returns the file of the given name. If that template's options don't match the generator
+    # options, returns nil.
+    #
+    # === Parameters
+    # name<Symbol>:: The name of the template to look up.
+    #
+    # === Returns
+    # Templater::File:: The found template.
+    def file(name)
+      self.files.find {|f| f.name == name }
+    end
     
     # Finds and returns all templates whose options match the generator options.
     #
@@ -330,18 +365,25 @@ module Templater
     # [Templater::Template]:: The found templates.
     def templates
       templates = self.class.templates.map do |t|
-        if t[:render]
-          template = Templater::TemplateProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_template(self)
-        else
-          template = Templater::FileProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_template(self)
-        end
+        template = Templater::TemplateProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_template(self)
         # check to see if either 'all' is true, or if all template option match the generator options
         (t[:options].all? {|tok, tov| get_option(tok) == tov }) ? template : nil
       end
       templates.compact
     end
     
-    alias_method :files, :templates
+    # Finds and returns all files whose options match the generator options.
+    #
+    # === Returns
+    # [Templater::File]:: The found files.
+    def files
+      files = self.class.files.map do |t|
+        file = Templater::FileProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_file(self)
+        # check to see if either 'all' is true, or if all template option match the generator options
+        (t[:options].all? {|tok, tov| get_option(tok) == tov }) ? file : nil
+      end
+      files.compact
+    end
     
     # Finds and returns all templates whose options match the generator options.
     #

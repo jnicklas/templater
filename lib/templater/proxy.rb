@@ -38,7 +38,7 @@ module Templater
   
   class FileProxy < Proxy
     
-    def to_template(generator)
+    def to_file(generator)
       @generator = generator
       instance_eval(&@block) if @block
       @generator = nil

@@ -281,7 +281,7 @@ describe Templater::Generator, '.file' do
     
     @instance.file(:my_template).source.should == '/tmp/source/path/to/source.rbt'
     @instance.file(:my_template).destination.should == '/tmp/destination/path/to/destination.rb'
-    @instance.template(:my_template).should be_an_instance_of(Templater::File)
+    @instance.file(:my_template).should be_an_instance_of(Templater::File)
   end
   
   it "should add a file with source and infer destination " do
@@ -292,7 +292,7 @@ describe Templater::Generator, '.file' do
     
     @instance.file(:my_template).source.should == '/tmp/source/path/to/file.rb'
     @instance.file(:my_template).destination.should == '/tmp/destination/path/to/file.rb'
-    @instance.template(:my_template).should be_an_instance_of(Templater::File)
+    @instance.file(:my_template).should be_an_instance_of(Templater::File)
   end
   
 end
