@@ -12,6 +12,7 @@ module Templater
     def add(name, generator)
       @generators ||={}
       @generators[name.to_sym] = generator
+      generator.manifold = self
       (class << self; self; end).module_eval <<-MODULE
         def #{name}
           generator(:#{name})

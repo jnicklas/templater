@@ -6,7 +6,7 @@ module Templater
     
     class << self
       
-      attr_accessor :arguments, :options, :template_proxies, :invocations
+      attr_accessor :manifold, :arguments, :options, :template_proxies, :invocations
       
       def arguments; @arguments ||= []; end
       def options; @options ||= []; end

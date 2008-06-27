@@ -1,46 +1,52 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
 describe Templater::Manifold, '#add' do
+
+  before(:each) do
+    @manifold = class << self; self end
+    @manifold.extend Templater::Manifold
+    @generator = mock('a generator')
+    @generator.stub!(:manifold=)
+  end
   
   it "should allow addition of generators and remember them" do
-    generator = mock('a generator')
-    manifold = class << self; self end
-    manifold.extend Templater::Manifold
-    manifold.add(:monkey, generator)
-    manifold.generator(:monkey).should == generator
-    manifold.generators[:monkey].should == generator
+    @manifold.add(:monkey, @generator)
+    @manifold.generator(:monkey).should == @generator
+    @manifold.generators[:monkey].should == @generator
   end
   
   it "should add a trippy convenience method" do
-    generator = mock('a generator')
-    manifold = class << self; self end
-    manifold.extend Templater::Manifold
-    manifold.add(:monkey, generator)
-    manifold.monkey.should == generator
+    @manifold.add(:monkey, @generator)
+    @manifold.monkey.should == @generator
+  end
+  
+  it "should set the manifold for the generator" do
+    @generator.should_receive(:manifold=).with(@manifold)
+    @manifold.add(:monkey, @generator)
   end
   
 end
 
 describe Templater::Manifold, '#remove' do
   
+  before(:each) do
+    @manifold = class << self; self end
+    @manifold.extend Templater::Manifold
+    @generator = mock('a generator')
+    @generator.stub!(:manifold=)
+  end
+  
   it "should allow removal of generators" do
-    generator = mock('a generator')
-    manifold = class << self; self end
-    manifold.extend Templater::Manifold
-    manifold.add(:monkey, generator)
-    manifold.remove(:monkey)
-    manifold.generator(:monkey).should be_nil
-    manifold.generators[:monkey].should be_nil
+    @manifold.add(:monkey, @generator)
+    @manifold.remove(:monkey)
+    @manifold.generator(:monkey).should be_nil
+    @manifold.generators[:monkey].should be_nil
   end
   
   it "should remove the accessor method" do
-    generator = mock('a generator')
-    manifold = class << self; self end
-    manifold.extend Templater::Manifold
-    
-    manifold.add(:monkey, generator)
-    manifold.remove(:monkey)
-    manifold.should_not respond_to(:monkey)
+    @manifold.add(:monkey, @generator)
+    @manifold.remove(:monkey)
+    @manifold.should_not respond_to(:monkey)
   end
 
 end
