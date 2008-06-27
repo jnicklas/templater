@@ -403,6 +403,17 @@ module Templater
       end
     end
     
+    # Finds and returns all templates and files for this generators and any of those generators it invokes,
+    # whose options match that generator's options.
+    #
+    # === Returns
+    # [Templater::File, Templater::Template]:: The found templates and files.
+    def actions
+      actions = templates + files
+      actions += invocations.map { |i| i.actions }
+      actions.flatten
+    end
+    
     # Invokes the templates for this generator
     def invoke!
       templates.each { |t| t.invoke! }
