@@ -26,11 +26,11 @@ module Templater
     protected
     
     def get_source
-      ::File.join(@generator.source_root, @source.to_s)
+      ::File.expand_path(@source.to_s, @generator.source_root)
     end
     
     def get_destination
-      ::File.join(@generator.destination_root, convert_encoded_instructions(@destination.to_s))
+      ::File.expand_path(convert_encoded_instructions(@destination.to_s), @generator.destination_root)
     end
     
     def convert_encoded_instructions(filename)
