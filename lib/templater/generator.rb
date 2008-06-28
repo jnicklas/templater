@@ -299,12 +299,16 @@ module Templater
       # All of these options are matched against the options passed to the generator.
       #
       # === Parameters
-      # source<String>:: The directory to search in.
+      # source<String>:: The directory to search in, relative to the source_root, if omitted
+      #     the source root itself is searched.
       # template_destination<Array[String]>:: A list of extensions. If a file has one of these
       #     extensions, it is considered a template and will be rendered with ERB.
       # options<Hash{Symbol=>Object}>:: A list of options.
-      def glob!(source, template_extensions = %w(rb css js erb html yml), options={})
-        ::Dir[::File.join(source, '*')].each do |action|
+      def glob!(dir = nil, template_extensions = %w(rb css js erb html yml), options={})
+        ::Dir[::File.join(source_root, dir.to_s, '*')].each do |action|
+          
+          action = action.sub("#{source_root}/", '')
+          
           if template_extensions.include?(::File.extname(action)[1..-1])
             template(action.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
           else
