@@ -460,6 +460,23 @@ describe Templater::Generator, '.file_list' do
   
 end
 
+describe Templater::Generator, '.glob!' do
+  
+  it "should add templates and files based on if their extensions are in the template_extensions array" do
+    @generator_class = Class.new(Templater::Generator)
+    
+    Dir.should_receive(:[]).with('/tmp/source/*').and_return(%w(app/model.rb spec/model.rb donkey/poo.gif john/smith/file.rb))
+    
+    @generator_class.should_receive(:template).with(:app_model_rb, 'app/model.rb', 'app/model.rb')
+    @generator_class.should_receive(:template).with(:spec_model_rb, 'spec/model.rb', 'spec/model.rb')
+    @generator_class.should_receive(:file).with(:donkey_poo_gif, 'donkey/poo.gif', 'donkey/poo.gif')
+    @generator_class.should_receive(:template).with(:john_smith_file_rb, 'john/smith/file.rb', 'john/smith/file.rb')
+    
+    @generator_class.glob!('/tmp/source')
+  end
+  
+end
+
 describe Templater::Generator, '.option' do
 
   before do

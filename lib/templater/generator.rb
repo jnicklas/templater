@@ -290,6 +290,29 @@ module Templater
         end
       end
       
+      # Search a directory for templates and files and add them to this generator. Any file
+      # whose extension matches one of those provided in the template_extensions parameter
+      # is considered a template and will be rendered with ERB, all others are considered
+      # normal files and are simply copied.
+      # 
+      # A hash of options can be passed which will be assigned to each file and template.
+      # All of these options are matched against the options passed to the generator.
+      #
+      # === Parameters
+      # source<String>:: The directory to search in.
+      # template_destination<Array[String]>:: A list of extensions. If a file has one of these
+      #     extensions, it is considered a template and will be rendered with ERB.
+      # options<Hash{Symbol=>Object}>:: A list of options.
+      def glob!(source, template_extensions = %w(rb css js erb html yml), options={})
+        ::Dir[::File.join(source, '*')].each do |action|
+          if template_extensions.include?(::File.extname(action)[1..-1])
+            template(action.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
+          else
+            file(action.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
+          end
+        end
+      end
+      
       # Returns a list of the classes of all generators (recursively) that are invoked together with this one.
       # 
       # === Returns
