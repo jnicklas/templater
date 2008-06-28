@@ -26,7 +26,7 @@ module Templater
     protected
     
     def get_source
-      ::File.join(@generator.source_root, convert_encoded_instructions(@source.to_s))
+      ::File.join(@generator.source_root, @source.to_s)
     end
     
     def get_destination

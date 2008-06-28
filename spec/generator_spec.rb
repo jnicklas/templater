@@ -265,15 +265,15 @@ describe Templater::Generator, '.template' do
     @instance.template(:my_template).should be_an_instance_of(Templater::Template)
   end
   
-  it "should add a template with an instruction encoded in the source or destination" do
+  it "should add a template and convert an with an instruction encoded in the destination, but not one encoded in the source" do
     @generator_class.template(:my_template, 'template/%some_method%.rbt', 'template/%another_method%.rb')
     @instance = @generator_class.new('/tmp/destination')
     
     @instance.stub!(:source_root).and_return('/tmp/source')
-    @instance.should_receive(:some_method).at_least(:once).and_return('monkey')
+    @instance.should_not_receive(:some_method)
     @instance.should_receive(:another_method).at_least(:once).and_return('beast')
     
-    @instance.template(:my_template).source.should == '/tmp/source/template/monkey.rbt'
+    @instance.template(:my_template).source.should == '/tmp/source/template/%some_method%.rbt'
     @instance.template(:my_template).destination.should == "/tmp/destination/template/beast.rb"
     @instance.template(:my_template).should be_an_instance_of(Templater::Template)
   end
