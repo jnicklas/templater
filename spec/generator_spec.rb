@@ -595,6 +595,13 @@ describe Templater::Generator, '.generators' do
   end
 end
 
+describe Templater::Generator, '.source_root' do
+  it "should raise an error, complaining that source_root must be overridden" do
+    @generator_class = Class.new(Templater::Generator)    
+    lambda { @generator_class.source_root }.should raise_error(Templater::SourceNotSpecifiedError)
+  end
+end
+
 describe Templater::Generator, '#template' do
 
   before do
@@ -930,11 +937,11 @@ describe Templater::Generator, '#destination_root' do
 end
 
 describe Templater::Generator, '#source_root' do
-  it "should raise an error, complaining that source_root must be overridden" do
+  it "try to retrieve the source root from the class" do
     @generator_class = Class.new(Templater::Generator)
-    @generator_class.argument(0, :monkey)
+    @generator_class.should_receive(:source_root).and_return('/tmp/source')
+
     instance = @generator_class.new('/tmp')
-    
-    lambda { instance.source_root }.should raise_error(Templater::SourceNotSpecifiedError)
+    instance.source_root.should == '/tmp/source'
   end
 end

@@ -329,6 +329,15 @@ module Templater
         end
       end
       
+      # This should return the directory where source templates are located. This method must be overridden in
+      # any Generator inheriting from Templater::Source.
+      #
+      # === Raises
+      # Templater::SourceNotSpecifiedError:: Always raises this error, so be sure to override this method.
+      def source_root
+        raise Templater::SourceNotSpecifiedError, "Subclasses of Templater::Generator must override the source_root method, to specify where source templates are located."
+      end
+      
     end
     
     attr_accessor :destination_root, :arguments, :options
@@ -442,13 +451,15 @@ module Templater
       templates.each { |t| t.invoke! }
     end
     
-    # This should return the directory where source templates are located. This method must be overridden in
-    # any Generator inheriting from Templater::Source.
+    # Returns this generator's source root
+    #
+    # === Returns
+    # String:: The source root of this generator.
     #
     # === Raises
-    # Templater::SourceNotSpecifiedError:: Always raises this error, so be sure to override this method.
+    # Templater::SourceNotSpecifiedError:: IF the source_root class method has not been overridden.
     def source_root
-      raise Templater::SourceNotSpecifiedError, "Subclasses of Templater::Generator must override the source_root method, to specify where source templates are located."
+      self.class.source_root
     end
     
     # Returns the destination root that is given to the generator on initialization. If the generator is a
