@@ -23,6 +23,23 @@ module Templater
       end
     end
     
+    protected
+    
+    def get_source
+      ::File.join(@generator.source_root, convert_encoded_instructions(@source.to_s))
+    end
+    
+    def get_destination
+      ::File.join(@generator.destination_root, convert_encoded_instructions(@destination.to_s))
+    end
+    
+    def convert_encoded_instructions(filename)
+      filename.gsub(/%.*?%/) do |instruction|
+        instruction = instruction.match(/%(.*?)%/)[1]
+        @generator.send(instruction)
+      end
+    end
+    
   end
   
   class TemplateProxy < Proxy
@@ -30,8 +47,7 @@ module Templater
     def to_template(generator)
       @generator = generator
       instance_eval(&@block) if @block
-      @generator = nil
-      Templater::Template.new(generator, @name, ::File.join(generator.source_root, @source.to_s), ::File.join(generator.destination_root, @destination.to_s), true)
+      Templater::Template.new(generator, @name, get_source, get_destination, true)
     end
     
   end
