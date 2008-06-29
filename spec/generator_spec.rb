@@ -289,6 +289,16 @@ describe Templater::Generator, '.template' do
     @instance.template(:my_template).should be_an_instance_of(Templater::Template)
   end
   
+  it "should add a template and leave an encoded instruction be if it doesn't exist as a method" do
+    @generator_class.template(:my_template, 'template/blah.rbt', 'template/%some_method%.rb')
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.template(:my_template).destination.should == "/tmp/destination/template/%some_method%.rb"
+    @instance.template(:my_template).should be_an_instance_of(Templater::Template)
+  end
+  
 end
 
 describe Templater::Generator, '.file' do

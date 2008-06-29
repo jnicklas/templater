@@ -34,9 +34,9 @@ module Templater
     end
     
     def convert_encoded_instructions(filename)
-      filename.gsub(/%.*?%/) do |instruction|
-        instruction = instruction.match(/%(.*?)%/)[1]
-        @generator.send(instruction)
+      filename.gsub(/%.*?%/) do |string|
+        instruction = string.match(/%(.*?)%/)[1]
+        @generator.respond_to?(instruction) ? @generator.send(instruction) : string
       end
     end
     
