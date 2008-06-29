@@ -305,14 +305,14 @@ module Templater
       #     extensions, it is considered a template and will be rendered with ERB.
       # options<Hash{Symbol=>Object}>:: A list of options.
       def glob!(dir = nil, template_extensions = %w(rb css js erb html yml), options={})
-        ::Dir[::File.join(source_root, dir.to_s, '*')].each do |action|
-          
-          action = action.sub("#{source_root}/", '')
-          
-          if template_extensions.include?(::File.extname(action)[1..-1])
-            template(action.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
-          else
-            file(action.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
+        ::Dir[::File.join(source_root, dir.to_s, '**/*')].each do |action|
+          unless ::File.directory?(action)
+            action = action.sub("#{source_root}/", '')
+            if template_extensions.include?(::File.extname(action)[1..-1])
+              template(action.downcase.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
+            else
+              file(action.downcase.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
+            end
           end
         end
       end

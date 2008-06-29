@@ -475,49 +475,69 @@ describe Templater::Generator, '.glob!' do
   
   before do
     @generator_class = Class.new(Templater::Generator)
-    @generator_class.stub!(:source_root).and_return('/tmp/source')
+    @generator_class.stub!(:source_root).and_return(template_path('glob'))
   end
   
   it "should add templates and files in the source_root based on if their extensions are in the template_extensions array" do
-    Dir.should_receive(:[]).with('/tmp/source/*').and_return(%w(/tmp/source/app/model.rb /tmp/source/spec/model.rb /tmp/source/donkey/poo.gif /tmp/source/john/smith/file.rb))
-    
     @generator_class.glob!()
     
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.template(:app_model_rb).source.should == "/tmp/source/app/model.rb"
-    @instance.template(:app_model_rb).destination.should == "/tmp/destination/app/model.rb"
+    @instance.template(:arg_js).source.should == template_path('glob/arg.js')
+    @instance.template(:arg_js).destination.should == "/tmp/destination/arg.js"
+
+    @instance.template(:test_rb).source.should == template_path('glob/test.rb')
+    @instance.template(:test_rb).destination.should == "/tmp/destination/test.rb"
     
-    @instance.file(:donkey_poo_gif).source.should == '/tmp/source/donkey/poo.gif'
-    @instance.file(:donkey_poo_gif).destination.should == '/tmp/destination/donkey/poo.gif'
+    @instance.file(:subfolder_jessica_alba_jpg).source.should == template_path('glob/subfolder/jessica_alba.jpg')
+    @instance.file(:subfolder_jessica_alba_jpg).destination.should == '/tmp/destination/subfolder/jessica_alba.jpg'
   end
   
   it "should add templates and files with a different template_extensions array" do
-    Dir.should_receive(:[]).with('/tmp/source/*').and_return(%w(/tmp/source/app/model.rb /tmp/source/spec/model.rb /tmp/source/donkey/poo.gif /tmp/source/john/smith/file.rb))
-    
-    @generator_class.glob!(nil, %w(gif))
+    @generator_class.glob!(nil, %w(jpg))
     
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.file(:app_model_rb).source.should == "/tmp/source/app/model.rb"
-    @instance.file(:app_model_rb).destination.should == "/tmp/destination/app/model.rb"
+    @instance.file(:arg_js).source.should == template_path('glob/arg.js')
+    @instance.file(:arg_js).destination.should == "/tmp/destination/arg.js"
+
+    @instance.file(:test_rb).source.should == template_path('glob/test.rb')
+    @instance.file(:test_rb).destination.should == "/tmp/destination/test.rb"
     
-    @instance.template(:donkey_poo_gif).source.should == '/tmp/source/donkey/poo.gif'
-    @instance.template(:donkey_poo_gif).destination.should == '/tmp/destination/donkey/poo.gif'
+    @instance.template(:subfolder_jessica_alba_jpg).source.should == template_path('glob/subfolder/jessica_alba.jpg')
+    @instance.template(:subfolder_jessica_alba_jpg).destination.should == '/tmp/destination/subfolder/jessica_alba.jpg'
   end
   
-  it "should add templates and files in a subdirectory based on if their extensions are in the template_extensions array" do
-    Dir.should_receive(:[]).with('/tmp/source/stuff/*').and_return(%w(/tmp/source/stuff/app/model.rb /tmp/source/stuff/spec/model.rb /tmp/source/stuff/donkey/poo.gif /tmp/source/stuff/john/smith/file.rb))
-    
-    @generator_class.glob!('stuff')
+  it "should glob in a subdirectory" do
+    @generator_class.stub!(:source_root).and_return(template_path(""))
+    @generator_class.glob!('glob', %w(jpg))
     
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.template(:stuff_app_model_rb).source.should == "/tmp/source/stuff/app/model.rb"
-    @instance.template(:stuff_app_model_rb).destination.should == "/tmp/destination/stuff/app/model.rb"
+    @instance.file(:glob_arg_js).source.should == template_path('glob/arg.js')
+    @instance.file(:glob_arg_js).destination.should == "/tmp/destination/glob/arg.js"
+
+    @instance.file(:glob_test_rb).source.should == template_path('glob/test.rb')
+    @instance.file(:glob_test_rb).destination.should == "/tmp/destination/glob/test.rb"
     
-    @instance.file(:stuff_donkey_poo_gif).source.should == '/tmp/source/stuff/donkey/poo.gif'
-    @instance.file(:stuff_donkey_poo_gif).destination.should == '/tmp/destination/stuff/donkey/poo.gif'
+    @instance.template(:glob_subfolder_jessica_alba_jpg).source.should == template_path('glob/subfolder/jessica_alba.jpg')
+    @instance.template(:glob_subfolder_jessica_alba_jpg).destination.should == '/tmp/destination/glob/subfolder/jessica_alba.jpg'
+  end
+  
+  it "should add only the given templates and files" do
+    @generator_class.glob!()
+    
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.templates.map { |t| t.name }.should == [
+      :arg_js,
+      :subfolder_monkey_rb,
+      :test_rb,
+    ]
+    @instance.files.map { |f| f.name }.should == [
+      :readme,
+      :subfolder_jessica_alba_jpg
+    ]
   end
   
 end
