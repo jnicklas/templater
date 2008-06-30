@@ -9,8 +9,8 @@ NAME = "templater"
 GEM_VERSION = "0.1"
 AUTHOR = "Jonas Nicklas"
 EMAIL = "jonas.nicklas@gmail.com"
-HOMEPAGE = "http://merb-plugins.rubyforge.org/templater/"
-SUMMARY = "RubiGen alternative Generator thingy"
+HOMEPAGE = "http://templater.rubyforge.org/"
+SUMMARY = "File generation system"
 
 spec = Gem::Specification.new do |s|
   s.name = NAME
@@ -27,16 +27,10 @@ spec = Gem::Specification.new do |s|
   s.autorequire = PLUGIN
   s.files = %w(LICENSE README Rakefile TODO) + Dir.glob("{lib,spec}/**/*")
   
-  #s.add_dependency "highline", ">= 1.4.0"
-  #s.add_dependency "diff-lcs", ">= 1.1.2"
+  s.add_dependency "highline", ">= 1.4.0"
+  s.add_dependency "diff-lcs", ">= 1.1.2"
   # Templater uses facets only for a single instance_exec. This dependency might be a bit stupid.
-  #s.add_dependency "facets"
-
-  # toggle to test command line interface
-  if true
-    s.bindir = "bin"
-    s.executables = %w( templater )
-  end
+  s.add_dependency "facets"
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
