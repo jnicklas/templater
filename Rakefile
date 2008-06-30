@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'rake/gempackagetask'
 require 'rubygems/specification'
+require 'rake/rdoctask'
 require 'date'
 
 PLUGIN = "templater"
@@ -61,4 +62,14 @@ namespace :jruby do
     sh %{#{SUDO} jruby -S gem install pkg/#{NAME}-#{Merb::VERSION}.gem --no-rdoc --no-ri}
   end
   
+end
+
+desc 'Generate documentation for Templater.'
+Rake::RDocTask.new(:doc) do |rdoc|
+  rdoc.rdoc_dir = 'doc'
+  rdoc.title    = 'Templater'
+  rdoc.options << '--line-numbers' << '--inline-source'
+  rdoc.rdoc_files.include('README')
+  rdoc.rdoc_files.include('LICENSE')
+  rdoc.rdoc_files.include('lib/**/*.rb')
 end
