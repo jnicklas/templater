@@ -22,14 +22,22 @@ require 'erb'
 
 module Templater
   
-  class TemplaterError < StandardError; end
-  class GeneratorError < TemplaterError; end
-  class SourceNotSpecifiedError < TemplaterError; end
-  class ArgumentError < GeneratorError; end
-  class TooManyArgumentsError < ArgumentError; end
-  class TooFewArgumentsError < ArgumentError; end
-  class JustTheRightAmountOfArgumentsError < ArgumentError; end
-  class MalformattedArgumentError < ArgumentError; end
+  class TemplaterError < StandardError #:nodoc:
+  end
+  class GeneratorError < TemplaterError #:nodoc:
+  end
+  class SourceNotSpecifiedError < TemplaterError #:nodoc:
+  end
+  class ArgumentError < GeneratorError #:nodoc:
+  end
+  class TooManyArgumentsError < ArgumentError #:nodoc:
+  end
+  class TooFewArgumentsError < ArgumentError #:nodoc:
+  end
+  class JustTheRightAmountOfArgumentsError < ArgumentError #:nodoc:
+  end
+  class MalformattedArgumentError < ArgumentError #:nodoc:
+  end
   
   VERSION = '0.1'
   

@@ -28,7 +28,7 @@ module Templater
 
       def run(arguments)
         generator_class = @generator_class # FIXME: closure wizardry, there has got to be a better way than this?
-        @options = Templater::Parser.parse(arguments) do |opts, options|
+        @options = Templater::CLI::Parser.parse(arguments) do |opts, options|
           opts.separator "Options specific for this generator:"
           # the reason this is reversed is so that the 'main' generator will always have the last word
           # on the description of the option

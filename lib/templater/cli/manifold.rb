@@ -28,7 +28,7 @@ module Templater
       end
 
       def run(arguments)
-        @options = Templater::Parser.parse(arguments)
+        @options = Templater::CLI::Parser.parse(arguments)
         self.help
       end
 

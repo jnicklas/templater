@@ -1,6 +1,6 @@
 module Templater
   
-  class Proxy
+  class Proxy #:nodoc:
     
     def initialize(name, source, destination, &block)
       @block, @source, @destination = block, source, destination
@@ -42,7 +42,7 @@ module Templater
     
   end
   
-  class TemplateProxy < Proxy
+  class TemplateProxy < Proxy #:nodoc:
     
     def to_template(generator)
       @generator = generator
@@ -52,7 +52,7 @@ module Templater
     
   end
   
-  class FileProxy < Proxy
+  class FileProxy < Proxy #:nodoc:
     
     def to_file(generator)
       @generator = generator

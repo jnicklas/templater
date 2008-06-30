@@ -1,4 +1,4 @@
-class String
+class String #:nodoc:
   
   def realign_indentation
     basis = self.index(/\S/) # find the first non-whitespace character
