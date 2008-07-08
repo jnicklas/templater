@@ -62,6 +62,11 @@ module Templater
         ::FileUtils.copy_file(source, destination)
       end
     end
-  
+    
+    # removes the destination file
+    def revoke!
+      ::FileUtils.rm(destination)
+    end
+      
   end
 end

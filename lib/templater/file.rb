@@ -53,6 +53,11 @@ module Templater
       ::FileUtils.mkdir_p(::File.dirname(destination))
       ::FileUtils.copy_file(source, destination)
     end
+    
+    # removes the destination file
+    def revoke!
+      ::FileUtils.rm(destination)
+    end
   
   end
 end

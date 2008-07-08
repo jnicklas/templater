@@ -122,3 +122,21 @@ describe Templater::Template, '#invoke!' do
     FileUtils.rm_rf(result_path('path'))
   end
 end
+
+
+describe Templater::Template, '#revoke!' do
+  
+  it "should remove the destination file" do
+    template = Templater::Template.new(@context, :monkey, template_path('simple_erb.rbt'), result_path('test.rbs'))
+    
+    template.invoke!
+    
+    File.exists?(result_path('test.rbs')).should be_true
+    File.read(result_path('test.rbs')).should == "test2test"
+    
+    template.revoke!
+    
+    File.exists?(result_path('test.rbs')).should be_false
+  end
+  
+end
