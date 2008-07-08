@@ -75,8 +75,8 @@ module Templater
             say_status('identical', action, :blue)
           elsif action.exists?
             if @options[:force]
-              say_status('forced', action, :yellow)
               action.invoke! unless @options[:pretend]
+              say_status('forced', action, :yellow)
             elsif @options[:skip]
               say_status('skipped', action, :yellow)
             else
@@ -84,8 +84,8 @@ module Templater
               conflict_menu(action)
             end
           else
-            say_status('added', action, :green)
             action.invoke! unless @options[:pretend]
+            say_status('added', action, :green)
           end
         end
       end
@@ -118,7 +118,7 @@ module Templater
             puts "Showing differences for " + template.relative_destination
             puts ""
 
-            diffs = Diff::LCS.diff(File.read(template.destination).to_s.to_a, template.render.to_a).first
+            diffs = Diff::LCS.diff(::File.read(template.destination).to_s.to_a, template.render.to_a).first
 
             diffs.each do |diff|
               output_diff_line(diff)

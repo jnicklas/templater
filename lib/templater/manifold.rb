@@ -2,22 +2,51 @@ module Templater
   
   module Manifold
     
-    attr_accessor :generators
+    # Lists all generators in this manifold
+    #
+    # === Returns
+    # Array[Templater::Generator]:: A list of generators
+    def generators
+      private_generators.merge(public_generators)
+    end
+    
+    # Lists all public generators, these are generators that are meant to be invoked directly by the user.
+    #
+    # === Returns
+    # Array[Templater::Generator]:: A list of generators
+    def public_generators
+      @public_generators ||= {} 
+    end
+    
+    # Lists all private generators, these are generators that are meant to be used only internally
+    # and should not be invoked directly (although the interface may choose to do so)
+    #
+    # === Returns
+    # Array[Templater::Generator]:: A list of generators
+    def private_generators
+      @private_generators ||= {} 
+    end
     
     # Add a generator to this manifold
     # 
     # === Parameters
     # name<Symbol>:: The name given to this generator in the manifold
     # generator<Templater::Generator>:: The generator class
-    def add(name, generator)
-      @generators ||={}
-      @generators[name.to_sym] = generator
+    def add_public(name, generator)
+      public_generators[name.to_sym] = generator
       generator.manifold = self
-      (class << self; self; end).module_eval <<-MODULE
-        def #{name}
-          generator(:#{name})
-        end
-      MODULE
+    end
+    
+    alias_method :add, :add_public
+    
+    # Add a generator for internal use to this manifold.
+    # 
+    # === Parameters
+    # name<Symbol>:: The name given to this generator in the manifold
+    # generator<Templater::Generator>:: The generator class
+    def add_private(name, generator)
+      private_generators[name.to_sym] = generator
+      generator.manifold = self
     end
     
     # Remove the generator with the given name from the manifold
@@ -25,10 +54,8 @@ module Templater
     # === Parameters
     # name<Symbol>:: The name of the generator to be removed.
     def remove(name)
-      @generators.delete(name.to_sym)
-      (class << self; self; end).module_eval <<-MODULE
-        undef #{name}
-      MODULE
+      public_generators.delete(name.to_sym)
+      private_generators.delete(name.to_sym)
     end
     
     # Finds the class of a generator, given its name in the manifold.
@@ -39,8 +66,7 @@ module Templater
     # === Returns
     # Templater::Generator:: The found generator class
     def generator(name)
-      @generators ||= {}
-      @generators[name.to_sym]
+      generators[name.to_sym]
     end
     
     # A Shortcut method for invoking the command line interface provided with Templater.
