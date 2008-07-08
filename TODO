@@ -1,5 +1,4 @@
 TODO:
-Fix LICENSE with your name
-Fix Rakefile with your name and contact info
-Add your code to lib/templater.rb
-Add your Merb rake tasks to lib/templater/merbtasks.rb
+
+* Automatically convert dashes in options into underscores
+* Add magic template names for files as well
