@@ -401,7 +401,7 @@ module Templater
     # [Templater::Template]:: The found templates.
     def templates
       templates = self.class.templates.map do |t|
-        template = Templater::TemplateProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_template(self)
+        template = Templater::Proxy.new(self, t[:name], t[:source], t[:destination], &t[:block]).to_template
         match_options?(t[:options]) ? template : nil
       end
       templates.compact
@@ -413,7 +413,7 @@ module Templater
     # [Templater::File]:: The found files.
     def files
       files = self.class.files.map do |t|
-        file = Templater::FileProxy.new(t[:name], t[:source], t[:destination], &t[:block]).to_file(self)
+        file = Templater::Proxy.new(self, t[:name], t[:source], t[:destination], &t[:block]).to_file
         match_options?(t[:options]) ? file : nil
       end
       files.compact

@@ -2,8 +2,8 @@ module Templater
   
   class Proxy #:nodoc:
     
-    def initialize(name, source, destination, &block)
-      @block, @source, @destination = block, source, destination
+    def initialize(generator, name, source, destination, &block)
+      @generator, @block, @source, @destination = generator, block, source, destination
       @name = name.to_sym
     end
     
@@ -13,6 +13,16 @@ module Templater
     
     def destination(dest)
       @destination = dest
+    end
+    
+    def to_template
+      instance_eval(&@block) if @block
+      Templater::Template.new(@generator, @name, get_source, get_destination)
+    end
+    
+    def to_file
+      instance_eval(&@block) if @block
+      Templater::File.new(@name, get_source, get_destination)
     end
     
     def method_missing(method, *args, &block)
@@ -38,26 +48,6 @@ module Templater
         instruction = string.match(/%(.*?)%/)[1]
         @generator.respond_to?(instruction) ? @generator.send(instruction) : string
       end
-    end
-    
-  end
-  
-  class TemplateProxy < Proxy #:nodoc:
-    
-    def to_template(generator)
-      @generator = generator
-      instance_eval(&@block) if @block
-      Templater::Template.new(generator, @name, get_source, get_destination)
-    end
-    
-  end
-  
-  class FileProxy < Proxy #:nodoc:
-    
-    def to_file(generator)
-      @generator = generator
-      instance_eval(&@block) if @block
-      Templater::File.new(@name, get_source, get_destination)
     end
     
   end
