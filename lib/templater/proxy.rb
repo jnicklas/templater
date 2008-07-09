@@ -57,8 +57,7 @@ module Templater
     def to_file(generator)
       @generator = generator
       instance_eval(&@block) if @block
-      @generator = nil
-      Templater::File.new(@name, ::File.join(generator.source_root, @source.to_s), ::File.join(generator.destination_root, @destination.to_s))
+      Templater::File.new(@name, get_source, get_destination)
     end
     
   end
