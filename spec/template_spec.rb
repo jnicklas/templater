@@ -109,18 +109,7 @@ describe Templater::Template, '#invoke!' do
     # cleanup
     FileUtils.rm_rf(result_path('path'))
   end
-  
-  it "should simply copy the template to the destination if render is false" do
-    template = Templater::Template.new(@context, :monkey, template_path('simple_erb.rbt'), result_path('path/to/subdir/test2.rbs'), false)
-    
-    template.invoke!
-    
-    File.exists?(result_path('path/to/subdir/test2.rbs')).should be_true
-    FileUtils.identical?(template_path('simple_erb.rbt'), result_path('path/to/subdir/test2.rbs')).should be_true
-    
-    # cleanup
-    FileUtils.rm_rf(result_path('path'))
-  end
+
 end
 
 

@@ -12,12 +12,11 @@ module Templater
     # source<String>:: Full path to the source of this template
     # destination<String>:: Full path to the destination of this template
     # render<Boolean>:: If set to false, will do a copy instead of rendering.
-    def initialize(context, name, source, destination, render = true)
+    def initialize(context, name, source, destination)
       @context = context
       @name = name
       @source = source
       @destination = destination
-      @options = { :render => render }
     end
     
     # Returns the destination path relative to Dir.pwd. This is useful for prettier output in interfaces
@@ -56,11 +55,7 @@ module Templater
     # Renders the template and copies it to the destination.
     def invoke!
       ::FileUtils.mkdir_p(::File.dirname(destination))
-      if options[:render]
-        ::File.open(destination, 'w') {|f| f.write render }
-      else
-        ::FileUtils.copy_file(source, destination)
-      end
+      ::File.open(destination, 'w') {|f| f.write render }
     end
     
     # removes the destination file

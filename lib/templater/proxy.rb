@@ -47,7 +47,7 @@ module Templater
     def to_template(generator)
       @generator = generator
       instance_eval(&@block) if @block
-      Templater::Template.new(generator, @name, get_source, get_destination, true)
+      Templater::Template.new(generator, @name, get_source, get_destination)
     end
     
   end
