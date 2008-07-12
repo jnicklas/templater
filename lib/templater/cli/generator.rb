@@ -43,7 +43,7 @@ module Templater
                 end                
               else
                 opts.on("--#{name} OPTION", option[:options][:desc]) do |s|
-                  options[option[:name]] = s.to_sym
+                  options[option[:name]] = s.gsub('-', '_').to_sym
                 end
               end
             end
