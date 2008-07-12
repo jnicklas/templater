@@ -71,21 +71,26 @@ module Templater
 
       def step_through_templates
         @generator.actions.each do |action|
-          if action.identical?
-            say_status('identical', action, :blue)
-          elsif action.exists?
-            if @options[:force]
-              action.invoke! unless @options[:pretend]
-              say_status('forced', action, :yellow)
-            elsif @options[:skip]
-              say_status('skipped', action, :yellow)
-            else
-              say_status('conflict', action, :red)
-              conflict_menu(action)
-            end
+          if @options[:delete]
+            action.revoke! unless @options[:pretend]
+            say_status('deleted', action, :red)
           else
-            action.invoke! unless @options[:pretend]
-            say_status('added', action, :green)
+            if action.identical?
+              say_status('identical', action, :blue)
+            elsif action.exists?
+              if @options[:force]
+                action.invoke! unless @options[:pretend]
+                say_status('forced', action, :yellow)
+              elsif @options[:skip]
+                say_status('skipped', action, :yellow)
+              else
+                say_status('conflict', action, :red)
+                conflict_menu(action)
+              end
+            else
+              action.invoke! unless @options[:pretend]
+              say_status('added', action, :green)
+            end
           end
         end
       end

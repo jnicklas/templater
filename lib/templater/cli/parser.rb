@@ -42,12 +42,13 @@ module Templater
             options[:skip] = s
           end
         
-          opts.on("-a", "--ask", "Ask about each file before generating it.") do |s|
-            options[:ask] = s
-          end
+          # TODO: implement this
+          #opts.on("-a", "--ask", "Ask about each file before generating it.") do |s|
+          #  options[:ask] = s
+          #end
         
           opts.on("-d", "--delete", "Delete files that have previously been generated with this generator.") do |s|
-            options[:skip] = s
+            options[:delete] = s
           end
         
           opts.on("--no-color", "Don't colorize the output") do
