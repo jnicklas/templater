@@ -276,6 +276,20 @@ describe Templater::Generator, '.template' do
     @instance.template(:my_template).should be_an_instance_of(Templater::Template)
   end
   
+  it "should add a template with a block, joining multiple arguments" do
+    @generator_class.template(:my_template) do
+      source 'test', 'something', 'blah.rbt'
+      destination 'test', "gurr#{Process.pid.to_s}.rb"
+    end
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.template(:my_template).source.should == '/tmp/source/test/something/blah.rbt'
+    @instance.template(:my_template).destination.should == "/tmp/destination/test/gurr#{Process.pid.to_s}.rb"
+    @instance.template(:my_template).should be_an_instance_of(Templater::Template)
+  end
+  
   it "should add a template and convert an with an instruction encoded in the destination, but not one encoded in the source" do
     @generator_class.template(:my_template, 'template/%some_method%.rbt', 'template/%another_method%.rb')
     @instance = @generator_class.new('/tmp/destination')
@@ -318,6 +332,17 @@ describe Templater::Generator, '.file' do
     @instance.file(:my_file).should be_an_instance_of(Templater::File)
   end
   
+  it "should add a file with absolute source and destination" do
+    @generator_class.file(:my_file, '/path/to/source.rbt', '/path/to/destination.rb')
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.file(:my_file).source.should == '/path/to/source.rbt'
+    @instance.file(:my_file).destination.should == '/path/to/destination.rb'
+    @instance.file(:my_file).should be_an_instance_of(Templater::File)
+  end
+  
   it "should add a file with source and infer destination " do
     @generator_class.file(:my_file, 'path/to/file.rb')
     @instance = @generator_class.new('/tmp/destination')
@@ -328,6 +353,35 @@ describe Templater::Generator, '.file' do
     @instance.file(:my_file).destination.should == '/tmp/destination/path/to/file.rb'
     @instance.file(:my_file).should be_an_instance_of(Templater::File)
   end
+  
+  it "should add a file with a block" do
+    @generator_class.file(:my_file) do
+      source 'blah.rbt'
+      destination "gurr#{Process.pid.to_s}.rb"
+    end
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.file(:my_file).source.should == '/tmp/source/blah.rbt'
+    @instance.file(:my_file).destination.should == "/tmp/destination/gurr#{Process.pid.to_s}.rb"
+    @instance.file(:my_file).should be_an_instance_of(Templater::File)
+  end
+  
+  it "should add a file with a block, joining multiple arguments" do
+    @generator_class.file(:my_file) do
+      source 'test', 'something', 'blah.rbt'
+      destination 'test', "gurr#{Process.pid.to_s}.rb"
+    end
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.file(:my_file).source.should == '/tmp/source/test/something/blah.rbt'
+    @instance.file(:my_file).destination.should == "/tmp/destination/test/gurr#{Process.pid.to_s}.rb"
+    @instance.file(:my_file).should be_an_instance_of(Templater::File)
+  end
+  
   
   it "should add a file and convert an instruction encoded in the destination, but not one encoded in the source" do
     @generator_class.file(:my_file, 'template/%some_method%.rbt', 'template/%another_method%.rb')

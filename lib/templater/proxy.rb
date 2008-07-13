@@ -7,12 +7,12 @@ module Templater
       @name = name.to_sym
     end
     
-    def source(source)
-      @source = source
+    def source(*source)
+      @source = ::File.join(*source)
     end
     
-    def destination(dest)
-      @destination = dest
+    def destination(*dest)
+      @destination = ::File.join(*dest)
     end
     
     def to_template
