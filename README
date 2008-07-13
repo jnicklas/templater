@@ -71,7 +71,7 @@ Generators can invoke other generators, a WikiBlog generator that creates both a
 
     end
     
-It needs to source_root, since it has no actions. Not here that the generators are invoked by their name in the manifold, *not* by their class name. This gives the system a great deal of flexibility.
+It needs no source_root, since it has no actions. The generators are invoked by their name in the manifold, not by their class name; this gives the system a great deal of flexibility.
 
 == Automatically adding actions
 
@@ -114,7 +114,7 @@ Inside the templates normal ERB can be used. The templates are rendered in the s
     puts "I have no name"
     <% end %>
     
-IF you need to render templates where the result should contain actual erb, simply use a double percentage sign, this will prevent the statement from being executed.
+If you need to render templates where the result should contain actual erb, simply use a double percentage sign, this will prevent the statement from being executed.
 
     <%= 2 + 2 %>
     <%%= 2 + 2 %>
