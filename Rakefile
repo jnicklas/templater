@@ -12,6 +12,11 @@ EMAIL = "jonas.nicklas@gmail.com"
 HOMEPAGE = "http://templater.rubyforge.org/"
 SUMMARY = "File generation system"
 
+
+#
+# ==== Gemspec and installation
+#
+
 spec = Gem::Specification.new do |s|
   s.name = NAME
   s.version = Templater::VERSION
@@ -59,6 +64,10 @@ namespace :jruby do
   
 end
 
+#
+# ==== RDoc
+#
+
 desc 'Generate documentation for Templater.'
 Rake::RDocTask.new(:doc) do |rdoc|
   rdoc.rdoc_dir = 'doc'
@@ -67,4 +76,23 @@ Rake::RDocTask.new(:doc) do |rdoc|
   rdoc.rdoc_files.include('README')
   rdoc.rdoc_files.include('LICENSE')
   rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+#
+# ==== RCov
+#
+
+desc "Run coverage suite"
+task :rcov do
+  require 'fileutils'
+  FileUtils.rm_rf("coverage") if File.directory?("coverage")
+  FileUtils.mkdir("coverage")
+  path = File.expand_path(Dir.pwd)
+  files = Dir["spec/**/*_spec.rb"]
+  files.each do |spec|
+    puts "Getting coverage for #{File.expand_path(spec)}"
+    command = %{rcov #{File.expand_path(spec)} --aggregate #{path}/coverage/data.data --exclude ".*" --include-file "lib/merb-core(?!\/vendor)"}
+    command += " --no-html" unless spec == files.last
+    `#{command} 2>&1`
+  end
 end
