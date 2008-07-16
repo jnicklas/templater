@@ -409,6 +409,27 @@ describe Templater::Generator, '.file' do
   
 end
 
+
+describe Templater::Generator, ".empty_directory" do
+  before do
+    @generator_class = Class.new(Templater::Generator)
+  end
+
+  it "adds directory path to list of directories that should be created" do
+    lambda do
+      @generator_class.empty_directory :bin, "bin"
+    end.should change(@generator_class.empty_directories, :size)    
+  end
+  
+  it "calculates directory path relatively to destination root" do
+    @generator_class.empty_directory :bin, "bin/swf"
+    
+    @instance = @generator_class.new("/tmp/destination")
+    @instance.empty_directory(:bin).destination.should == "/tmp/destination/bin/swf"
+  end  
+end
+
+
 describe Templater::Generator, '.invoke' do
 
   before do
@@ -1033,6 +1054,7 @@ describe Templater::Generator, '#actions' do
     instance = @generator_class.new('/tmp')
     instance.should_receive(:templates).at_least(:once).and_return(['template1', 'template2'])
     instance.should_receive(:files).at_least(:once).and_return(['file1', 'file2'])
+    instance.should_receive(:empty_directories).at_least(:once).and_return(['public', 'bin'])
     instance.should_receive(:invocations).at_least(:once).and_return([@instance1, @instance2])
     
     @instance1.should_receive(:actions).at_least(:once).and_return(['subtemplate1', 'subfile1'])
@@ -1046,6 +1068,9 @@ describe Templater::Generator, '#actions' do
     instance.actions.should include('file2')
     instance.actions.should include('subfile1')
     instance.actions.should include('subfile2')
+
+    instance.actions.should include('public')
+    instance.actions.should include('bin')    
   end
   
 end

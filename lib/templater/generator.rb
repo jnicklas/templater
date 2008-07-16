@@ -38,6 +38,16 @@ module Templater
       # Array[Hash{Symbol=>Object}]:: A list of invocations
       def invocations; @invocations ||= []; end
       
+      # Returns an array of hashes, where each hash describes a single empty directory created by generator.
+      #
+      # ==== Returns
+      # Array[Hash{Symbol=>Object}]:: A list of empty directories created by generator.
+      def empty_directories; @empty_directories ||= []; end
+
+
+
+      
+      
       # A shorthand method for adding the first argument, see +Templater::Generator.argument+
       def first_argument(*args); argument(0, *args); end
 
@@ -50,6 +60,10 @@ module Templater
       # A shorthand method for adding the fourth argument, see +Templater::Generator.argument+
       def fourth_argument(*args); argument(3, *args); end
 
+
+
+
+      
       # If the argument is omitted, simply returns the description for this generator, otherwise
       # sets the description to the passed string.
       #
@@ -244,6 +258,15 @@ module Templater
           :render => false
         }
       end
+      
+      def empty_directory(name, path = nil)
+        path = name.to_s unless path
+        
+        self.empty_directories << {
+          :name        => name,
+          :destination => path
+        }
+      end
                        
       # An easy way to add many templates to a generator, each item in the list is added as a
       # template. The provided list can be either an array of Strings or a Here-Doc with templates
@@ -342,7 +365,12 @@ module Templater
         raise Templater::SourceNotSpecifiedError, "Subclasses of Templater::Generator must override the source_root method, to specify where source templates are located."
       end
       
-    end
+    end # end of eigenclass
+
+
+    #
+    # ==== Instance methods
+    #
     
     attr_accessor :destination_root, :arguments, :options
     
@@ -394,6 +422,14 @@ module Templater
     def file(name)
       self.files.find { |f| f.name == name }
     end
+
+    # Finds and returns all empty directories whose options match the generator options.
+    #
+    # === Returns
+    # [Templater::EmptyDirectory]:: The found empty directories that generator creates.
+    def empty_directory(name)
+      self.empty_directories.find { |d| d.name == name }
+    end
     
     # Finds and returns all templates whose options match the generator options.
     #
@@ -418,6 +454,16 @@ module Templater
       end
       files.compact
     end
+
+    # Finds and returns all empty directories generator creates.
+    #
+    # === Returns
+    # [Templater::File]:: The found files.
+    def empty_directories
+      self.class.empty_directories.map do |t|
+        Templater::Proxy.new(self, t[:name], nil, t[:destination], &t[:block]).to_empty_directory
+      end.compact
+    end    
     
     # Finds and returns all templates whose options match the generator options.
     #
@@ -445,7 +491,7 @@ module Templater
     # === Returns
     # [Templater::File, Templater::Template]:: The found templates and files.
     def actions
-      actions = templates + files
+      actions = templates + files + empty_directories
       actions += invocations.map { |i| i.actions }
       actions.flatten
     end
