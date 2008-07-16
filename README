@@ -115,6 +115,9 @@ This will search the source root and add all files as actions.
 
 == Templates
 
+Templates are processed using generator instance scope as binding, so every instance method available on your
+generator is available in template body.
+
 There are a lot of ways of adding templates:
 
     template :one_argument, 'source_and_destination.rb'
@@ -159,17 +162,20 @@ A generator for creating a model class, such as it used by Merb or Rails, could 
         def self.source_root
           File.join(super, 'model')
         end
-    
+
+				# description end users see next to generator name
         desc <<-DESC
           This is a model generator
         DESC
-    
+
+				# options generator takes, their metadata, like description or arguments type
         option :testing_framework, :desc => 'Specify which testing framework to use (spec, test_unit)'
         option :orm, :desc => 'Specify which Object-Relation Mapper to use (none, activerecord, datamapper, sequel)'
-    
+
+				# you may use shortcuts for first 4 option positions
         first_argument :name, :required => true
         second_argument :attributes, :as => :hash, :default => {}
-    
+
         invoke :migration do |generator|
           generator.new(destination_root, options.merge(:model => true), name, attributes)
         end
