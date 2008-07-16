@@ -43,8 +43,14 @@ Rake::GemPackageTask.new(spec) do |pkg|
   pkg.gem_spec = spec
 end
 
+desc "removes any generated content"
+task :clean do
+  FileUtils.rm_rf "clobber/*"
+  FileUtils.rm_rf "pkg/*"
+end
+
 desc "install the plugin locally"
-task :install => [:package] do
+task :install => [:clean, :package] do
   sh %{sudo gem install pkg/#{NAME}-#{Templater::VERSION} --no-update-sources}
 end
 
@@ -91,7 +97,7 @@ task :rcov do
   files = Dir["spec/**/*_spec.rb"]
   files.each do |spec|
     puts "Getting coverage for #{File.expand_path(spec)}"
-    command = %{rcov #{File.expand_path(spec)} --aggregate #{path}/coverage/data.data --exclude ".*" --include-file "lib/merb-core(?!\/vendor)"}
+    command = %{rcov #{File.expand_path(spec)} --aggregate #{path}/coverage/data.data}
     command += " --no-html" unless spec == files.last
     `#{command} 2>&1`
   end
