@@ -40,7 +40,7 @@ end
 
 desc "install the plugin locally"
 task :install => [:package] do
-  sh %{sudo gem install pkg/#{NAME}-#{VERSION} --no-update-sources}
+  sh %{sudo gem install pkg/#{NAME}-#{Templater::VERSION} --no-update-sources}
 end
 
 desc "create a gemspec file"
@@ -54,7 +54,7 @@ namespace :jruby do
 
   desc "Run :package and install the resulting .gem with jruby"
   task :install => :package do
-    sh %{#{SUDO} jruby -S gem install pkg/#{NAME}-#{Merb::VERSION}.gem --no-rdoc --no-ri}
+    sh %{#{SUDO} jruby -S gem install pkg/#{NAME}-#{Templater::VERSION}.gem --no-rdoc --no-ri}
   end
   
 end
