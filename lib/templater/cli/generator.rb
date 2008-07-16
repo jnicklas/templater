@@ -57,8 +57,12 @@ module Templater
         # Try to instantiate a generator, if the arguments to it were incorrect: show a help message
         begin
           @generator = @generator_class.new(@destination_root, @options, *arguments)
-        rescue Templater::ArgumentError
-          self.help
+        rescue Templater::ArgumentError => e
+          if @options[:debug]
+            raise e
+          else
+            self.help
+          end
         end
 
         if @options[:pretend] 
