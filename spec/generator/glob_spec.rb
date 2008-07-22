@@ -69,11 +69,11 @@ describe Templater::Generator, '.glob!' do
     
     @instance.templates.map { |t| t.name }.should == [
       :arg_js,
+      :readme,
       :subfolder_monkey_rb,
-      :test_rb,
+      :test_rb
     ]
     @instance.files.map { |f| f.name }.should == [
-      :readme,
       :subfolder_jessica_alba_jpg
     ]
   end
