@@ -37,6 +37,15 @@ describe Templater::Generator, '.glob!' do
     @instance.template(:subfolder_jessica_alba_jpg).destination.should == '/tmp/destination/subfolder/jessica_alba.jpg'
   end
   
+  it "should add README and other stuff without an extension as templates if in the template_extensions array" do
+    @generator_class.glob!(nil, %w(README))
+    
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.template(:readme).source.should == template_path('glob/README')
+    @instance.template(:readme).destination.should == "/tmp/destination/README"
+  end
+  
   it "should glob in a subdirectory" do
     @generator_class.stub!(:source_root).and_return(template_path(""))
     @generator_class.glob!('glob', %w(jpg))

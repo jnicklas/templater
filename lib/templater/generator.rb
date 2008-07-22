@@ -327,11 +327,12 @@ module Templater
       # template_destination<Array[String]>:: A list of extensions. If a file has one of these
       #     extensions, it is considered a template and will be rendered with ERB.
       # options<Hash{Symbol=>Object}>:: A list of options.
-      def glob!(dir = nil, template_extensions = %w(rb css js erb html yml), options={})
+      def glob!(dir = nil, template_extensions = %w(rb css js erb html yml Rakefile TODO LICENSE README), options={})
         ::Dir[::File.join(source_root, dir.to_s, '**/*')].each do |action|
           unless ::File.directory?(action)
             action = action.sub("#{source_root}/", '')
-            if template_extensions.include?(::File.extname(action)[1..-1])
+            
+            if template_extensions.include?(::File.extname(action)[1..-1]) or template_extensions.include?(::File.basename(action))
               template(action.downcase.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
             else
               file(action.downcase.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
