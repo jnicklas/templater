@@ -4,7 +4,6 @@ require 'rubygems'
 require 'highline'
 require "highline/import"
 require 'diff/lcs'
-require 'facets'
 
 
 require path + 'capture_helpers'
@@ -18,6 +17,7 @@ require path + 'cli/parser'
 require path + 'cli/manifold'
 require path + 'cli/generator'
 require path + 'core_ext/string'
+require path + 'core_ext/kernel'
 
 require 'erb'
 
