@@ -5,7 +5,7 @@ require 'highline'
 require "highline/import"
 require 'diff/lcs'
 
-
+require path + 'discovery'
 require path + 'capture_helpers'
 require path + 'template'
 require path + 'file'
