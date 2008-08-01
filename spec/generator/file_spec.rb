@@ -14,7 +14,7 @@ describe Templater::Generator, '.file' do
     
     @instance.file(:my_template).source.should == '/tmp/source/path/to/source.rbt'
     @instance.file(:my_template).destination.should == '/tmp/destination/path/to/destination.rb'
-    @instance.file(:my_template).should be_an_instance_of(Templater::File)
+    @instance.file(:my_template).should be_an_instance_of(Templater::Actions::File)
   end
   
   it "should add a file with source and infer destination " do
@@ -25,7 +25,7 @@ describe Templater::Generator, '.file' do
     
     @instance.file(:my_template).source.should == '/tmp/source/path/to/file.rb'
     @instance.file(:my_template).destination.should == '/tmp/destination/path/to/file.rb'
-    @instance.file(:my_template).should be_an_instance_of(Templater::File)
+    @instance.file(:my_template).should be_an_instance_of(Templater::Actions::File)
   end
   
   it "should add a file and convert an instruction encoded in the destination, but not one encoded in the source" do
@@ -38,7 +38,7 @@ describe Templater::Generator, '.file' do
     
     @instance.file(:my_template).source.should == '/tmp/source/template/%some_method%.rbt'
     @instance.file(:my_template).destination.should == "/tmp/destination/template/beast.rb"
-    @instance.file(:my_template).should be_an_instance_of(Templater::File)
+    @instance.file(:my_template).should be_an_instance_of(Templater::Actions::File)
   end
   
   it "should add a file and leave an encoded instruction be if it doesn't exist as a method" do
@@ -48,6 +48,6 @@ describe Templater::Generator, '.file' do
     @instance.stub!(:source_root).and_return('/tmp/source')
     
     @instance.file(:my_template).destination.should == "/tmp/destination/template/%some_method%.rb"
-    @instance.file(:my_template).should be_an_instance_of(Templater::File)
+    @instance.file(:my_template).should be_an_instance_of(Templater::Actions::File)
   end
 end

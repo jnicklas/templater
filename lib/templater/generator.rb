@@ -407,7 +407,7 @@ module Templater
     # name<Symbol>:: The name of the template to look up.
     #
     # === Returns
-    # Templater::Template:: The found template.
+    # Templater::Actions::Template:: The found template.
     def template(name)
       self.templates.find { |t| t.name == name }
     end
@@ -419,7 +419,7 @@ module Templater
     # name<Symbol>:: The name of the file to look up.
     #
     # === Returns
-    # Templater::File:: The found file.
+    # Templater::Actions::File:: The found file.
     def file(name)
       self.files.find { |f| f.name == name }
     end
@@ -427,7 +427,7 @@ module Templater
     # Finds and returns all empty directories whose options match the generator options.
     #
     # === Returns
-    # [Templater::EmptyDirectory]:: The found empty directories that generator creates.
+    # [Templater::Actions::EmptyDirectory]:: The found empty directories that generator creates.
     def empty_directory(name)
       self.empty_directories.find { |d| d.name == name }
     end
@@ -435,7 +435,7 @@ module Templater
     # Finds and returns all templates whose options match the generator options.
     #
     # === Returns
-    # [Templater::Template]:: The found templates.
+    # [Templater::Actions::Template]:: The found templates.
     def templates
       templates = self.class.templates.map do |t|
         template = Templater::Proxy.new(self, t[:name], t[:source], t[:destination], &t[:block]).to_template
@@ -447,7 +447,7 @@ module Templater
     # Finds and returns all files whose options match the generator options.
     #
     # === Returns
-    # [Templater::File]:: The found files.
+    # [Templater::Actions::File]:: The found files.
     def files
       files = self.class.files.map do |t|
         file = Templater::Proxy.new(self, t[:name], t[:source], t[:destination], &t[:block]).to_file
@@ -459,7 +459,7 @@ module Templater
     # Finds and returns all empty directories generator creates.
     #
     # === Returns
-    # [Templater::File]:: The found files.
+    # [Templater::Actions::File]:: The found files.
     def empty_directories
       self.class.empty_directories.map do |t|
         Templater::Proxy.new(self, t[:name], nil, t[:destination], &t[:block]).to_empty_directory
@@ -490,7 +490,7 @@ module Templater
     # whose options match that generator's options.
     #
     # === Returns
-    # [Templater::File, Templater::Template]:: The found templates and files.
+    # [Templater::Actions::File, Templater::Actions::Template]:: The found templates and files.
     def actions
       actions = templates + files + empty_directories
       actions += invocations.map { |i| i.actions }
