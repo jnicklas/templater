@@ -31,8 +31,8 @@ module Templater
 
     def generator_files
       find_latest_gems.inject([]) do |files, gem|
-        path = File.join(gem.full_gem_path, "Generators")
-        files << GeneratorFile.new(@scope, path) if File.exists?(path) and not File.directory?(path)
+        path = ::File.join(gem.full_gem_path, "Generators")
+        files << GeneratorFile.new(@scope, path) if ::File.exists?(path) and not ::File.directory?(path)
         files
       end
     end
@@ -50,7 +50,7 @@ module Templater
     end
     
     def load!
-      instance_eval(File.read(@path))
+      instance_eval(::File.read(@path))
     end
     
   end
