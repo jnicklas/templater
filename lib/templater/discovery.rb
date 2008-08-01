@@ -2,20 +2,21 @@
 
 module Templater
   
-  class Discovery
+  module Discovery
     
-    def self.discover!(scope)
-      self.new(scope).discover!
+    extend self
+    
+    def scope(scope, &block)
+      @scopes[scope] ||= []
+      @scopes[scope] << block
     end
     
-    def initialize(scope)
-      @scope = scope
-    end
-    
-    def discover!
+    def discover!(scope)
+      @scopes = {}
       generator_files.each do |file|
-        file.load!
+        load file
       end
+      @scopes[scope].each { |block| block.call } if @scopes[scope]
     end
     
     protected
@@ -32,27 +33,15 @@ module Templater
     def generator_files
       find_latest_gems.inject([]) do |files, gem|
         path = ::File.join(gem.full_gem_path, "Generators")
-        files << GeneratorFile.new(@scope, path) if ::File.exists?(path) and not ::File.directory?(path)
+        files << path if ::File.exists?(path) and not ::File.directory?(path)
         files
       end
     end
     
   end
-  
-  class GeneratorFile #:nodoc:
-    
-    def initialize(scope, path)
-      @scope, @path = scope, path
-    end
-    
-    def scope(scope)
-      yield if @scope == scope
-    end
-    
-    def load!
-      instance_eval(::File.read(@path))
-    end
-    
-  end
 
+end
+
+def scope(scope, &block)
+  Templater::Discovery.scope(scope, &block)
 end
