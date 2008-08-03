@@ -332,7 +332,7 @@ module Templater
           unless ::File.directory?(action)
             action = action.sub("#{source_root}/", '')
             
-            if template_extensions.include?(::File.extname(action)[1..-1]) or template_extensions.include?(::File.basename(action))
+            if template_extensions.include?(::File.extname(action.sub(/\.%.+%$/,''))[1..-1]) or template_extensions.include?(::File.basename(action))
               template(action.downcase.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
             else
               file(action.downcase.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)

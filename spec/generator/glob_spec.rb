@@ -69,13 +69,26 @@ describe Templater::Generator, '.glob!' do
     
     @instance.templates.map { |t| t.name }.should == [
       :arg_js,
+      :hellothar_html_feh_,
       :readme,
       :subfolder_monkey_rb,
-      :test_rb
+      :test_rb,
     ]
     @instance.files.map { |f| f.name }.should == [
+      :hellothar_feh_,
       :subfolder_jessica_alba_jpg
     ]
   end
   
+  it "should ignore ending '.%..%' and look at the extension preceding it" do
+    @generator_class.glob!
+    
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.template(:hellothar_html_feh_).source.should == template_path("glob/hellothar.html.%feh%")
+    @instance.template(:hellothar_html_feh_).destination.should == "/tmp/destination/hellothar.html.%feh%"
+    
+    @instance.file(:hellothar_feh_).source.should == template_path("glob/hellothar.%feh%")
+    @instance.file(:hellothar_feh_).destination.should == "/tmp/destination/hellothar.%feh%"
+  end
 end
