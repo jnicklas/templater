@@ -499,7 +499,15 @@ module Templater
     
     # Invokes the templates for this generator
     def invoke!
-      templates.each { |t| t.invoke! }
+      actions.each { |t| t.invoke! }
+    end
+    
+    # Renders all actions in this generator. Use this to verify that rendering templates raises no errors.
+    #
+    # === Returns
+    # [String]:: The results of the rendered actions
+    def render!
+      actions.map { |t| t.render }
     end
     
     # Returns this generator's source root
