@@ -4,10 +4,9 @@ module Templater
     
     class Generator
 
-      def initialize(generator_name, destination_root, manifold, name, version)
-        @destination_root, @manifold, @name, @version = destination_root, manifold, name, version
-        @generator_name = generator_name
-        @generator_class = @manifold.generator(@generator_name)
+      def initialize(generator_name, generator_class, destination_root, name, version)
+        @destination_root, @generator_name, @generator_class = destination_root, generator_name, generator_class
+        @name, @version = name, version
       end
 
       def version
