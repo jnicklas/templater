@@ -57,7 +57,7 @@ module Templater
     
       # removes the destination file
       def revoke!
-        ::FileUtils.rm(destination)
+        ::FileUtils.rm(destination, :force => true)
       end
   
     end
