@@ -38,12 +38,38 @@ describe Templater::Generator, '#invocations' do
     instance.invocations[1].should == @instance2
   end
   
-  it "should not return templates with an option that does not match." do
+  it "should not return invocations with an option that does not match." do
     @generator_class.option :framework, :default => :rails
     
     @generator_class.invoke(:merb, :framework => :merb)
     @generator_class.invoke(:rails, :framework => :rails)
     @generator_class.invoke(:both)
+    
+    instance = @generator_class.new('/tmp')
+
+    instance.invocations[0].should == @instance2
+    instance.invocations[1].should == @instance3
+                                      
+    instance.framework = :merb        
+    instance.invocations[0].should == @instance1
+    instance.invocations[1].should == @instance3
+
+    instance.framework = :rails       
+    instance.invocations[0].should == @instance2
+    instance.invocations[1].should == @instance3
+
+    instance.framework = nil          
+    instance.invocations[0].should == @instance3
+  end
+  
+  it "should not return invocations with blocks with an option that does not match." do
+    @generator_class.option :framework, :default => :rails
+    
+    instance1, instance2, instance3 = @instance1, @instance2, @instance3
+    
+    @generator_class.invoke(:merb, :framework => :merb) { instance1 }
+    @generator_class.invoke(:rails, :framework => :rails) { instance2 }
+    @generator_class.invoke(:both) { instance3 }
     
     instance = @generator_class.new('/tmp')
 
