@@ -555,7 +555,7 @@ module Templater
     end
     
     def match_options?(options)
-      options.all? { |key, value| get_option(key) == value }
+      options.all? { |key, value| self.send(key) == value }
     end
         
     def valid_argument?(arg, options, &block)

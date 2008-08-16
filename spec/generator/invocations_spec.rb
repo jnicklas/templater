@@ -63,7 +63,7 @@ describe Templater::Generator, '#invocations' do
   end
   
   it "should not return invocations with blocks with an option that does not match." do
-    @generator_class.option :framework, :default => :rails
+    @generator_class.send(:attr_accessor, :framework)
     
     instance1, instance2, instance3 = @instance1, @instance2, @instance3
     
@@ -73,9 +73,6 @@ describe Templater::Generator, '#invocations' do
     
     instance = @generator_class.new('/tmp')
 
-    instance.invocations[0].should == @instance2
-    instance.invocations[1].should == @instance3
-                                      
     instance.framework = :merb        
     instance.invocations[0].should == @instance1
     instance.invocations[1].should == @instance3

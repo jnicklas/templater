@@ -23,7 +23,7 @@ describe Templater::Generator, '#template' do
   end
   
   it "should not return a template with an option that does not match." do
-    @generator_class.option :framework, :default => :rails
+    @generator_class.send(:attr_accessor, :framework)
     
     @generator_class.template(:merb, 'blah.rb', :framework => :merb)
     @generator_class.template(:rails, 'blah2.rb', :framework => :rails)
@@ -31,6 +31,7 @@ describe Templater::Generator, '#template' do
     
     instance = @generator_class.new('/tmp')
 
+    instance.framework = :rails
     instance.template(:rails).name.should == :rails
     instance.template(:merb).should be_nil
     instance.template(:none).name.should == :none

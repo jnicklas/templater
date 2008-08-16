@@ -23,7 +23,7 @@ describe Templater::Generator, '#file' do
   end
   
   it "should not return a file with an option that does not match." do
-    @generator_class.option :framework, :default => :rails
+    @generator_class.send(:attr_accessor, :framework)
     
     @generator_class.file(:merb, 'blah.rb', :framework => :merb)
     @generator_class.file(:rails, 'blah2.rb', :framework => :rails)
@@ -31,6 +31,7 @@ describe Templater::Generator, '#file' do
     
     instance = @generator_class.new('/tmp')
 
+    instance.framework = :rails
     instance.file(:rails).name.should == :rails
     instance.file(:merb).should be_nil
     instance.file(:none).name.should == :none
