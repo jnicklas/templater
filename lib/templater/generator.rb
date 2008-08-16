@@ -259,14 +259,22 @@ module Templater
         }
       end
       
-      def empty_directory(name, *args)
+      # Adds an empty directory that will be created when the generator is run.
+      #
+      # === Parameters
+      # name<Symbol>:: The name of this empty directory
+      # destination<String>:: The destination where the empty directory will be created
+      # options<Hash>:: Options for this empty directory
+      # &block<Proc>:: A block to execute when the generator is instantiated
+      def empty_directory(name, *args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
-        path = args.first || name.to_s
+        destination = args.first
         
         self.empty_directories << {
           :name => name,
-          :destination => path,
-          :options => options
+          :destination => destination,
+          :options => options,
+          :block => block
         }
       end
                        

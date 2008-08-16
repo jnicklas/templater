@@ -4,19 +4,56 @@ describe Templater::Generator, ".empty_directory" do
   before do
     @generator_class = Class.new(Templater::Generator)
   end
-
-  it "adds directory path to list of directories that should be created" do
-    lambda do
-      @generator_class.empty_directory :bin, "bin"
-    end.should change(@generator_class.empty_directories, :size)    
+  
+  it "should add an empty_directory" do
+    @generator_class.empty_directory(:my_empty_directory, 'path/to/destination.rb')
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.empty_directory(:my_empty_directory).destination.should == '/tmp/destination/path/to/destination.rb'
+    @instance.empty_directory(:my_empty_directory).should be_an_instance_of(Templater::Actions::EmptyDirectory)
   end
   
-  it "calculates directory path relatively to destination root" do
-    @generator_class.empty_directory :bin, "bin/swf"
+  it "should add a empty_directory and convert an instruction encoded in the destination" do
+    @generator_class.empty_directory(:my_empty_directory, 'template/%another_method%.rb')
+    @instance = @generator_class.new('/tmp/destination')
     
-    @instance = @generator_class.new("/tmp/destination")
-    @instance.empty_directory(:bin).destination.should == "/tmp/destination/bin/swf"
-  end  
+    @instance.should_receive(:another_method).at_least(:once).and_return('beast')
+    
+    @instance.empty_directory(:my_empty_directory).destination.should == "/tmp/destination/template/beast.rb"
+    @instance.empty_directory(:my_empty_directory).should be_an_instance_of(Templater::Actions::EmptyDirectory)
+  end
+  
+  it "should add an empty directory with a block" do
+    @generator_class.empty_directory(:my_empty_directory) do
+      destination "gurr#{Process.pid.to_s}.rb"
+    end
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.empty_directory(:my_empty_directory).destination.should == "/tmp/destination/gurr#{Process.pid.to_s}.rb"
+    @instance.empty_directory(:my_empty_directory).should be_an_instance_of(Templater::Actions::EmptyDirectory)
+  end
+  
+  it "should add an empty directory with a complex block" do
+    @generator_class.empty_directory(:my_empty_directory) do
+      destination 'gurr', "gurr#{something}.rb"
+    end
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:something).and_return('anotherthing')
+    
+    @instance.empty_directory(:my_empty_directory).destination.should == "/tmp/destination/gurr/gurranotherthing.rb"
+    @instance.empty_directory(:my_empty_directory).should be_an_instance_of(Templater::Actions::EmptyDirectory)
+  end
+  
+  it "should add a empty_directory and leave an encoded instruction be if it doesn't exist as a method" do
+    @generator_class.empty_directory(:my_empty_directory, 'template/%some_method%.rb')
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.empty_directory(:my_empty_directory).destination.should == "/tmp/destination/template/%some_method%.rb"
+    @instance.empty_directory(:my_empty_directory).should be_an_instance_of(Templater::Actions::EmptyDirectory)
+  end
 end
 
 describe Templater::Generator, '#empty_directories' do

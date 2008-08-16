@@ -53,6 +53,21 @@ describe Templater::Generator, '.template' do
     @instance.template(:my_template).should be_an_instance_of(Templater::Actions::Template)
   end
   
+  it "should add a template with a complex block" do
+    @generator_class.template(:my_template) do
+      source 'blah', 'blah.rbt'
+      destination 'gurr', "gurr#{something}.rb"
+    end
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:something).and_return('anotherthing')
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.template(:my_template).source.should == '/tmp/source/blah/blah.rbt'
+    @instance.template(:my_template).destination.should == "/tmp/destination/gurr/gurranotherthing.rb"
+    @instance.template(:my_template).should be_an_instance_of(Templater::Actions::Template)
+  end
+  
   it "should add a template and convert an with an instruction encoded in the destination, but not one encoded in the source" do
     @generator_class.template(:my_template, 'template/%some_method%.rbt', 'template/%another_method%.rb')
     @instance = @generator_class.new('/tmp/destination')

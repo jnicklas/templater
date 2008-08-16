@@ -28,6 +28,35 @@ describe Templater::Generator, '.file' do
     @instance.file(:my_template).should be_an_instance_of(Templater::Actions::File)
   end
   
+  it "should add a file with a block" do
+    @generator_class.file(:my_file) do
+      source 'blah.rbt'
+      destination "gurr#{Process.pid.to_s}.rb"
+    end
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.file(:my_file).source.should == '/tmp/source/blah.rbt'
+    @instance.file(:my_file).destination.should == "/tmp/destination/gurr#{Process.pid.to_s}.rb"
+    @instance.file(:my_file).should be_an_instance_of(Templater::Actions::File)
+  end
+  
+  it "should add a file with a complex block" do
+    @generator_class.file(:my_file) do
+      source 'blah', 'blah.rbt'
+      destination 'gurr', "gurr#{something}.rb"
+    end
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.stub!(:something).and_return('anotherthing')
+    @instance.stub!(:source_root).and_return('/tmp/source')
+    
+    @instance.file(:my_file).source.should == '/tmp/source/blah/blah.rbt'
+    @instance.file(:my_file).destination.should == "/tmp/destination/gurr/gurranotherthing.rb"
+    @instance.file(:my_file).should be_an_instance_of(Templater::Actions::File)
+  end
+  
   it "should add a file and convert an instruction encoded in the destination, but not one encoded in the source" do
     @generator_class.file(:my_template, 'template/%some_method%.rbt', 'template/%another_method%.rb')
     @instance = @generator_class.new('/tmp/destination')
