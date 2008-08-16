@@ -259,12 +259,14 @@ module Templater
         }
       end
       
-      def empty_directory(name, path = nil)
-        path = name.to_s unless path
+      def empty_directory(name, *args)
+        options = args.last.is_a?(Hash) ? args.pop : {}
+        path = args.first || name.to_s
         
         self.empty_directories << {
-          :name        => name,
-          :destination => path
+          :name => name,
+          :destination => path,
+          :options => options
         }
       end
                        
@@ -462,7 +464,8 @@ module Templater
     # [Templater::Actions::File]:: The found files.
     def empty_directories
       self.class.empty_directories.map do |t|
-        Templater::Proxy.new(self, t[:name], nil, t[:destination], &t[:block]).to_empty_directory
+        empty_directory = Templater::Proxy.new(self, t[:name], nil, t[:destination], &t[:block]).to_empty_directory
+        match_options?(t[:options]) ? empty_directory : nil
       end.compact
     end    
     
