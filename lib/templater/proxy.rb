@@ -2,9 +2,11 @@ module Templater
   
   class Proxy #:nodoc:
     
-    def initialize(generator, name, source, destination, &block)
-      @generator, @block, @source, @destination = generator, block, source, destination
-      @name = name.to_sym
+    def initialize(generator, action={})
+      @generator = generator
+      @block = action[:block]
+      @source, @destination = action[:source], action[:destination]
+      @name = action[:name]
     end
     
     def source(*source)

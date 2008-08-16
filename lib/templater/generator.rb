@@ -97,7 +97,7 @@ module Templater
       # :desc<Symbol>:: Provide a description for this argument
       def argument(n, name, options={}, &block)
         self.arguments[n] = {
-          :name => name,
+          :name => name.to_sym,
           :options => options,
           :block => block
         }
@@ -179,7 +179,7 @@ module Templater
       #   end
       def invoke(name, options={}, &block)
         self.invocations << {
-          :name => name,
+          :name => name.to_sym,
           :options => options,
           :block => block
         }
@@ -226,7 +226,7 @@ module Templater
         source, destination = source + 't', source if args.size == 1
         
         self.templates << {
-          :name => name,
+          :name => name.to_sym,
           :options => options,
           :source => source,
           :destination => destination,
@@ -250,7 +250,7 @@ module Templater
         source, destination = source, source if args.size == 1
         
         self.files << {
-          :name => name,
+          :name => name.to_sym,
           :options => options,
           :source => source,
           :destination => destination,
@@ -271,7 +271,7 @@ module Templater
         destination = args.first
         
         self.empty_directories << {
-          :name => name,
+          :name => name.to_sym,
           :destination => destination,
           :options => options,
           :block => block
@@ -395,12 +395,11 @@ module Templater
     # === Raises
     # Templater::ArgumentError:: If the arguments are invalid
     def initialize(destination_root, options = {}, *args)
-      # FIXME: options as a second argument is kinda stupid, since it forces silly syntax, but since *args
-      # might contain hashes, I can't come up with another way of making this unambiguous. 
       @destination_root = destination_root
       @arguments = []
       @options = options
       
+      # Initialize options to their default values.
       self.class.options.each do |option|
         @options[option[:name]] ||= option[:options][:default]
       end
@@ -447,11 +446,10 @@ module Templater
     # === Returns
     # [Templater::Actions::Template]:: The found templates.
     def templates
-      templates = self.class.templates.map do |t|
-        template = Templater::Proxy.new(self, t[:name], t[:source], t[:destination], &t[:block]).to_template
-        match_options?(t[:options]) ? template : nil
+      self.class.templates.inject([]) do |templates, template|
+        templates << Templater::Proxy.new(self, template).to_template if match_options?(template[:options])
+        templates
       end
-      templates.compact
     end
     
     # Finds and returns all files whose options match the generator options.
@@ -459,11 +457,10 @@ module Templater
     # === Returns
     # [Templater::Actions::File]:: The found files.
     def files
-      files = self.class.files.map do |t|
-        file = Templater::Proxy.new(self, t[:name], t[:source], t[:destination], &t[:block]).to_file
-        match_options?(t[:options]) ? file : nil
+      self.class.files.inject([]) do |files, file|
+        files << Templater::Proxy.new(self, file).to_file if match_options?(file[:options])
+        files
       end
-      files.compact
     end
 
     # Finds and returns all empty directories generator creates.
@@ -471,10 +468,10 @@ module Templater
     # === Returns
     # [Templater::Actions::File]:: The found files.
     def empty_directories
-      self.class.empty_directories.map do |t|
-        empty_directory = Templater::Proxy.new(self, t[:name], nil, t[:destination], &t[:block]).to_empty_directory
-        match_options?(t[:options]) ? empty_directory : nil
-      end.compact
+      self.class.empty_directories.inject([]) do |empty_directories, action|
+        empty_directories << Templater::Proxy.new(self, action).to_empty_directory if match_options?(action[:options])
+        empty_directories
+      end
     end    
     
     # Finds and returns all templates whose options match the generator options.
@@ -482,22 +479,20 @@ module Templater
     # === Returns
     # [Templater::Generator]:: The found templates.
     def invocations
-      if self.class.manifold
-        invocations = self.class.invocations.map do |invocation|
-          generator = self.class.manifold.generator(invocation[:name])
+      return [] unless self.class.manifold
+      
+      self.class.invocations.inject([]) do |invocations, invocation|
+        generator = self.class.manifold.generator(invocation[:name])
+        
+        if generator and match_options?(invocation[:options])
           
-          if generator and match_options?(invocation[:options])
-            
-            if invocation[:block]
-              instance_exec(generator, &invocation[:block])
-            else 
-              generator.new(destination_root, options, *@arguments)
-            end
+          if invocation[:block]
+            invocations << instance_exec(generator, &invocation[:block])
+          else 
+            invocations << generator.new(destination_root, options, *@arguments)
           end
         end
-        invocations.compact
-      else
-        []
+        invocations
       end
     end
     
