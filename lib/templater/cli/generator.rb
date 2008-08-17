@@ -39,7 +39,7 @@ module Templater
               if option[:options][:as] == :boolean
                 opts.on("--#{name}", option[:options][:desc]) do |s|
                   options[option[:name]] = s
-                end                
+                end
               else
                 opts.on("--#{name} OPTION", option[:options][:desc]) do |s|
                   options[option[:name]] = s.gsub('-', '_').to_sym
@@ -50,7 +50,6 @@ module Templater
         end
 
         self.help if @options[:help]
-        self.help if arguments.first == 'help'
         self.version if @options[:version]
 
         # Try to instantiate a generator, if the arguments to it were incorrect: show a help message
