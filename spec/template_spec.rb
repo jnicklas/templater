@@ -128,4 +128,10 @@ describe Templater::Actions::Template, '#revoke!' do
     File.exists?(result_path('test.rbs')).should be_false
   end
   
+  it "should do nothing when the destination file doesn't exist" do
+    template = Templater::Actions::Template.new(@context, :monkey, template_path('simple_erb.rbt'), result_path('test.rbs'))
+    
+    lambda { template.revoke! }.should_not raise_error
+  end
+  
 end
