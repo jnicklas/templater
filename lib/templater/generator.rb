@@ -1,5 +1,7 @@
 module Templater
   
+  ACTION_RESERVED_OPTIONS = [:before, :after].freeze
+  
   class Generator
     
     include Templater::CaptureHelpers
@@ -561,7 +563,9 @@ module Templater
     end
     
     def match_options?(options)
-      options.all? { |key, value| self.send(key) == value }
+      options.all? do |key, value|
+        key.in?(Templater::ACTION_RESERVED_OPTIONS) or self.send(key) == value
+      end
     end
         
     def valid_argument?(arg, options, &block)

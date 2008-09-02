@@ -4,13 +4,12 @@ describe Templater::Generator, '.template' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
+    @generator_class.stub!(:source_root).and_return('/tmp/source')
   end
 
   it "should add a template with source and destination" do
     @generator_class.template(:my_template, 'path/to/source.rbt', 'path/to/destination.rb')
     @instance = @generator_class.new('/tmp/destination')
-    
-    @instance.stub!(:source_root).and_return('/tmp/source')
     
     @instance.template(:my_template).source.should == '/tmp/source/path/to/source.rbt'
     @instance.template(:my_template).destination.should == '/tmp/destination/path/to/destination.rb'
@@ -21,8 +20,6 @@ describe Templater::Generator, '.template' do
     @generator_class.template(:my_template, '/path/to/source.rbt', '/path/to/destination.rb')
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.stub!(:source_root).and_return('/tmp/source')
-    
     @instance.template(:my_template).source.should == '/path/to/source.rbt'
     @instance.template(:my_template).destination.should == '/path/to/destination.rb'
     @instance.template(:my_template).should be_an_instance_of(Templater::Actions::Template)
@@ -31,8 +28,6 @@ describe Templater::Generator, '.template' do
   it "should add a template with destination and infer the source" do
     @generator_class.template(:my_template, 'path/to/destination.rb')
     @instance = @generator_class.new('/tmp/destination')
-    
-    @instance.stub!(:source_root).and_return('/tmp/source')
     
     @instance.template(:my_template).source.should == '/tmp/source/path/to/destination.rbt'
     @instance.template(:my_template).destination.should == '/tmp/destination/path/to/destination.rb'
@@ -45,8 +40,6 @@ describe Templater::Generator, '.template' do
       destination "gurr#{Process.pid.to_s}.rb"
     end
     @instance = @generator_class.new('/tmp/destination')
-    
-    @instance.stub!(:source_root).and_return('/tmp/source')
     
     @instance.template(:my_template).source.should == '/tmp/source/blah.rbt'
     @instance.template(:my_template).destination.should == "/tmp/destination/gurr#{Process.pid.to_s}.rb"
@@ -61,7 +54,6 @@ describe Templater::Generator, '.template' do
     @instance = @generator_class.new('/tmp/destination')
     
     @instance.stub!(:something).and_return('anotherthing')
-    @instance.stub!(:source_root).and_return('/tmp/source')
     
     @instance.template(:my_template).source.should == '/tmp/source/blah/blah.rbt'
     @instance.template(:my_template).destination.should == "/tmp/destination/gurr/gurranotherthing.rb"
@@ -72,7 +64,6 @@ describe Templater::Generator, '.template' do
     @generator_class.template(:my_template, 'template/%some_method%.rbt', 'template/%another_method%.rb')
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.stub!(:source_root).and_return('/tmp/source')
     @instance.should_not_receive(:some_method)
     @instance.should_receive(:another_method).at_least(:once).and_return('beast')
     
@@ -85,10 +76,18 @@ describe Templater::Generator, '.template' do
     @generator_class.template(:my_template, 'template/blah.rbt', 'template/%some_method%.rb')
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.stub!(:source_root).and_return('/tmp/source')
-    
     @instance.template(:my_template).destination.should == "/tmp/destination/template/%some_method%.rb"
     @instance.template(:my_template).should be_an_instance_of(Templater::Actions::Template)
+  end
+  
+  it "should pass options on to the template" do
+    @generator_class.template(:my_template, 'path/to/destination.rb', :before => :monkey, :after => :donkey)
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.should_receive(:monkey).ordered
+    @instance.should_receive(:donkey).ordered
+    
+    @instance.template(:my_template).options.should == hash_including(:before => :monkey, :after => :donkey)  
   end
   
 end
