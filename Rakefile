@@ -35,6 +35,7 @@ spec = Gem::Specification.new do |s|
   
   s.add_dependency "highline", ">= 1.4.0"
   s.add_dependency "diff-lcs", ">= 1.1.2"
+  s.add_dependency "extlib", ">= 0.9.5"
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
