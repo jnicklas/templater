@@ -2,7 +2,7 @@ module Templater
   module Actions
     class EmptyDirectory
 
-      attr_reader :name, :destination
+      attr_reader :name, :destination, :options
     
       def initialize(generator, name, destination, options={})
         @generator = generator

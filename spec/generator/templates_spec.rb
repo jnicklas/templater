@@ -84,9 +84,6 @@ describe Templater::Generator, '.template' do
     @generator_class.template(:my_template, 'path/to/destination.rb', :before => :monkey, :after => :donkey)
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.should_receive(:monkey).ordered
-    @instance.should_receive(:donkey).ordered
-    
     @instance.template(:my_template).options.should == hash_including(:before => :monkey, :after => :donkey)  
   end
   

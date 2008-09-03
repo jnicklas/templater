@@ -54,6 +54,13 @@ describe Templater::Generator, ".empty_directory" do
     @instance.empty_directory(:my_empty_directory).destination.should == "/tmp/destination/template/%some_method%.rb"
     @instance.empty_directory(:my_empty_directory).should be_an_instance_of(Templater::Actions::EmptyDirectory)
   end
+  
+  it "should pass options on to the empty_directory" do
+    @generator_class.empty_directory(:my_template, 'path/to/destination.rb', :before => :monkey, :after => :donkey)
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.empty_directory(:my_template).options.should == hash_including(:before => :monkey, :after => :donkey)  
+  end
 end
 
 describe Templater::Generator, '#empty_directories' do

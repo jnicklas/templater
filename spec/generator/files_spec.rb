@@ -4,13 +4,12 @@ describe Templater::Generator, '.file' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
+    @generator_class.stub!(:source_root).and_return('/tmp/source')
   end
 
   it "should add a file with source and destination" do
     @generator_class.file(:my_template, 'path/to/source.rbt', 'path/to/destination.rb')
     @instance = @generator_class.new('/tmp/destination')
-    
-    @instance.stub!(:source_root).and_return('/tmp/source')
     
     @instance.file(:my_template).source.should == '/tmp/source/path/to/source.rbt'
     @instance.file(:my_template).destination.should == '/tmp/destination/path/to/destination.rb'
@@ -20,8 +19,6 @@ describe Templater::Generator, '.file' do
   it "should add a file with source and infer destination " do
     @generator_class.file(:my_template, 'path/to/file.rb')
     @instance = @generator_class.new('/tmp/destination')
-    
-    @instance.stub!(:source_root).and_return('/tmp/source')
     
     @instance.file(:my_template).source.should == '/tmp/source/path/to/file.rb'
     @instance.file(:my_template).destination.should == '/tmp/destination/path/to/file.rb'
@@ -34,8 +31,6 @@ describe Templater::Generator, '.file' do
       destination "gurr#{Process.pid.to_s}.rb"
     end
     @instance = @generator_class.new('/tmp/destination')
-    
-    @instance.stub!(:source_root).and_return('/tmp/source')
     
     @instance.file(:my_file).source.should == '/tmp/source/blah.rbt'
     @instance.file(:my_file).destination.should == "/tmp/destination/gurr#{Process.pid.to_s}.rb"
@@ -50,7 +45,6 @@ describe Templater::Generator, '.file' do
     @instance = @generator_class.new('/tmp/destination')
     
     @instance.stub!(:something).and_return('anotherthing')
-    @instance.stub!(:source_root).and_return('/tmp/source')
     
     @instance.file(:my_file).source.should == '/tmp/source/blah/blah.rbt'
     @instance.file(:my_file).destination.should == "/tmp/destination/gurr/gurranotherthing.rb"
@@ -61,7 +55,6 @@ describe Templater::Generator, '.file' do
     @generator_class.file(:my_template, 'template/%some_method%.rbt', 'template/%another_method%.rb')
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.stub!(:source_root).and_return('/tmp/source')
     @instance.should_not_receive(:some_method)
     @instance.should_receive(:another_method).at_least(:once).and_return('beast')
     
@@ -74,10 +67,15 @@ describe Templater::Generator, '.file' do
     @generator_class.file(:my_template, 'template/blah.rbt', 'template/%some_method%.rb')
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.stub!(:source_root).and_return('/tmp/source')
-    
     @instance.file(:my_template).destination.should == "/tmp/destination/template/%some_method%.rb"
     @instance.file(:my_template).should be_an_instance_of(Templater::Actions::File)
+  end
+  
+  it "should pass options on to the file" do
+    @generator_class.file(:my_template, 'path/to/destination.rb', :before => :monkey, :after => :donkey)
+    @instance = @generator_class.new('/tmp/destination')
+    
+    @instance.file(:my_template).options.should == hash_including(:before => :monkey, :after => :donkey)  
   end
 end
 
