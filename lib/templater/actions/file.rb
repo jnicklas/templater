@@ -2,7 +2,7 @@ module Templater
   module Actions
     class File
   
-      attr_accessor :name, :source, :destination
+      attr_accessor :name, :source, :destination, :options
   
       # Builds a new file, given the name of the file and its source and destination.
       #
@@ -10,10 +10,12 @@ module Templater
       # name<Symbol>:: The name of this template
       # source<String>:: Full path to the source of this template
       # destination<String>:: Full path to the destination of this template
-      def initialize(name, source, destination)
+      def initialize(generator, name, source, destination, options={})
+        @generator = generator
         @name = name
         @source = source
         @destination = destination
+        @options = options
       end
     
       # Returns the destination path relative to Dir.pwd. This is useful for prettier output in interfaces

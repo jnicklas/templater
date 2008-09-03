@@ -24,12 +24,12 @@ module Templater
     
     def to_file
       instance_eval(&@block) if @block
-      Templater::Actions::File.new(@name, get_source, get_destination)
+      Templater::Actions::File.new(@generator, @name, get_source, get_destination)
     end
 
     def to_empty_directory
       instance_eval(&@block) if @block
-      Templater::Actions::EmptyDirectory.new(@name, get_destination)
+      Templater::Actions::EmptyDirectory.new(@generator, @name, get_destination)
     end
     
     def method_missing(method, *args, &block)

@@ -2,14 +2,18 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe Templater::Actions::EmptyDirectory do
 
+  before do
+    @generator = mock('a generator')
+  end
+
   describe '.new' do
     it "sets name and destination" do
-      Templater::Actions::EmptyDirectory.new(:monkey, '/path/to/destination').
+      Templater::Actions::EmptyDirectory.new(@generator, :monkey, '/path/to/destination').
       name.should == :monkey
     end
 
     it 'sets destination' do
-      Templater::Actions::EmptyDirectory.new(:monkey, '/path/to/destination').
+      Templater::Actions::EmptyDirectory.new(@generator, :monkey, '/path/to/destination').
       destination.should == '/path/to/destination'    
     end
   end
@@ -17,7 +21,7 @@ describe Templater::Actions::EmptyDirectory do
   describe '#relative_destination' do
     it "returns destination relative to the pwd" do
       Dir.stub!(:pwd).and_return('/path/to')
-      file = Templater::Actions::EmptyDirectory.new(:monkey, '/path/to/destination/with/some/more/subdirs')
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, '/path/to/destination/with/some/more/subdirs')
       file.relative_destination.should == 'destination/with/some/more/subdirs'
     end
   end
@@ -29,30 +33,30 @@ describe Templater::Actions::EmptyDirectory do
   describe '#exists?' do
 
     it "should exist if the destination file exists" do  
-      file = Templater::Actions::EmptyDirectory.new(:monkey, result_path('erb.rbs'))
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, result_path('erb.rbs'))
       file.should be_exists
     end
 
     it "should not exist if the destination file does not exist" do  
-      file = Templater::Actions::EmptyDirectory.new(:monkey, result_path('some_weird_file.rbs'))
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, result_path('some_weird_file.rbs'))
       file.should_not be_exists
     end
   end
 
   describe '#identical' do
     it "should not be identical if the destination file doesn't exist" do  
-      file = Templater::Actions::EmptyDirectory.new(:monkey, result_path('some_weird/path/that_does/not_exist'))
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, result_path('some_weird/path/that_does/not_exist'))
       file.should_not be_identical
     end
 
     it "should not be identical if the destination file is not identical to the source file" do
-      file = Templater::Actions::EmptyDirectory.new(:monkey, result_path('simple_erb.rbs'))
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, result_path('simple_erb.rbs'))
       file.should be_exists
       file.should be_identical
     end
 
     it "should be identical if the destination file is identical to the source file" do
-      file= Templater::Actions::EmptyDirectory.new(:monkey, result_path('file.rbs'))
+      file= Templater::Actions::EmptyDirectory.new(@generator, :monkey, result_path('file.rbs'))
       file.should be_exists
       file.should be_identical
     end
@@ -60,7 +64,7 @@ describe Templater::Actions::EmptyDirectory do
 
   describe '#invoke!' do
     it "should copy the source file to the destination" do
-      file = Templater::Actions::EmptyDirectory.new(:monkey, result_path('path/to/subdir/test2.rbs'))
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, result_path('path/to/subdir/test2.rbs'))
 
       file.invoke!
 
@@ -73,7 +77,7 @@ describe Templater::Actions::EmptyDirectory do
 
   describe '#revoke!' do
     it "removes the destination directory" do
-      file = Templater::Actions::EmptyDirectory.new(:monkey, result_path('path/to/empty/subdir/'))
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, result_path('path/to/empty/subdir/'))
 
       file.invoke!
       File.exists?(result_path('path/to/empty/subdir/')).should be_true

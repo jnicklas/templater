@@ -4,8 +4,10 @@ module Templater
 
       attr_reader :name, :destination
     
-      def initialize(name, destination)
+      def initialize(generator, name, destination, options={})
+        @generator = generator
         @name, @destination = name, destination
+        @options = options
       end
 
       # Returns the destination path relative to Dir.pwd. This is useful for prettier output in interfaces

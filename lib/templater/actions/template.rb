@@ -2,7 +2,7 @@ module Templater
   module Actions
     class Template
   
-      attr_accessor :context, :name, :source, :destination, :options
+      attr_accessor :generator, :name, :source, :destination, :options
   
       # Builds a new template, given the context (e.g. binding) in which the template will be rendered
       # (usually a generator), the name of the template and its source and destination.
@@ -13,11 +13,12 @@ module Templater
       # source<String>:: Full path to the source of this template
       # destination<String>:: Full path to the destination of this template
       # render<Boolean>:: If set to false, will do a copy instead of rendering.
-      def initialize(context, name, source, destination)
-        @context = context
+      def initialize(generator, name, source, destination, options={})
+        @generator = generator
         @name = name
         @source = source
         @destination = destination
+        @options = options
       end
     
       # Returns the destination path relative to Dir.pwd. This is useful for prettier output in interfaces
@@ -34,7 +35,7 @@ module Templater
       # === Returns
       # String:: The rendered template.
       def render
-        ERB.new(::File.read(source), nil, '-').result(context.send(:binding))
+        ERB.new(::File.read(source), nil, '-').result(generator.send(:binding))
       end
 
       # Checks if the destination file already exists.
