@@ -19,8 +19,8 @@ describe Templater::Actions::EmptyDirectory do
   end
 
   describe '#relative_destination' do
-    it "returns destination relative to the pwd" do
-      Dir.stub!(:pwd).and_return('/path/to')
+    it "returns the destination relative to the generator's destination root" do
+      @generator.stub!(:destination_root).and_return('/path/to')
       file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, '/path/to/destination/with/some/more/subdirs')
       file.relative_destination.should == 'destination/with/some/more/subdirs'
     end

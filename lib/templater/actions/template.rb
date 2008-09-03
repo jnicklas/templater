@@ -27,7 +27,7 @@ module Templater
       # === Returns
       # String:: The destination relative to Dir.pwd
       def relative_destination
-        @destination.sub(::Dir.pwd + ::File::SEPARATOR, '')
+        @destination.relative_path_from(@generator.destination_root)
       end
   
       # Renders the template using ERB and returns the result as a String.
