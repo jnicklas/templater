@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/spec_helper'
+require File.dirname(__FILE__) / '..' / 'spec_helper'
 
 describe Templater::Actions::Template do
 
@@ -89,8 +89,6 @@ describe Templater::Actions::Template do
 
       File.exists?(result_path('test.rbs')).should be_true
       File.read(result_path('test.rbs')).should == "test2test"
-
-      FileUtils.rm(result_path('test.rbs'))
     end
 
     it "should render the template and copy it to the destination, creating any required subdirectories" do  
@@ -100,8 +98,19 @@ describe Templater::Actions::Template do
 
       File.exists?(result_path('path/to/subdir/test.rbs')).should be_true
       File.read(result_path('path/to/subdir/test.rbs')).should == "test2test"
+    end
+    
+    it "should trigger before and after callbacks" do
+      @options = { :before => :ape, :after => :elephant }
+      template = Templater::Actions::Template.new(@generator, :monkey, template_path('simple_erb.rbt'), result_path('path/to/subdir/test.rbs'), @options)
 
-      # cleanup
+      @generator.should_receive(:ape).ordered
+      @generator.should_receive(:elephant).ordered
+
+      template.invoke!
+    end
+    
+    after do
       FileUtils.rm_rf(result_path('path'))
     end
   end

@@ -56,8 +56,10 @@ module Templater
   
       # Renders the template and copies it to the destination.
       def invoke!
+        @generator.send(@options[:before]) if @options[:before]
         ::FileUtils.mkdir_p(::File.dirname(destination))
         ::File.open(destination, 'w') {|f| f.write render }
+        @generator.send(@options[:after]) if @options[:after]
       end
     
       # removes the destination file

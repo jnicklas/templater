@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/spec_helper'
+require File.dirname(__FILE__) / '..' / 'spec_helper'
 
 describe Templater::Actions::EmptyDirectory do
 
@@ -69,8 +69,21 @@ describe Templater::Actions::EmptyDirectory do
       file.invoke!
 
       File.exists?(result_path('path/to/subdir/test2.rbs')).should be_true
+    end
+    
+    it "should trigger before and after callbacks" do
+      @options = { :before => :ape, :after => :elephant }
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, result_path('path/to/subdir/test2.rbs'), @options)
 
-      # cleanup
+      @generator.should_receive(:ape).ordered
+      @generator.should_receive(:elephant).ordered
+
+      file.invoke!
+
+      File.exists?(result_path('path/to/subdir/test2.rbs')).should be_true
+    end
+    
+    after do
       FileUtils.rm_rf(result_path('path'))
     end
   end
