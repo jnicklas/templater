@@ -75,7 +75,8 @@ describe Templater::Generator, '.file' do
     @generator_class.file(:my_template, 'path/to/destination.rb', :before => :monkey, :after => :donkey)
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.file(:my_template).options.should == hash_including(:before => :monkey, :after => :donkey)  
+    @instance.file(:my_template).options[:before].should == :monkey
+    @instance.file(:my_template).options[:after].should == :donkey
   end
 end
 

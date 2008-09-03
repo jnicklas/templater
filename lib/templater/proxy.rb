@@ -7,6 +7,7 @@ module Templater
       @block = action[:block]
       @source, @destination = action[:source], action[:destination]
       @name = action[:name]
+      @options = action[:options]
     end
     
     def source(*source)
@@ -19,17 +20,17 @@ module Templater
     
     def to_template
       instance_eval(&@block) if @block
-      Templater::Actions::Template.new(@generator, @name, get_source, get_destination)
+      Templater::Actions::Template.new(@generator, @name, get_source, get_destination, @options)
     end
     
     def to_file
       instance_eval(&@block) if @block
-      Templater::Actions::File.new(@generator, @name, get_source, get_destination)
+      Templater::Actions::File.new(@generator, @name, get_source, get_destination, @options)
     end
 
     def to_empty_directory
       instance_eval(&@block) if @block
-      Templater::Actions::EmptyDirectory.new(@generator, @name, get_destination)
+      Templater::Actions::EmptyDirectory.new(@generator, @name, get_destination, @options)
     end
     
     def method_missing(method, *args, &block)
