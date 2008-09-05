@@ -229,14 +229,15 @@ module Templater
         source, destination = args
         source, destination = source + 't', source if args.size == 1
         
-        templates << Templater::ActionDescription.new({
-          :name => name.to_sym,
-          :options => options,
-          :source => source,
-          :destination => destination,
-          :block => block,
-          :render => true
-        })
+        templates << Templater::ActionDescription.new(name, options) do |generator|
+          Templater::Proxy.new(generator, {
+            :name => name.to_sym,
+            :options => options,
+            :source => source,
+            :destination => destination,
+            :block => block            
+          }).to_template
+        end
       end
       
       # Adds a template that is not rendered using ERB, but copied directly. Unlike Templater::Generator.template
@@ -257,14 +258,15 @@ module Templater
         source, destination = args
         source, destination = source, source if args.size == 1
         
-        files << Templater::ActionDescription.new({
-          :name => name.to_sym,
-          :options => options,
-          :source => source,
-          :destination => destination,
-          :block => block,
-          :render => false
-        })
+        files << Templater::ActionDescription.new(name, options) do |generator|
+          Templater::Proxy.new(generator, {
+            :name => name.to_sym,
+            :options => options,
+            :source => source,
+            :destination => destination,
+            :block => block            
+          }).to_file
+        end
       end
       
       # Adds an empty directory that will be created when the generator is run.
@@ -282,12 +284,14 @@ module Templater
         options = args.last.is_a?(Hash) ? args.pop : {}
         destination = args.first
         
-        empty_directories << Templater::ActionDescription.new({
-          :name => name.to_sym,
-          :destination => destination,
-          :options => options,
-          :block => block
-        })
+        empty_directories << Templater::ActionDescription.new(name, options) do |generator|
+          Templater::Proxy.new(generator, {
+            :name => name.to_sym,
+            :destination => destination,
+            :options => options,
+            :block => block
+          }).to_empty_directory
+        end
       end
                        
       # An easy way to add many templates to a generator, each item in the list is added as a
@@ -458,8 +462,8 @@ module Templater
     # === Returns
     # [Templater::Actions::Template]:: The found templates.
     def templates
-      self.class.templates.inject([]) do |templates, template|
-        templates << Templater::Proxy.new(self, template).to_template if match_options?(template[:options])
+      self.class.templates.inject([]) do |templates, description|
+        templates << description.compile(self) if match_options?(description.options)
         templates
       end
     end
@@ -469,8 +473,8 @@ module Templater
     # === Returns
     # [Templater::Actions::File]:: The found files.
     def files
-      self.class.files.inject([]) do |files, file|
-        files << Templater::Proxy.new(self, file).to_file if match_options?(file[:options])
+      self.class.files.inject([]) do |files, description|
+        files << description.compile(self) if match_options?(description.options)
         files
       end
     end
@@ -480,8 +484,8 @@ module Templater
     # === Returns
     # [Templater::Actions::File]:: The found files.
     def empty_directories
-      self.class.empty_directories.inject([]) do |empty_directories, action|
-        empty_directories << Templater::Proxy.new(self, action).to_empty_directory if match_options?(action[:options])
+      self.class.empty_directories.inject([]) do |empty_directories, description|
+        empty_directories << description.compile(self) if match_options?(description.options)
         empty_directories
       end
     end    
