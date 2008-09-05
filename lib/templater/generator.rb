@@ -198,8 +198,8 @@ module Templater
       # Source and destination can be set in a block, which makes it possible to call instance methods to
       # determine the correct source and/or desination.
       #
-      # A hash of options can be passed, all of these options are matched against the options passed to the
-      # generator.
+      # A hash of options can be passed, these options are matched against the options passed to the
+      # generator. Some special options, for callbacks for example, are also supported, see below.
       #
       # === Parameters
       # name<Symbol>:: The name of this template
@@ -207,6 +207,10 @@ module Templater
       # destination<String>:: The destination where the result will be put.
       # options<Hash>:: Options for this template
       # &block<Proc>:: A block to execute when the generator is instantiated
+      #
+      # === Options
+      # :before<Symbol>:: Name of a method to execute before this template is invoked
+      # :after<Symbol>:: Name of a method to execute after this template is invoked
       #
       # ==== Examples
       #
@@ -246,6 +250,10 @@ module Templater
       # destination<String>:: The destination where the result will be put.
       # options<Hash>:: Options for this template
       # &block<Proc>:: A block to execute when the generator is instantiated
+      #
+      # === Options
+      # :before<Symbol>:: Name of a method to execute before this template is invoked
+      # :after<Symbol>:: Name of a method to execute after this template is invoked
       def file(name, *args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
         source, destination = args
@@ -268,6 +276,10 @@ module Templater
       # destination<String>:: The destination where the empty directory will be created
       # options<Hash>:: Options for this empty directory
       # &block<Proc>:: A block to execute when the generator is instantiated
+      #
+      # === Options
+      # :before<Symbol>:: Name of a method to execute before this template is invoked
+      # :after<Symbol>:: Name of a method to execute after this template is invoked
       def empty_directory(name, *args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
         destination = args.first

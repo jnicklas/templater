@@ -11,15 +11,9 @@ Hierarchy is pretty simple: manifold has one or many public and private generato
 by end user. Generators have one or more action that specify what they do, where they take files, how they name resulting
 files and so forth.
 
-
 == Idea behind Templater
 
-Templater keeps declarations of generator inside it's body. You vary source and destinations of each action the way you want.
-There's no magical %variables% in filenames sprinkled across your generator, generator rules are simple, readable, concise
-and are in one place making it easy to take existing generator as example.
-
-This is how Templater is different from some other code/components generation frameworks.
-
+Templater is designed to be flexible and designed to be reflective. Generators created with templater are definitions of what goes where, they provide no interface for the user. This allows you to use templater generators inside your own code, or with the bundled CLI interface, or with your own interface.
 
 == Example
 
@@ -150,6 +144,18 @@ will result in
 
     4
     <%= 2 + 2 %>
+    
+== Callbacks
+
+Sometimes it might be desirable to add a callback to your actions, an example might be to chmod a binary file after it is created.
+
+    class MyGenerator < Templater::Generator
+      template :something, 'something.rb', :after => :chmod
+    
+      def chmod(action)
+        File.chmod(action.destination, 0750)
+      end
+    end
 
 == An advanced example
 
