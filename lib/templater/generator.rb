@@ -512,15 +512,27 @@ module Templater
       end
     end
     
+    # Finds and returns all templates and files for this generators whose options match its options.
+    #
+    # === Returns
+    # [Templater::Actions::*]:: The found templates and files.
+    def actions(type=nil)
+      actions = type ? self.class.actions[type] : self.class.actions.values.flatten
+      actions.inject([]) do |actions, description|
+        actions << description.compile(self) if match_options?(description.options)
+        actions
+      end
+    end
+    
     # Finds and returns all templates and files for this generators and any of those generators it invokes,
     # whose options match that generator's options.
     #
     # === Returns
     # [Templater::Actions::File, Templater::Actions::Template]:: The found templates and files.
-    def actions
-      actions = templates + files + empty_directories
-      actions += invocations.map { |i| i.actions }
-      actions.flatten
+    def all_actions(type=nil)
+      all_actions = actions(type)
+      all_actions += invocations.map { |i| i.all_actions(type) }
+      all_actions.flatten
     end
     
     # Invokes the templates for this generator

@@ -4,59 +4,108 @@ describe Templater::Generator, '#actions' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
-    @generator_class.class_eval do
-      def source_root
-        '/tmp/source'
-      end
-    end
-    
-    @generator1 = mock('a generator')
-    @instance1 = mock('an instance of the generator')
-    @generator1.stub!(:new).and_return(@instance1)
-    @generator2 = mock('another generator')
-    @instance2 = mock('an instance of another generator')
-    @generator2.stub!(:new).and_return(@instance2)
-    
-    @manifold = mock('a manifold')
-    @manifold.stub!(:generator).with(:one).and_return(@generator1)
-    @manifold.stub!(:generator).with(:two).and_return(@generator2)
-    @manifold.stub!(:generator).with(:three).and_return(@generator3)
-    
-    @generator_class.stub!(:manifold).and_return(@manifold)
+    @generator_class.stub!(:source_root).and_return('/tmp/source')
   end
 
-  it "should return all templates and files" do    
-    instance = @generator_class.new('/tmp')
-    instance.should_receive(:templates).at_least(:once).and_return(['template1', 'template2'])
-    instance.should_receive(:files).at_least(:once).and_return(['file1', 'file2'])
+  it "should return all actions" do    
+    @generator_class.template :one, 'template1.rb'
+    @generator_class.template :two, 'template2.rb'
+    @generator_class.file :three, 'file1.rb'
+    @generator_class.empty_directory :four, 'file2.rb'
     
-    instance.actions.should include('template1')
-    instance.actions.should include('template2')
-    instance.actions.should include('file1')
-    instance.actions.should include('file2')
+    instance = @generator_class.new('/tmp')
+    
+    instance.actions.should have_names(:one, :two, :three, :four)
   end
   
-  it "should return all templates and files recursively for all invocations" do
+  it "should return only a certain type of action" do
+    @generator_class.template :one, 'template1.rb'
+    @generator_class.template :two, 'template2.rb'
+    @generator_class.file :three, 'file1.rb'
+    @generator_class.empty_directory :four, 'file2.rb'
+    
     instance = @generator_class.new('/tmp')
-    instance.should_receive(:templates).at_least(:once).and_return(['template1', 'template2'])
-    instance.should_receive(:files).at_least(:once).and_return(['file1', 'file2'])
-    instance.should_receive(:empty_directories).at_least(:once).and_return(['public', 'bin'])
-    instance.should_receive(:invocations).at_least(:once).and_return([@instance1, @instance2])
     
-    @instance1.should_receive(:actions).at_least(:once).and_return(['subtemplate1', 'subfile1'])
-    @instance2.should_receive(:actions).at_least(:once).and_return(['subtemplate2', 'subfile2'])
-    
-    instance.actions.should include('template1')
-    instance.actions.should include('template2')
-    instance.actions.should include('subtemplate1')
-    instance.actions.should include('subtemplate2')
-    instance.actions.should include('file1')
-    instance.actions.should include('file2')
-    instance.actions.should include('subfile1')
-    instance.actions.should include('subfile2')
+    instance.actions(:templates).should have_names(:one, :two)
+  end
+end
 
-    instance.actions.should include('public')
-    instance.actions.should include('bin')    
+describe Templater::Generator, '#all_actions' do
+
+  before do
+    @generator_class = Class.new(Templater::Generator)
+    @generator_class.stub!(:source_root).and_return('/tmp/source')
+    
+    @generator_class2 = Class.new(Templater::Generator)
+    @generator_class2.stub!(:source_root).and_return('/tmp/source')
+    
+    @generator_class3 = Class.new(Templater::Generator)
+    @generator_class3.stub!(:source_root).and_return('/tmp/source')    
+    
+    @manifold = Object.new
+    @manifold.extend Templater::Manifold
+    @manifold.add(:one, @generator_class)
+    @manifold.add(:two, @generator_class2)
+    @manifold.add(:three, @generator_class3)
+  end
+
+  it "should return all actions" do    
+    @generator_class.template :one, 'template1.rb'
+    @generator_class.template :two, 'template2.rb'
+    @generator_class.file :three, 'file1.rb'
+    @generator_class.empty_directory :four, 'file2.rb'
+    instance = @generator_class.new('/tmp')
+    
+    instance.all_actions.should have_names(:one, :two, :three, :four)
+  end
+  
+  it "should return only a certain type of action" do
+    @generator_class.template :one, 'template1.rb'
+    @generator_class.template :two, 'template2.rb'
+    @generator_class.file :three, 'file1.rb'
+    @generator_class.empty_directory :four, 'file2.rb'
+    
+    instance = @generator_class.new('/tmp')
+    
+    instance.all_actions(:templates).should have_names(:one, :two)
+  end
+  
+  it "should return all actions recursively for all invocations" do
+    @generator_class.invoke :two
+    @generator_class2.invoke :three
+    
+    @generator_class.template :one, 'template1.rb'
+    @generator_class.file :two, 'file1.rb'
+    @generator_class.empty_directory :three, 'file2.rb'
+
+    @generator_class2.file :four, 'file2.rb'
+    @generator_class2.template :five, 'file2.rb'
+    
+    @generator_class3.template :six, 'fds.rb'
+    @generator_class3.empty_directory :seven, 'dfsd.rb'
+
+    instance = @generator_class.new('/tmp')
+    
+    instance.all_actions.should have_names(:one, :two, :three, :four, :five, :six, :seven)
+  end
+  
+  it "should return only a certain type of actions recursively for all invocations" do
+    @generator_class.invoke :two
+    @generator_class2.invoke :three
+    
+    @generator_class.template :one, 'template1.rb'
+    @generator_class.file :two, 'file1.rb'
+    @generator_class.empty_directory :three, 'file2.rb'
+
+    @generator_class2.file :four, 'file2.rb'
+    @generator_class2.template :five, 'file2.rb'
+    
+    @generator_class3.template :six, 'fds.rb'
+    @generator_class3.empty_directory :seven, 'dfsd.rb'
+
+    instance = @generator_class.new('/tmp')
+    
+    instance.all_actions(:templates).should have_names(:one, :five, :six)
   end
   
 end

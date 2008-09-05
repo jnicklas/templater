@@ -46,7 +46,7 @@ module Templater
         def matches?(actual)
           @actual = actual
           # Satisfy expectation here. Return false or raise an error if it's not met.
-          @actual.actions.map{|t| t.destination }.include?(@expected)
+          @actual.all_actions.map{|t| t.destination }.include?(@expected)
         end
 
         def failure_message
