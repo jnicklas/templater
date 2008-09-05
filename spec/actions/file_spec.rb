@@ -75,8 +75,8 @@ describe Templater::Actions::File do
       @options = { :before => :ape, :after => :elephant }
       file = Templater::Actions::File.new(@generator, :monkey, template_path('simple_erb.rbt'), result_path('path/to/subdir/test2.rbs'), @options)
 
-      @generator.should_receive(:ape).ordered
-      @generator.should_receive(:elephant).ordered
+      @generator.should_receive(:ape).with(file).ordered
+      @generator.should_receive(:elephant).with(file).ordered
 
       file.invoke!
     end

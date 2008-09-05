@@ -104,8 +104,8 @@ describe Templater::Actions::Template do
       @options = { :before => :ape, :after => :elephant }
       template = Templater::Actions::Template.new(@generator, :monkey, template_path('simple_erb.rbt'), result_path('path/to/subdir/test.rbs'), @options)
 
-      @generator.should_receive(:ape).ordered
-      @generator.should_receive(:elephant).ordered
+      @generator.should_receive(:ape).with(template).ordered
+      @generator.should_receive(:elephant).with(template).ordered
 
       template.invoke!
     end
