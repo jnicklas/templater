@@ -9,46 +9,13 @@ module Templater
     class << self
       
       attr_accessor :manifold
+
       
       # Returns an array of hashes, where each hash describes a single argument.
       #
       # === Returns
       # Array[Hash{Symbol=>Object}]:: A list of arguments
       def arguments; @arguments ||= []; end
-      
-      # Returns an array of options, where each hash describes a single option.
-      #
-      # === Returns
-      # Array[Hash{Symbol=>Object}]:: A list of options
-      def options; @options ||= []; end
-      
-      # Returns an array of hashes, where each hash describes a single template.
-      #
-      # === Returns
-      # Array[Hash{Symbol=>Object}]:: A list of template
-      def templates; @templates ||= []; end
-      
-      # Returns an array of hashes, where each hash describes a single file.
-      #
-      # === Returns
-      # Array[Hash{Symbol=>Object}]:: A list of files
-      def files; @files ||= []; end
-      
-      # Returns an array of hashes, where each hash describes a single invocation.
-      #
-      # === Returns
-      # Array[Hash{Symbol=>Object}]:: A list of invocations
-      def invocations; @invocations ||= []; end
-      
-      # Returns an array of hashes, where each hash describes a single empty directory created by generator.
-      #
-      # ==== Returns
-      # Array[Hash{Symbol=>Object}]:: A list of empty directories created by generator.
-      def empty_directories; @empty_directories ||= []; end
-
-
-
-      
       
       # A shorthand method for adding the first argument, see +Templater::Generator.argument+
       def first_argument(*args); argument(0, *args); end
@@ -63,9 +30,40 @@ module Templater
       def fourth_argument(*args); argument(3, *args); end
 
 
+      # Returns an array of options, where each hash describes a single option.
+      #
+      # === Returns
+      # Array[Hash{Symbol=>Object}]:: A list of options
+      def options; @options ||= []; end
+
+      # Returns an array of hashes, where each hash describes a single invocation.
+      #
+      # === Returns
+      # Array[Hash{Symbol=>Object}]:: A list of invocations
+      def invocations; @invocations ||= []; end
 
 
+      def actions; @actions ||= {} end
+
+      # Returns an array of hashes, where each hash describes a single template.
+      #
+      # === Returns
+      # Array[Hash{Symbol=>Object}]:: A list of template
+      def templates; actions[:templates] ||= []; end
       
+      # Returns an array of hashes, where each hash describes a single file.
+      #
+      # === Returns
+      # Array[Hash{Symbol=>Object}]:: A list of files
+      def files; actions[:files] ||= []; end
+      
+      # Returns an array of hashes, where each hash describes a single empty directory created by generator.
+      #
+      # ==== Returns
+      # Array[Hash{Symbol=>Object}]:: A list of empty directories created by generator.
+      def empty_directories; actions[:empty_directories] ||= []; end
+
+
       # If the argument is omitted, simply returns the description for this generator, otherwise
       # sets the description to the passed string.
       #
@@ -231,14 +229,14 @@ module Templater
         source, destination = args
         source, destination = source + 't', source if args.size == 1
         
-        self.templates << {
+        templates << Templater::ActionDescription.new({
           :name => name.to_sym,
           :options => options,
           :source => source,
           :destination => destination,
           :block => block,
           :render => true
-        }
+        })
       end
       
       # Adds a template that is not rendered using ERB, but copied directly. Unlike Templater::Generator.template
@@ -259,14 +257,14 @@ module Templater
         source, destination = args
         source, destination = source, source if args.size == 1
         
-        self.files << {
+        files << Templater::ActionDescription.new({
           :name => name.to_sym,
           :options => options,
           :source => source,
           :destination => destination,
           :block => block,
           :render => false
-        }
+        })
       end
       
       # Adds an empty directory that will be created when the generator is run.
@@ -284,12 +282,12 @@ module Templater
         options = args.last.is_a?(Hash) ? args.pop : {}
         destination = args.first
         
-        self.empty_directories << {
+        empty_directories << Templater::ActionDescription.new({
           :name => name.to_sym,
           :destination => destination,
           :options => options,
           :block => block
-        }
+        })
       end
                        
       # An easy way to add many templates to a generator, each item in the list is added as a
@@ -576,7 +574,7 @@ module Templater
     
     def match_options?(options)
       options.all? do |key, value|
-        key.in?(Templater::ACTION_RESERVED_OPTIONS) or self.send(key) == value
+        key.to_sym.in?(Templater::ACTION_RESERVED_OPTIONS) or self.send(key) == value
       end
     end
         
