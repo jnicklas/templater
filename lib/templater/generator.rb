@@ -434,7 +434,7 @@ module Templater
     # === Returns
     # Templater::Actions::Template:: The found template.
     def template(name)
-      self.templates.find { |t| t.name == name }
+      templates.find { |t| t.name == name }
     end
     
     # Finds and returns the file of the given name. If that file's options don't match the generator
@@ -446,7 +446,7 @@ module Templater
     # === Returns
     # Templater::Actions::File:: The found file.
     def file(name)
-      self.files.find { |f| f.name == name }
+      files.find { |f| f.name == name }
     end
 
     # Finds and returns all empty directories whose options match the generator options.
@@ -454,7 +454,7 @@ module Templater
     # === Returns
     # [Templater::Actions::EmptyDirectory]:: The found empty directories that generator creates.
     def empty_directory(name)
-      self.empty_directories.find { |d| d.name == name }
+      empty_directories.find { |d| d.name == name }
     end
     
     # Finds and returns all templates whose options match the generator options.
@@ -462,10 +462,7 @@ module Templater
     # === Returns
     # [Templater::Actions::Template]:: The found templates.
     def templates
-      self.class.templates.inject([]) do |templates, description|
-        templates << description.compile(self) if match_options?(description.options)
-        templates
-      end
+      actions(:templates)
     end
     
     # Finds and returns all files whose options match the generator options.
@@ -473,10 +470,7 @@ module Templater
     # === Returns
     # [Templater::Actions::File]:: The found files.
     def files
-      self.class.files.inject([]) do |files, description|
-        files << description.compile(self) if match_options?(description.options)
-        files
-      end
+      actions(:files)
     end
 
     # Finds and returns all empty directories generator creates.
@@ -484,10 +478,7 @@ module Templater
     # === Returns
     # [Templater::Actions::File]:: The found files.
     def empty_directories
-      self.class.empty_directories.inject([]) do |empty_directories, description|
-        empty_directories << description.compile(self) if match_options?(description.options)
-        empty_directories
-      end
+      actions(:empty_directories)
     end    
     
     # Finds and returns all templates whose options match the generator options.
