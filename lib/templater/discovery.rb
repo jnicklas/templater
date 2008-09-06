@@ -54,12 +54,18 @@ module Templater
     protected
     
     def find_latest_gems
-      Gem::cache.inject({}) do |latest_gems, cache|
-        name, gem = cache
-        currently_latest = latest_gems[gem.name]
-        latest_gems[gem.name] = gem if currently_latest.nil? or gem.version > currently_latest.version
-        latest_gems
-      end.values
+      # Minigems provides a simpler (and much faster) method for finding the
+      # latest gems.
+      if Gem.respond_to?(:latest_gem_paths)
+        Gem.latest_gem_paths
+      else
+        Gem.cache.inject({}) do |latest_gems, cache|
+          name, gem = cache
+          currently_latest = latest_gems[gem.name]
+          latest_gems[gem.name] = gem if currently_latest.nil? or gem.version > currently_latest.version
+          latest_gems
+        end.values
+      end
     end
 
     def generator_files
