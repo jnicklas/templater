@@ -128,10 +128,7 @@ module Templater
       # :as<Symbol>:: If set to :boolean provides a hint to the interface using this generator.
       # :desc<Symbol>:: Provide a description for this option
       def option(name, options={})
-        self.options << {
-          :name => name.to_sym,
-          :options => options
-        }
+        self.options << Description.new(name.to_sym, options)
         class_eval <<-CLASS
           def #{name}
             get_option(:#{name})
@@ -409,7 +406,7 @@ module Templater
       
       # Initialize options to their default values.
       self.class.options.each do |option|
-        @options[option[:name]] ||= option[:options][:default]
+        @options[option.name] ||= option.options[:default]
       end
       
       extract_arguments(*args)
