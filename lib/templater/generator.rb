@@ -222,8 +222,8 @@ module Templater
         source, destination = args
         source, destination = source + 't', source if args.size == 1
         
-        templates << Templater::ActionDescription.new(name, options) do |generator|
-          template = Templater::Actions::Template.new(generator, name, source, destination, options)
+        templates << ActionDescription.new(name, options) do |generator|
+          template = Actions::Template.new(generator, name, source, destination, options)
           generator.instance_exec(template, &block) if block
           template
         end
@@ -247,8 +247,8 @@ module Templater
         source, destination = args
         source, destination = source, source if args.size == 1
         
-        files << Templater::ActionDescription.new(name, options) do |generator|
-          file = Templater::Actions::File.new(generator, name, source, destination, options)
+        files << ActionDescription.new(name, options) do |generator|
+          file = Actions::File.new(generator, name, source, destination, options)
           generator.instance_exec(file, &block) if block
           file
         end
@@ -269,8 +269,8 @@ module Templater
         options = args.last.is_a?(Hash) ? args.pop : {}
         destination = args.first
         
-        empty_directories << Templater::ActionDescription.new(name, options) do |generator|
-          directory = Templater::Actions::EmptyDirectory.new(generator, name, destination, options)
+        empty_directories << ActionDescription.new(name, options) do |generator|
+          directory = Actions::EmptyDirectory.new(generator, name, destination, options)
           generator.instance_exec(directory, &block) if block
           directory
         end
