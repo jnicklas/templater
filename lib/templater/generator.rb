@@ -175,11 +175,7 @@ module Templater
       #     invoke :other_generator, :amimal => :bear
       #   end
       def invoke(name, options={}, &block)
-        self.invocations << {
-          :name => name.to_sym,
-          :options => options,
-          :block => block
-        }
+        self.invocations << Description.new(name.to_sym, options, &block)
       end
       
       # Adds a template to this generator. Templates are named and can later be retrieved by that name.
@@ -361,7 +357,7 @@ module Templater
         generators = [self]
         if manifold
           generators += invocations.map do |i|
-            generator = manifold.generator(i[:name])
+            generator = manifold.generator(i.name)
             generator ? generator.generators : nil
           end
         end
@@ -474,12 +470,12 @@ module Templater
       return [] unless self.class.manifold
       
       self.class.invocations.inject([]) do |invocations, invocation|
-        generator = self.class.manifold.generator(invocation[:name])
+        generator = self.class.manifold.generator(invocation.name)
         
-        if generator and match_options?(invocation[:options])
+        if generator and match_options?(invocation.options)
           
-          if invocation[:block]
-            invocations << instance_exec(generator, &invocation[:block])
+          if invocation.block
+            invocations << instance_exec(generator, &invocation.block)
           else 
             invocations << generator.new(destination_root, options, *@arguments)
           end
