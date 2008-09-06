@@ -26,9 +26,9 @@ describe Templater::Generator, '.file' do
   end
   
   it "should add a file with a block" do
-    @generator_class.file(:my_file) do
-      source 'blah.rbt'
-      destination "gurr#{Process.pid.to_s}.rb"
+    @generator_class.file(:my_file) do |file|
+      file.source = 'blah.rbt'
+      file.destination = "gurr#{Process.pid.to_s}.rb"
     end
     @instance = @generator_class.new('/tmp/destination')
     
@@ -38,9 +38,9 @@ describe Templater::Generator, '.file' do
   end
   
   it "should add a file with a complex block" do
-    @generator_class.file(:my_file) do
-      source 'blah', 'blah.rbt'
-      destination 'gurr', "gurr#{something}.rb"
+    @generator_class.file(:my_file) do |file|
+      file.source = 'blah' / 'blah.rbt'
+      file.destination = 'gurr' / "gurr#{something}.rb"
     end
     @instance = @generator_class.new('/tmp/destination')
     
@@ -115,11 +115,7 @@ describe Templater::Generator, '#files' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
-    @generator_class.class_eval do
-      def source_root
-        '/tmp/source'
-      end
-    end
+    @generator_class.stub!(:source_root).and_return('/tmp/source')
   end
 
   it "should return all files" do
@@ -162,11 +158,7 @@ describe Templater::Generator, '#file' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
-    @generator_class.class_eval do
-      def source_root
-        '/tmp/source'
-      end
-    end
+    @generator_class.stub!(:source_root).and_return('/tmp/source')
   end
 
   it "should find a file by name" do

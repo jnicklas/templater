@@ -2,7 +2,7 @@ module Templater
   module Actions
     class File
   
-      attr_accessor :name, :source, :destination, :options
+      attr_accessor :generator, :name, :source, :destination, :options
   
       # Builds a new file, given the name of the file and its source and destination.
       #
@@ -11,11 +11,23 @@ module Templater
       # source<String>:: Full path to the source of this template
       # destination<String>:: Full path to the destination of this template
       def initialize(generator, name, source, destination, options={})
-        @generator = generator
-        @name = name
-        @source = source
-        @destination = destination
-        @options = options
+        self.generator = generator
+        self.name = name
+        self.source = source
+        self.destination = destination
+        self.options = options
+      end
+
+      def source=(source)
+        unless source.blank?
+          @source = ::File.expand_path(source, generator.source_root)
+        end
+      end
+
+      def destination=(destination)
+        unless destination.blank?
+          @destination = ::File.expand_path(convert_encoded_instructions(destination), generator.destination_root)
+        end
       end
     
       # Returns the destination path relative to Dir.pwd. This is useful for prettier output in interfaces
@@ -62,6 +74,15 @@ module Templater
       # removes the destination file
       def revoke!
         ::FileUtils.rm(destination, :force => true)
+      end
+
+      protected
+      
+      def convert_encoded_instructions(filename)
+        filename.gsub(/%.*?%/) do |string|
+          instruction = string.match(/%(.*?)%/)[1]
+          @generator.respond_to?(instruction) ? @generator.send(instruction) : string
+        end
       end
   
     end

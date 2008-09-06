@@ -255,13 +255,9 @@ module Templater
         source, destination = source, source if args.size == 1
         
         files << Templater::ActionDescription.new(name, options) do |generator|
-          Templater::Proxy.new(generator, {
-            :name => name.to_sym,
-            :options => options,
-            :source => source,
-            :destination => destination,
-            :block => block            
-          }).to_file
+          file = Templater::Actions::File.new(generator, name, source, destination, options)
+          generator.instance_exec(file, &block) if block
+          file
         end
       end
       
