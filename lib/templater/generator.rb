@@ -543,8 +543,7 @@ module Templater
     protected
     
     def set_argument(n, arg)
-      argument = self.class.arguments[n]
-      valid_argument?(arg, argument.options, &argument.block)
+      valid_argument?(n, arg)
       @arguments[n] = arg
     end
     
@@ -566,18 +565,19 @@ module Templater
       end
     end
         
-    def valid_argument?(arg, options, &block)
-      if arg.nil? and options[:required]
+    def valid_argument?(n, value)
+      argument = self.class.arguments[n]
+      if value.nil? and argument.options[:required]
         raise Templater::TooFewArgumentsError
-      elsif not arg.nil?
-        if options[:as] == :hash and not arg.is_a?(Hash)
-          raise Templater::MalformattedArgumentError, "Expected the argument to be a Hash, but was '#{arg.inspect}'"
-        elsif options[:as] == :array and not arg.is_a?(Array)
-          raise Templater::MalformattedArgumentError, "Expected the argument to be an Array, but was '#{arg.inspect}'"
+      elsif not value.nil?
+        if argument.options[:as] == :hash and not value.is_a?(Hash)
+          raise Templater::MalformattedArgumentError, "Expected the argument to be a Hash, but was '#{value.inspect}'"
+        elsif argument.options[:as] == :array and not value.is_a?(Array)
+          raise Templater::MalformattedArgumentError, "Expected the argument to be an Array, but was '#{value.inspect}'"
         end
            
         invalid = catch :invalid do
-          yield if block_given?
+          argument.block.call(value) if argument.block
           throw :invalid, :not_invalid
         end
         raise Templater::ArgumentError, invalid unless invalid == :not_invalid
@@ -586,7 +586,7 @@ module Templater
     
     def valid_arguments?
       self.class.arguments.each_with_index do |arg, i|
-        valid_argument?(@arguments[i], arg.options, &arg.block)
+        valid_argument?(i, @arguments[i])
       end
     end
 

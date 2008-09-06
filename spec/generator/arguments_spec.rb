@@ -101,7 +101,7 @@ describe Templater::Generator, '.argument' do
   end
   
   it "should assign an argument when a block appended to an argument does not throw :invalid" do
-    @generator_class.argument(0, :monkey) do
+    @generator_class.argument(0, :monkey) do |argument|
       1 + 1
     end
     @generator_class.argument(1, :elephant) do
@@ -118,8 +118,10 @@ describe Templater::Generator, '.argument' do
   end
   
   it "should raise an error with the throw message, when a block is appended to an argument and throws :invalid" do
-    @generator_class.argument(0, :monkey) do
-      throw :invalid, 'this is not a valid monkey, bad monkey!'
+    @generator_class.argument(0, :monkey) do |argument|
+      if argument != 'monkey'
+        throw :invalid, 'this is not a valid monkey, bad monkey!'
+      end
     end
     
     lambda { @generator_class.new('/tmp', {}, 'blah') }.should raise_error(Templater::ArgumentError, 'this is not a valid monkey, bad monkey!')
@@ -127,6 +129,8 @@ describe Templater::Generator, '.argument' do
     instance = @generator_class.new('/tmp')
     
     lambda { instance.monkey = :anything }.should raise_error(Templater::ArgumentError, 'this is not a valid monkey, bad monkey!')
+    
+    lambda { instance.monkey = 'monkey' }.should_not raise_error
   end
 
 end

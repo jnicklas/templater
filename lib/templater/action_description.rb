@@ -17,4 +17,18 @@ module Templater
     end
     
   end
+  
+  class ArgumentDescription < Description
+    
+    # Checks if the given argument is valid according to this description
+    #
+    # === Parameters
+    # argument<Object>:: Checks if the given argument is valid.
+    # === Returns
+    # Boolean:: Validity of the argument
+    def valid?(argument)
+      
+    end
+    
+  end
 end
