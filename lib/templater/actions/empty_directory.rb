@@ -2,6 +2,13 @@ module Templater
   module Actions
     class EmptyDirectory < Action
 
+      # Builds a new Directory
+      # 
+      # === Parameters
+      # generator<Object>:: The generator
+      # name<Symbol>:: The name of this directory
+      # destination<String>:: Full path to the destination of this directory
+      # options<Hash{Symbol=>Symbol}:: Options, including callbacks.
       def initialize(generator, name, destination, options={})
         self.generator = generator
         self.name = name

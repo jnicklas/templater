@@ -1,7 +1,7 @@
 module Templater
   
   ACTION_RESERVED_OPTIONS = [:before, :after].freeze
-  
+
   class Generator
     
     include Templater::CaptureHelpers

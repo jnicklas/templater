@@ -2,15 +2,14 @@ module Templater
   module Actions
     class Template < Action
   
-      # Builds a new template, given the context (e.g. binding) in which the template will be rendered
-      # (usually a generator), the name of the template and its source and destination.
+      # Builds a new template.
       #
       # === Parameters
-      # context<Object>:: Context for rendering
+      # generator<Object>:: Context for rendering
       # name<Symbol>:: The name of this template
       # source<String>:: Full path to the source of this template
       # destination<String>:: Full path to the destination of this template
-      # render<Boolean>:: If set to false, will do a copy instead of rendering.
+      # options<Hash{Symbol=>Symbol}:: Options, including callbacks.
       def initialize(generator, name, source, destination, options={})
         self.generator = generator
         self.name = name

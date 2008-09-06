@@ -2,12 +2,14 @@ module Templater
   module Actions
     class File < Action
   
-      # Builds a new file, given the name of the file and its source and destination.
+      # Builds a new file.
       #
       # === Parameters
-      # name<Symbol>:: The name of this template
-      # source<String>:: Full path to the source of this template
-      # destination<String>:: Full path to the destination of this template
+      # generator<Object>:: The generator
+      # name<Symbol>:: The name of this file
+      # source<String>:: Full path to the source of this file
+      # destination<String>:: Full path to the destination of this file
+      # options<Hash{Symbol=>Symbol}:: Options, including callbacks.
       def initialize(generator, name, source, destination, options={})
         self.generator = generator
         self.name = name
