@@ -365,15 +365,14 @@ module Templater
       # === Returns
       # Array[Templater::Generator]:: an array of generator classes.
       def generators
+        generators = [self]
         if manifold
-          generators = invocations.map do |i|
+          generators += invocations.map do |i|
             generator = manifold.generator(i[:name])
             generator ? generator.generators : nil
           end
-          generators.unshift(self).flatten.compact
-        else
-          [self]
         end
+        generators.flatten.compact
       end
       
       # This should return the directory where source templates are located. This method must be overridden in
