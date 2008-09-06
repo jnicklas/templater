@@ -4,3 +4,17 @@ templater 0.2
 [Changed] Generator#actions has been renamed to Generator#all_actions, Generator#actions now looks up local actions based on a certain type.
 
 [Changed] Generator.templates, Generator.files and Generator.empty_directories now return an Array of Templater::ActionDescription instead of an Array of Arrays.
+
+[Changed] The syntax for blocks for actions has changed, those blocks now take the action as argument.
+
+    # Old:
+    template :something do
+      source 'blah.rbt'
+      destination 'blah.rb'
+    end
+    
+    # New:
+    template :something do |template|
+      template.source = 'blah.rbt'
+      template.destination = 'blah.rb'
+    end

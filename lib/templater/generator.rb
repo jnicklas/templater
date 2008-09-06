@@ -42,25 +42,29 @@ module Templater
       # Array[Hash{Symbol=>Object}]:: A list of invocations
       def invocations; @invocations ||= []; end
 
-
-      def actions; @actions ||= {} end
-
-      # Returns an array of hashes, where each hash describes a single template.
-      #
-      # === Returns
-      # Array[Hash{Symbol=>Object}]:: A list of template
-      def templates; actions[:templates] ||= []; end
       
-      # Returns an array of hashes, where each hash describes a single file.
-      #
-      # === Returns
-      # Array[Hash{Symbol=>Object}]:: A list of files
-      def files; actions[:files] ||= []; end
-      
-      # Returns an array of hashes, where each hash describes a single empty directory created by generator.
+      # Returns an Hash that maps the type of action to a list of ActionDescriptions.
       #
       # ==== Returns
-      # Array[Hash{Symbol=>Object}]:: A list of empty directories created by generator.
+      # Hash{Symbol=>Array[Templater::ActionDescription]}:: A Hash of actions
+      def actions; @actions ||= {} end
+
+      # Returns an array of ActionDescriptions, where each describes a single template.
+      #
+      # === Returns
+      # Array[Templater::ActionDescription]:: A list of template descriptions.
+      def templates; actions[:templates] ||= []; end
+      
+      # Returns an array of ActionDescriptions, where each describes a single file.
+      #
+      # === Returns
+      # Array[Templater::ActionDescription]:: A list of file descriptions.
+      def files; actions[:files] ||= []; end
+      
+      # Returns an array of ActionDescriptions, where each describes a single empty directory created by generator.
+      #
+      # ==== Returns
+      # Array[Templater::ActionDescription]:: A list of empty directory descriptions.
       def empty_directories; actions[:empty_directories] ||= []; end
 
 
