@@ -14,11 +14,23 @@ module Templater
       # destination<String>:: Full path to the destination of this template
       # render<Boolean>:: If set to false, will do a copy instead of rendering.
       def initialize(generator, name, source, destination, options={})
-        @generator = generator
-        @name = name
-        @source = source
-        @destination = destination
-        @options = options
+        self.generator = generator
+        self.name = name
+        self.source = source
+        self.destination = destination
+        self.options = options
+      end
+      
+      def source=(source)
+        unless source.blank?
+          @source = ::File.expand_path(source, generator.source_root)
+        end
+      end
+      
+      def destination=(destination)
+        unless destination.blank?
+          @destination = ::File.expand_path(convert_encoded_instructions(destination), generator.destination_root)
+        end
       end
     
       # Returns the destination path relative to Dir.pwd. This is useful for prettier output in interfaces
@@ -65,6 +77,15 @@ module Templater
       # removes the destination file
       def revoke!
         ::FileUtils.rm(destination, :force => true)
+      end
+      
+      protected
+      
+      def convert_encoded_instructions(filename)
+        filename.gsub(/%.*?%/) do |string|
+          instruction = string.match(/%(.*?)%/)[1]
+          @generator.respond_to?(instruction) ? @generator.send(instruction) : string
+        end
       end
       
     end

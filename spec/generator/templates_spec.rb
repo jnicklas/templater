@@ -35,9 +35,9 @@ describe Templater::Generator, '.template' do
   end
   
   it "should add a template with a block" do
-    @generator_class.template(:my_template) do
-      source 'blah.rbt'
-      destination "gurr#{Process.pid.to_s}.rb"
+    @generator_class.template(:my_template) do |template|
+      template.source = 'blah.rbt'
+      template.destination = "gurr#{Process.pid.to_s}.rb"
     end
     @instance = @generator_class.new('/tmp/destination')
     
@@ -47,9 +47,9 @@ describe Templater::Generator, '.template' do
   end
   
   it "should add a template with a complex block" do
-    @generator_class.template(:my_template) do
-      source 'blah', 'blah.rbt'
-      destination 'gurr', "gurr#{something}.rb"
+    @generator_class.template(:my_template) do |template|
+      template.source = 'blah' / 'blah.rbt'
+      template.destination = 'gurr' / "gurr#{something}.rb"
     end
     @instance = @generator_class.new('/tmp/destination')
     
@@ -125,11 +125,7 @@ describe Templater::Generator, '#templates' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
-    @generator_class.class_eval do
-      def source_root
-        '/tmp/source'
-      end
-    end
+    @generator_class.stub!(:source_root).and_return('/tmp/source')
   end
 
   it "should return all templates" do
@@ -172,11 +168,7 @@ describe Templater::Generator, '#template' do
 
   before do
     @generator_class = Class.new(Templater::Generator)
-    @generator_class.class_eval do
-      def source_root
-        '/tmp/source'
-      end
-    end
+    @generator_class.stub!(:source_root).and_return('/tmp/source')
   end
 
   it "should find a template by name" do

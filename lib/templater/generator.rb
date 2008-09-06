@@ -230,13 +230,9 @@ module Templater
         source, destination = source + 't', source if args.size == 1
         
         templates << Templater::ActionDescription.new(name, options) do |generator|
-          Templater::Proxy.new(generator, {
-            :name => name.to_sym,
-            :options => options,
-            :source => source,
-            :destination => destination,
-            :block => block            
-          }).to_template
+          template = Templater::Actions::Template.new(generator, name, source, destination, options)
+          generator.instance_exec(template, &block) if block
+          template
         end
       end
       
