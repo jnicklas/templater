@@ -5,8 +5,11 @@ module Templater
     class Generator
 
       def initialize(generator_name, generator_class, destination_root, name, version)
-        @destination_root, @generator_name, @generator_class = destination_root, generator_name, generator_class
-        @name, @version = name, version
+        @generator_name = generator_name
+        @destination_root = destination_root
+        @generator_class = generator_class
+        @name = name
+        @version = version
       end
 
       def version
@@ -27,6 +30,7 @@ module Templater
 
       def run(arguments)
         generator_class = @generator_class # FIXME: closure wizardry, there has got to be a better way than this?
+        
         @options = Templater::CLI::Parser.parse(arguments) do |opts, options|
           opts.separator "Options specific for this generator:"
           # the reason this is reversed is so that the 'main' generator will always have the last word
@@ -35,14 +39,14 @@ module Templater
             # Loop through this generator's options and add them as valid command line options
             # so that they show up in help messages and such
             generator.options.each do |option|
-              name = option[:name].to_s.gsub('_', '-')
-              if option[:options][:as] == :boolean
-                opts.on("--#{name}", option[:options][:desc]) do |s|
-                  options[option[:name]] = s
+              name = option.name.to_s.gsub('_', '-')
+              if option.options[:as] == :boolean
+                opts.on("--#{name}", option.options[:desc]) do |s|
+                  options[option.name] = s
                 end
               else
-                opts.on("--#{name} OPTION", option[:options][:desc]) do |s|
-                  options[option[:name]] = s.gsub('-', '_').to_sym
+                opts.on("--#{name} OPTION", option.options[:desc]) do |s|
+                  options[option.name] = s.gsub('-', '_').to_sym
                 end
               end
             end
@@ -72,7 +76,7 @@ module Templater
       end
 
       def step_through_templates
-        @generator.actions.each do |action|
+        @generator.all_actions.each do |action|
           if @options[:delete]
             action.revoke! unless @options[:pretend]
             say_status('deleted', action, :red)
