@@ -100,11 +100,7 @@ module Templater
       # :required<Boolean>:: If set to true, the generator will throw an error if it initialized without this argument
       # :desc<Symbol>:: Provide a description for this argument
       def argument(n, name, options={}, &block)
-        self.arguments[n] = {
-          :name => name.to_sym,
-          :options => options,
-          :block => block
-        }
+        self.arguments[n] = Description.new(name.to_sym, options, &block)
         class_eval <<-CLASS
           def #{name}
             get_argument(#{n})
@@ -552,12 +548,12 @@ module Templater
     
     def set_argument(n, arg)
       argument = self.class.arguments[n]
-      valid_argument?(arg, argument[:options], &argument[:block])
+      valid_argument?(arg, argument.options, &argument.block)
       @arguments[n] = arg
     end
     
     def get_argument(n)
-      @arguments[n] || self.class.arguments[n][:options][:default]
+      @arguments[n] || self.class.arguments[n].options[:default]
     end
     
     def set_option(name, arg)
@@ -594,7 +590,7 @@ module Templater
     
     def valid_arguments?
       self.class.arguments.each_with_index do |arg, i|
-        valid_argument?(@arguments[i], arg[:options], &arg[:block])
+        valid_argument?(@arguments[i], arg.options, &arg.block)
       end
     end
 
@@ -607,7 +603,7 @@ module Templater
       
         # When one of the arguments has :as set to :hash or :list, the remaining arguments should be consumed
         # and converted to a Hash or an Array respectively
-        case expected[:options][:as]
+        case expected.options[:as]
         when :hash
           if arg.is_a?(String)
             pairs = args[i..-1]

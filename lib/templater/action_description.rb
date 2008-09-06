@@ -1,7 +1,7 @@
 module Templater
   
   class Description
-    attr_accessor :name, :options
+    attr_accessor :name, :options, :block
     
     def initialize(name, options={}, &block)
       @name = name
