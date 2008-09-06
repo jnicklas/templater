@@ -26,8 +26,8 @@ describe Templater::Generator, ".empty_directory" do
   end
   
   it "should add an empty directory with a block" do
-    @generator_class.empty_directory(:my_empty_directory) do
-      destination "gurr#{Process.pid.to_s}.rb"
+    @generator_class.empty_directory(:my_empty_directory) do |action|
+      action.destination = "gurr#{Process.pid.to_s}.rb"
     end
     @instance = @generator_class.new('/tmp/destination')
     
@@ -36,8 +36,8 @@ describe Templater::Generator, ".empty_directory" do
   end
   
   it "should add an empty directory with a complex block" do
-    @generator_class.empty_directory(:my_empty_directory) do
-      destination 'gurr', "gurr#{something}.rb"
+    @generator_class.empty_directory(:my_empty_directory) do |action|
+      action.destination = 'gurr' / "gurr#{something}.rb"
     end
     @instance = @generator_class.new('/tmp/destination')
     

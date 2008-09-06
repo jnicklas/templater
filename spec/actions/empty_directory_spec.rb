@@ -4,6 +4,8 @@ describe Templater::Actions::EmptyDirectory do
 
   before do
     @generator = mock('a generator')
+    @generator.stub!(:source_root).and_return('/tmp/source')
+    @generator.stub!(:destination_root).and_return('/tmp/destination')
   end
 
   describe '.new' do

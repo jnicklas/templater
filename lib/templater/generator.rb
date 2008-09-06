@@ -277,12 +277,9 @@ module Templater
         destination = args.first
         
         empty_directories << Templater::ActionDescription.new(name, options) do |generator|
-          Templater::Proxy.new(generator, {
-            :name => name.to_sym,
-            :destination => destination,
-            :options => options,
-            :block => block
-          }).to_empty_directory
+          directory = Templater::Actions::EmptyDirectory.new(generator, name, destination, options)
+          generator.instance_exec(directory, &block) if block
+          directory
         end
       end
                        

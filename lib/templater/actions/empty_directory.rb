@@ -2,12 +2,19 @@ module Templater
   module Actions
     class EmptyDirectory
 
-      attr_reader :name, :destination, :options
+      attr_accessor :generator, :name, :destination, :options
     
       def initialize(generator, name, destination, options={})
-        @generator = generator
-        @name, @destination = name, destination
-        @options = options
+        self.generator = generator
+        self.name = name
+        self.destination = destination
+        self.options = options
+      end
+
+      def destination=(destination)
+        unless destination.blank?
+          @destination = ::File.expand_path(convert_encoded_instructions(destination), generator.destination_root)
+        end
       end
 
       # Returns the destination path relative to Dir.pwd. This is useful for prettier output in interfaces
@@ -53,6 +60,15 @@ module Templater
       # removes the destination file
       def revoke!
         ::FileUtils.rm_rf(::File.expand_path(destination))
+      end
+      
+      protected
+      
+      def convert_encoded_instructions(filename)
+        filename.gsub(/%.*?%/) do |string|
+          instruction = string.match(/%(.*?)%/)[1]
+          @generator.respond_to?(instruction) ? @generator.send(instruction) : string
+        end
       end
     end # EmptyDirectory
   end # Actions
