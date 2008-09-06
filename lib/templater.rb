@@ -8,6 +8,7 @@ require 'diff/lcs'
 
 require path + 'discovery'
 require path + 'capture_helpers'
+require path + 'actions/action'
 require path + 'actions/template'
 require path + 'actions/file'
 require path + 'actions/empty_directory'

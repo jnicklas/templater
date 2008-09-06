@@ -1,8 +1,6 @@
 module Templater
   module Actions
-    class Template
-  
-      attr_accessor :generator, :name, :source, :destination, :options
+    class Template < Action
   
       # Builds a new template, given the context (e.g. binding) in which the template will be rendered
       # (usually a generator), the name of the template and its source and destination.
@@ -19,27 +17,6 @@ module Templater
         self.source = source
         self.destination = destination
         self.options = options
-      end
-      
-      def source=(source)
-        unless source.blank?
-          @source = ::File.expand_path(source, generator.source_root)
-        end
-      end
-      
-      def destination=(destination)
-        unless destination.blank?
-          @destination = ::File.expand_path(convert_encoded_instructions(destination), generator.destination_root)
-        end
-      end
-    
-      # Returns the destination path relative to Dir.pwd. This is useful for prettier output in interfaces
-      # where the destination root is Dir.pwd.
-      #
-      # === Returns
-      # String:: The destination relative to Dir.pwd
-      def relative_destination
-        @destination.relative_path_from(@generator.destination_root)
       end
   
       # Renders the template using ERB and returns the result as a String.
@@ -77,15 +54,6 @@ module Templater
       # removes the destination file
       def revoke!
         ::FileUtils.rm(destination, :force => true)
-      end
-      
-      protected
-      
-      def convert_encoded_instructions(filename)
-        filename.gsub(/%.*?%/) do |string|
-          instruction = string.match(/%(.*?)%/)[1]
-          @generator.respond_to?(instruction) ? @generator.send(instruction) : string
-        end
       end
       
     end

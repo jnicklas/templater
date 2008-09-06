@@ -1,8 +1,6 @@
 module Templater
   module Actions
-    class File
-  
-      attr_accessor :generator, :name, :source, :destination, :options
+    class File < Action
   
       # Builds a new file, given the name of the file and its source and destination.
       #
@@ -16,27 +14,6 @@ module Templater
         self.source = source
         self.destination = destination
         self.options = options
-      end
-
-      def source=(source)
-        unless source.blank?
-          @source = ::File.expand_path(source, generator.source_root)
-        end
-      end
-
-      def destination=(destination)
-        unless destination.blank?
-          @destination = ::File.expand_path(convert_encoded_instructions(destination), generator.destination_root)
-        end
-      end
-    
-      # Returns the destination path relative to Dir.pwd. This is useful for prettier output in interfaces
-      # where the destination root is Dir.pwd.
-      #
-      # === Returns
-      # String:: The destination relative to Dir.pwd
-      def relative_destination
-        @destination.relative_path_from(@generator.destination_root)
       end
 
       # Returns the contents of the source file as a String
@@ -65,10 +42,10 @@ module Templater
   
       # Renders the template and copies it to the destination.
       def invoke!
-        @generator.send(@options[:before], self) if @options[:before]
+        callback(:before)
         ::FileUtils.mkdir_p(::File.dirname(destination))
         ::FileUtils.copy_file(source, destination)
-        @generator.send(@options[:after], self) if @options[:after]
+        callback(:after)
       end
     
       # removes the destination file
@@ -76,15 +53,6 @@ module Templater
         ::FileUtils.rm(destination, :force => true)
       end
 
-      protected
-      
-      def convert_encoded_instructions(filename)
-        filename.gsub(/%.*?%/) do |string|
-          instruction = string.match(/%(.*?)%/)[1]
-          @generator.respond_to?(instruction) ? @generator.send(instruction) : string
-        end
-      end
-  
     end
   end
 end
