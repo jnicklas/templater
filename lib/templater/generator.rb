@@ -100,7 +100,7 @@ module Templater
       # :required<Boolean>:: If set to true, the generator will throw an error if it initialized without this argument
       # :desc<Symbol>:: Provide a description for this argument
       def argument(n, name, options={}, &block)
-        self.arguments[n] = Description.new(name.to_sym, options, &block)
+        self.arguments[n] = ArgumentDescription.new(name.to_sym, options, &block)
         class_eval <<-CLASS
           def #{name}
             get_argument(#{n})
@@ -402,6 +402,11 @@ module Templater
       end
       
       extract_arguments(*args)
+
+      # Initialize arguments to their default values.
+      self.class.arguments.each_with_index do |argument, i|
+        @arguments[i] ||= argument.options[:default]
+      end
       
       valid_arguments?
     end
@@ -542,17 +547,17 @@ module Templater
     
     protected
     
-    def set_argument(n, arg)
-      valid_argument?(n, arg)
-      @arguments[n] = arg
+    def set_argument(n, value)
+      self.class.arguments[n].valid?(value)
+      @arguments[n] = value
     end
     
     def get_argument(n)
-      @arguments[n] || self.class.arguments[n].options[:default]
+      @arguments[n]
     end
     
-    def set_option(name, arg)
-      @options[name] = arg
+    def set_option(name, value)
+      @options[name] = value
     end
     
     def get_option(name)
@@ -565,28 +570,9 @@ module Templater
       end
     end
         
-    def valid_argument?(n, value)
-      argument = self.class.arguments[n]
-      if value.nil? and argument.options[:required]
-        raise Templater::TooFewArgumentsError
-      elsif not value.nil?
-        if argument.options[:as] == :hash and not value.is_a?(Hash)
-          raise Templater::MalformattedArgumentError, "Expected the argument to be a Hash, but was '#{value.inspect}'"
-        elsif argument.options[:as] == :array and not value.is_a?(Array)
-          raise Templater::MalformattedArgumentError, "Expected the argument to be an Array, but was '#{value.inspect}'"
-        end
-           
-        invalid = catch :invalid do
-          argument.block.call(value) if argument.block
-          throw :invalid, :not_invalid
-        end
-        raise Templater::ArgumentError, invalid unless invalid == :not_invalid
-      end
-    end
-    
     def valid_arguments?
       self.class.arguments.each_with_index do |arg, i|
-        valid_argument?(i, @arguments[i])
+        arg.valid?(@arguments[i])
       end
     end
 

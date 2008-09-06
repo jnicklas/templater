@@ -27,7 +27,21 @@ module Templater
     # === Returns
     # Boolean:: Validity of the argument
     def valid?(argument)
-      
+      if argument.nil? and options[:required]
+        raise Templater::TooFewArgumentsError
+      elsif not argument.nil?
+        if options[:as] == :hash and not argument.is_a?(Hash)
+          raise Templater::MalformattedArgumentError, "Expected the argument to be a Hash, but was '#{argument.inspect}'"
+        elsif options[:as] == :array and not argument.is_a?(Array)
+          raise Templater::MalformattedArgumentError, "Expected the argument to be an Array, but was '#{argument.inspect}'"
+        end
+           
+        invalid = catch :invalid do
+          block.call(argument) if block
+          throw :invalid, :not_invalid
+        end
+        raise Templater::ArgumentError, invalid unless invalid == :not_invalid
+      end
     end
     
   end
