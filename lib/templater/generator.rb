@@ -401,14 +401,16 @@ module Templater
         @options[option.name] ||= option.options[:default]
       end
       
-      extract_arguments(*args)
-
-      # Initialize arguments to their default values.
-      self.class.arguments.each_with_index do |argument, i|
-        @arguments[i] ||= argument.options[:default]
+      args.each_with_index do |arg, n|
+        set_argument(n, arg)
       end
-      
-      valid_arguments?
+
+      self.class.arguments.each_with_index do |argument, i|
+        # Initialize arguments to their default values.
+        @arguments[i] ||= argument.options[:default]
+        # Check if all arguments are valid.
+        argument.valid?(@arguments[i])
+      end
     end
     
     # Finds and returns the template of the given name. If that template's options don't match the generator
@@ -538,7 +540,12 @@ module Templater
     protected
     
     def set_argument(n, value)
-      self.class.arguments[n].valid?(value)
+      expected = self.class.arguments[n]
+      raise Templater::TooManyArgumentsError, "This generator does not take this many Arguments" if expected.nil?
+
+      value = expected.extract(value)
+
+      expected.valid?(value)
       @arguments[n] = value
     end
     
@@ -559,45 +566,7 @@ module Templater
         key.to_sym.in?(Templater::ACTION_RESERVED_OPTIONS) or self.send(key) == value
       end
     end
-        
-    def valid_arguments?
-      self.class.arguments.each_with_index do |arg, i|
-        arg.valid?(@arguments[i])
-      end
-    end
 
-    # from a list of arguments, walk through that list and assign it to this generator, taking into account
-    # that an argument could be a hash or array that consumes the remaining arguments.
-    def extract_arguments(*args)
-      args.each_with_index do |arg, i|
-        expected = self.class.arguments[i]
-        raise Templater::TooManyArgumentsError, "This generator does not take this many Arguments" if expected.nil?
-      
-        # When one of the arguments has :as set to :hash or :list, the remaining arguments should be consumed
-        # and converted to a Hash or an Array respectively
-        case expected.options[:as]
-        when :hash
-          if arg.is_a?(String)
-            pairs = args[i..-1]
-            
-            hash = pairs.inject({}) do |h, pair|
-              key, value = pair.split(':')
-              raise Templater::MalformattedArgumentError, "Expected '#{arg.inspect}' to be a key/value pair" unless key and value
-              h[key] = value
-              h
-            end
-            
-            set_argument(i, hash) and return
-          else
-            set_argument(i, arg)
-          end
-        when :array
-          set_argument(i, args[i..-1].flatten) and return
-        else
-          set_argument(i, arg)
-        end
-      end
-    end
   end
   
 end

@@ -44,6 +44,23 @@ module Templater
       end
     end
     
+    def extract(argument)
+      case options[:as]
+      when :hash
+        if argument.is_a?(String)
+          return argument.split(',').inject({}) do |h, pair|
+            key, value = pair.split(':')
+            raise Templater::MalformattedArgumentError, "Expected '#{argument.inspect}' to be a key/value pair" unless key and value
+            h[key] = value
+            h
+          end
+        end
+      when :array
+        return argument.split(',') if argument.is_a?(String)
+      end
+      return argument
+    end
+    
   end
   
   class InvocationDescription < Description

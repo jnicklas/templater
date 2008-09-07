@@ -160,8 +160,8 @@ describe Templater::Generator, '.argument as array' do
     instance.llama[0].should == 'test'
   end
   
-  it "should consume the remaining arguments and convert them to an array" do
-    instance = @generator_class.new('/tmp', {}, 'a monkey', 'test', 'silver', 'river')
+  it "should split the remaining arguments by comma and convert them to an array" do
+    instance = @generator_class.new('/tmp', {}, 'a monkey', 'test,silver,river')
     instance.llama[0].should == 'test'
     instance.llama[1].should == 'silver'
     instance.llama[2].should == 'river'
@@ -197,15 +197,15 @@ describe Templater::Generator, '.argument as hash' do
     instance.llama['test'].should == 'unit'
   end
   
-  it "should consume the remaining arguments and convert them to a hash if they are key/value pairs" do
-    instance = @generator_class.new('/tmp', {}, 'a monkey', 'test:unit', 'john:silver', 'river:road')
+  it "should split by comma and convert them to a hash if they are key/value pairs" do
+    instance = @generator_class.new('/tmp', {}, 'a monkey', 'test:unit,john:silver,river:road')
     instance.llama['test'].should == 'unit'
     instance.llama['john'].should == 'silver'
     instance.llama['river'].should == 'road'
   end
   
   it "should raise an error if one of the remaining arguments is not a key/value pair" do
-    lambda { @generator_class.new('/tmp', {}, 'a monkey', 'a:llama', 'duck:llama', 'not_a_pair', 'pair:blah') }.should raise_error(Templater::MalformattedArgumentError)
+    lambda { @generator_class.new('/tmp', {}, 'a monkey', 'a:llama,duck:llama,not_a_pair,pair:blah') }.should raise_error(Templater::MalformattedArgumentError)
   end
   
   it "should raise error if the argument is neither a hash nor a key/value pair" do
