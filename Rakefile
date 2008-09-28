@@ -14,6 +14,19 @@ HOMEPAGE = "http://templater.rubyforge.org/"
 SUMMARY = "File generation system"
 
 
+# Used by release task
+RUBY_FORGE_PROJECT  = "templater"
+GEM_NAME            = NAME
+PROJECT_URL         = HOMEPAGE
+PROJECT_SUMMARY     = SUMMARY
+PROJECT_DESCRIPTION = SUMMARY
+
+PKG_BUILD    = ENV['PKG_BUILD'] ? '.' + ENV['PKG_BUILD'] : ''
+GEM_VERSION  = Templater::VERSION + PKG_BUILD
+RELEASE_NAME = "REL #{GEM_VERSION}"
+
+require "extlib/tasks/release"
+
 #
 # ==== Gemspec and installation
 #
@@ -124,7 +137,6 @@ namespace :spec do
     t.spec_opts = ["--format", "html:doc/reports/specs.html"]
     t.fail_on_error = false
   end
-
 end
 
 desc 'Default: run unit tests.'
