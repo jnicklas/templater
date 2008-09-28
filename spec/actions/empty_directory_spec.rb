@@ -29,7 +29,10 @@ describe Templater::Actions::EmptyDirectory do
   end
 
   describe '#render' do
-    it 'does nothing for empty directories?'
+    it 'should return an empty string' do
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, '/path/to/destination')
+      file.render.should == ''
+    end 
   end
 
   describe '#exists?' do

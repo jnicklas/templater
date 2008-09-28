@@ -16,12 +16,12 @@ module Templater
         self.options = options
       end
 
-      # Returns the contents of the source file as a String
+      # Returns an empty String: there's nothing to read from.
       #
       # === Returns
       # String:: The source file.
       def render
-        ::File.read(source)
+        ''
       end
 
       # Checks if the destination file already exists.
