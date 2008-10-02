@@ -46,7 +46,7 @@ module Templater
       def invoke!
         callback(:before)
         ::FileUtils.mkdir_p(::File.dirname(destination))
-        ::FileUtils.copy_file(source, destination)
+        ::FileUtils.cp_r(source, destination)
         callback(:after)
       end
     
