@@ -60,6 +60,12 @@ module Templater
       # === Returns
       # Array[Templater::ActionDescription]:: A list of file descriptions.
       def files; actions[:files] ||= []; end
+
+      # Returns an array of ActionDescriptions, where each describes a single directory.
+      #
+      # === Returns
+      # Array[Templater::ActionDescription]:: A list of file descriptions.
+      def directories; actions[:directories] ||= []; end
       
       # Returns an array of ActionDescriptions, where each describes a single empty directory created by generator.
       #
@@ -254,7 +260,31 @@ module Templater
         end
       end
 
-      alias_method :directory, :file
+      # Adds a directory that is copied directly. This method is usedful
+      # when globbing is not exactly what you want, or you need to access
+      # options to decide what source or destination should be.
+      #
+      # === Parameters
+      # name<Symbol>:: The name of this template
+      # source<String>:: The source template, can be omitted
+      # destination<String>:: The destination where the result will be put.
+      # options<Hash>:: Options for this template
+      # &block<Proc>:: A block to execute when the generator is instantiated
+      #
+      # === Options
+      # :before<Symbol>:: Name of a method to execute before this template is invoked
+      # :after<Symbol>:: Name of a method to execute after this template is invoked
+      def directory(name, *args, &block)
+        options = args.last.is_a?(Hash) ? args.pop : {}
+        source, destination = args
+        source, destination = source, source if args.size == 1
+        
+        directories << ActionDescription.new(name, options) do |generator|
+          directory = Actions::Directory.new(generator, name, source, destination, options)
+          generator.instance_exec(directory, &block) if block
+          directory
+        end
+      end
       
       # Adds an empty directory that will be created when the generator is run.
       #
@@ -323,7 +353,28 @@ module Templater
         end
       end
 
-      alias_method :directory_list, :file_list
+      # An easy way to add many non-rendering templates to a generator. The provided list can be either an
+      # array of Strings or a Here-Doc with templates on individual lines.
+      #
+      # === Parameters
+      # list<String|Array>:: A list of non-rendering templates to be added to this generator
+      # 
+      # === Examples
+      #
+      #   class MyGenerator < Templater::Generator
+      #     directory_list <<-LIST
+      #       path/to/directory
+      #       another/directory
+      #     LIST
+      #     directory_list ['a/third/directory', 'and/a/fourth']
+      #   end
+      def directory_list(list)
+        list.to_a.each do |item|
+          item = item.to_s.chomp.strip
+          self.directory(item.gsub(/[\.\/]/, '_').to_sym, item)
+        end
+      end
+
       
       # Search a directory for templates and files and add them to this generator. Any file
       # whose extension matches one of those provided in the template_extensions parameter

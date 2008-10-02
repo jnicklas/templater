@@ -11,6 +11,7 @@ require path + 'capture_helpers'
 require path + 'actions/action'
 require path + 'actions/template'
 require path + 'actions/file'
+require path + 'actions/directory'
 require path + 'actions/empty_directory'
 require path + 'description'
 require path + 'generator'
@@ -42,6 +43,6 @@ module Templater
   class MalformattedArgumentError < ArgumentError #:nodoc:
   end
   
-  VERSION = '0.2.3'
+  VERSION = '0.3.0'
   
 end
