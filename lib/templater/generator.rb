@@ -172,7 +172,7 @@ module Templater
       #   class MyGenerator < Templater::Generator
       #     option :animal
       #     # other_generator will be invoked only if the option 'animal' is set to 'bear'
-      #     invoke :other_generator, :amimal => :bear
+      #     invoke :other_generator, :animal => :bear
       #   end
       def invoke(name, options={}, &block)
         self.invocations << InvocationDescription.new(name.to_sym, options, &block)
@@ -253,6 +253,8 @@ module Templater
           file
         end
       end
+
+      alias_method :directory, :file
       
       # Adds an empty directory that will be created when the generator is run.
       #
@@ -320,6 +322,8 @@ module Templater
           self.file(item.gsub(/[\.\/]/, '_').to_sym, item)
         end
       end
+
+      alias_method :directory_list, :file_list
       
       # Search a directory for templates and files and add them to this generator. Any file
       # whose extension matches one of those provided in the template_extensions parameter
