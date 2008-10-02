@@ -67,17 +67,17 @@ describe Templater::Generator, '.glob!' do
     
     @instance = @generator_class.new('/tmp/destination')
     
-    @instance.templates.map { |t| t.name }.should == [
+    @instance.templates.map { |t| t.name.to_s }.sort.should == [
       :arg_js,
       :hellothar_html_feh_,
       :readme,
       :subfolder_monkey_rb,
       :test_rb,
-    ]
-    @instance.files.map { |f| f.name }.should == [
+    ].map { |i| i.to_s }.sort
+    @instance.files.map { |f| f.name.to_s }.sort.should == [
       :hellothar_feh_,
       :subfolder_jessica_alba_jpg
-    ]
+    ].map { |i| i.to_s }.sort
   end
   
   it "should ignore ending '.%..%' and look at the extension preceding it" do
