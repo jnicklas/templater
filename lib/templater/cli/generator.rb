@@ -73,6 +73,11 @@ module Templater
           puts "Generating with #{@generator_name} generator:" 
         end
         step_through_templates
+
+        # Run hooks
+        @generator.after_run
+        @generator.after_generation unless @options[:delete]
+        @generator.after_deletion   if     @options[:delete]
       end
 
       def step_through_templates
@@ -165,9 +170,6 @@ module Templater
           say "#{diff.action}  #{diff.element.chomp}"
         end
       end
-
     end
-    
   end
-  
 end

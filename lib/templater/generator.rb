@@ -1,22 +1,22 @@
 module Templater
-  
+
   ACTION_RESERVED_OPTIONS = [:before, :after].freeze
 
   class Generator
-    
+
     include Templater::CaptureHelpers
-    
+
     class << self
-      
+
       attr_accessor :manifold
 
-      
+
       # Returns an array of hashes, where each hash describes a single argument.
       #
       # === Returns
       # Array[Hash{Symbol=>Object}]:: A list of arguments
       def arguments; @arguments ||= []; end
-      
+
       # A shorthand method for adding the first argument, see +Templater::Generator.argument+
       def first_argument(*args); argument(0, *args); end
 
@@ -25,7 +25,7 @@ module Templater
 
       # A shorthand method for adding the third argument, see +Templater::Generator.argument+
       def third_argument(*args); argument(2, *args); end
-      
+
       # A shorthand method for adding the fourth argument, see +Templater::Generator.argument+
       def fourth_argument(*args); argument(3, *args); end
 
@@ -42,7 +42,7 @@ module Templater
       # Array[Hash{Symbol=>Object}]:: A list of invocations
       def invocations; @invocations ||= []; end
 
-      
+
       # Returns an Hash that maps the type of action to a list of ActionDescriptions.
       #
       # ==== Returns
@@ -54,7 +54,7 @@ module Templater
       # === Returns
       # Array[Templater::ActionDescription]:: A list of template descriptions.
       def templates; actions[:templates] ||= []; end
-      
+
       # Returns an array of ActionDescriptions, where each describes a single file.
       #
       # === Returns
@@ -66,7 +66,7 @@ module Templater
       # === Returns
       # Array[Templater::ActionDescription]:: A list of file descriptions.
       def directories; actions[:directories] ||= []; end
-      
+
       # Returns an array of ActionDescriptions, where each describes a single empty directory created by generator.
       #
       # ==== Returns
@@ -98,7 +98,7 @@ module Templater
       # name<Symbol>:: The name of this argument, an accessor with this name will be created for the argument
       # options<Hash>:: Options for this argument
       # &block<Proc>:: Is evaluated on assignment to check the validity of the argument
-      # 
+      #
       # ==== Options (opts)
       # :default<Object>:: Specify a default value for this argument
       # :as<Symbol>:: If set to :hash or :array, this argument will 'consume' all remaining arguments and bundle them
@@ -111,20 +111,20 @@ module Templater
           def #{name}
             get_argument(#{n})
           end
-          
+
           def #{name}=(arg)
             set_argument(#{n}, arg)
           end
         CLASS
       end
-      
+
       # Adds an accessor with the given name to this generator, also automatically fills that value through
       # the options hash that is provided when the generator is initialized.
       #
       # === Parameters
       # name<Symbol>:: The name of this option, an accessor with this name will be created for the option
       # options<Hash>:: Options for this option (how meta!)
-      # 
+      #
       # ==== Options (opts)
       # :default<Object>:: Specify a default value for this option
       # :as<Symbol>:: If set to :boolean provides a hint to the interface using this generator.
@@ -135,13 +135,13 @@ module Templater
           def #{name}
             get_option(:#{name})
           end
-          
+
           def #{name}=(arg)
             set_option(:#{name}, arg)
           end
         CLASS
       end
-      
+
       # Adds an invocation of another generator to this generator. This allows the interface to invoke
       # any templates in that target generator. This requires that the generator is part of a manifold. The name
       # provided is the name of the target generator in this generator's manifold.
@@ -169,12 +169,12 @@ module Templater
       #       rand(100000).to_s
       #     end
       #
-      #     # invoke :other_generator with some 
+      #     # invoke :other_generator with some
       #     invoke :other_generator do |generator|
       #       generator.new(destination_root, options, random)
       #     end
       #   end
-      #   
+      #
       #   class MyGenerator < Templater::Generator
       #     option :animal
       #     # other_generator will be invoked only if the option 'animal' is set to 'bear'
@@ -183,7 +183,7 @@ module Templater
       def invoke(name, options={}, &block)
         self.invocations << InvocationDescription.new(name.to_sym, options, &block)
       end
-      
+
       # Adds a template to this generator. Templates are named and can later be retrieved by that name.
       # Templates have a source and a destination. When a template is invoked, the source file is rendered,
       # passing through ERB, and the result is copied to the destination. Source and destination can be
@@ -227,14 +227,14 @@ module Templater
         options = args.last.is_a?(Hash) ? args.pop : {}
         source, destination = args
         source, destination = source + 't', source if args.size == 1
-        
+
         templates << ActionDescription.new(name, options) do |generator|
           template = Actions::Template.new(generator, name, source, destination, options)
           generator.instance_exec(template, &block) if block
           template
         end
       end
-      
+
       # Adds a template that is not rendered using ERB, but copied directly. Unlike Templater::Generator.template
       # this will not append a 't' to the source, otherwise it works identically.
       #
@@ -252,7 +252,7 @@ module Templater
         options = args.last.is_a?(Hash) ? args.pop : {}
         source, destination = args
         source, destination = source, source if args.size == 1
-        
+
         files << ActionDescription.new(name, options) do |generator|
           file = Actions::File.new(generator, name, source, destination, options)
           generator.instance_exec(file, &block) if block
@@ -278,14 +278,14 @@ module Templater
         options = args.last.is_a?(Hash) ? args.pop : {}
         source, destination = args
         source, destination = source, source if args.size == 1
-        
+
         directories << ActionDescription.new(name, options) do |generator|
           directory = Actions::Directory.new(generator, name, source, destination, options)
           generator.instance_exec(directory, &block) if block
           directory
         end
       end
-      
+
       # Adds an empty directory that will be created when the generator is run.
       #
       # === Parameters
@@ -300,21 +300,21 @@ module Templater
       def empty_directory(name, *args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
         destination = args.first
-        
+
         empty_directories << ActionDescription.new(name, options) do |generator|
           directory = Actions::EmptyDirectory.new(generator, name, destination, options)
           generator.instance_exec(directory, &block) if block
           directory
         end
       end
-                       
+
       # An easy way to add many templates to a generator, each item in the list is added as a
       # template. The provided list can be either an array of Strings or a Here-Doc with templates
       # on individual lines.
       #
       # === Parameters
       # list<String|Array>:: A list of templates to be added to this generator
-      # 
+      #
       # === Examples
       #
       #   class MyGenerator < Templater::Generator
@@ -323,20 +323,20 @@ module Templater
       #       another/template.css
       #     LIST
       #     template_list ['a/third/template.rb', 'and/a/fourth.js']
-      #   end 
+      #   end
       def template_list(list)
         list.to_a.each do |item|
           item = item.to_s.chomp.strip
           self.template(item.gsub(/[\.\/]/, '_').to_sym, item)
         end
       end
-      
+
       # An easy way to add many non-rendering templates to a generator. The provided list can be either an
       # array of Strings or a Here-Doc with templates on individual lines.
       #
       # === Parameters
       # list<String|Array>:: A list of non-rendering templates to be added to this generator
-      # 
+      #
       # === Examples
       #
       #   class MyGenerator < Templater::Generator
@@ -358,7 +358,7 @@ module Templater
       #
       # === Parameters
       # list<String|Array>:: A list of non-rendering templates to be added to this generator
-      # 
+      #
       # === Examples
       #
       #   class MyGenerator < Templater::Generator
@@ -375,12 +375,12 @@ module Templater
         end
       end
 
-      
+
       # Search a directory for templates and files and add them to this generator. Any file
       # whose extension matches one of those provided in the template_extensions parameter
       # is considered a template and will be rendered with ERB, all others are considered
       # normal files and are simply copied.
-      # 
+      #
       # A hash of options can be passed which will be assigned to each file and template.
       # All of these options are matched against the options passed to the generator.
       #
@@ -394,7 +394,7 @@ module Templater
         ::Dir[::File.join(source_root, dir.to_s, '**/*')].each do |action|
           unless ::File.directory?(action)
             action = action.sub("#{source_root}/", '')
-            
+
             if template_extensions.include?(::File.extname(action.sub(/\.%.+%$/,''))[1..-1]) or template_extensions.include?(::File.basename(action))
               template(action.downcase.gsub(/[^a-z0-9]+/, '_').to_sym, action, action)
             else
@@ -403,9 +403,9 @@ module Templater
           end
         end
       end
-      
+
       # Returns a list of the classes of all generators (recursively) that are invoked together with this one.
-      # 
+      #
       # === Returns
       # Array[Templater::Generator]:: an array of generator classes.
       def generators
@@ -418,7 +418,7 @@ module Templater
         end
         generators.flatten.compact
       end
-      
+
       # This should return the directory where source templates are located. This method must be overridden in
       # any Generator inheriting from Templater::Source.
       #
@@ -427,16 +427,16 @@ module Templater
       def source_root
         raise Templater::SourceNotSpecifiedError, "Subclasses of Templater::Generator must override the source_root method, to specify where source templates are located."
       end
-      
+
     end # end of eigenclass
 
 
     #
     # ==== Instance methods
     #
-    
+
     attr_accessor :destination_root, :arguments, :options
-    
+
     # Create a new generator. Checks the list of arguments agains the requirements set using +argument+.
     #
     # === Parameters
@@ -450,12 +450,12 @@ module Templater
       @destination_root = destination_root
       @arguments = []
       @options = options
-      
+
       # Initialize options to their default values.
       self.class.options.each do |option|
         @options[option.name] ||= option.options[:default]
       end
-      
+
       args.each_with_index do |arg, n|
         set_argument(n, arg)
       end
@@ -467,7 +467,7 @@ module Templater
         argument.valid?(@arguments[i])
       end
     end
-    
+
     # Finds and returns the template of the given name. If that template's options don't match the generator
     # options, returns nil.
     #
@@ -479,7 +479,7 @@ module Templater
     def template(name)
       templates.find { |t| t.name == name }
     end
-    
+
     # Finds and returns the file of the given name. If that file's options don't match the generator
     # options, returns nil.
     #
@@ -499,7 +499,7 @@ module Templater
     def empty_directory(name)
       empty_directories.find { |d| d.name == name }
     end
-    
+
     # Finds and returns all templates whose options match the generator options.
     #
     # === Returns
@@ -507,7 +507,7 @@ module Templater
     def templates
       actions(:templates)
     end
-    
+
     # Finds and returns all files whose options match the generator options.
     #
     # === Returns
@@ -522,20 +522,20 @@ module Templater
     # [Templater::Actions::File]:: The found files.
     def empty_directories
       actions(:empty_directories)
-    end    
-    
+    end
+
     # Finds and returns all templates whose options match the generator options.
     #
     # === Returns
     # [Templater::Generator]:: The found templates.
     def invocations
       return [] unless self.class.manifold
-      
+
       self.class.invocations.map do |invocation|
         invocation.get(self) if match_options?(invocation.options)
       end.compact
     end
-    
+
     # Finds and returns all templates and files for this generators whose options match its options.
     #
     # === Returns
@@ -547,7 +547,7 @@ module Templater
         actions
       end
     end
-    
+
     # Finds and returns all templates and files for this generators and any of those generators it invokes,
     # whose options match that generator's options.
     #
@@ -558,12 +558,12 @@ module Templater
       all_actions += invocations.map { |i| i.all_actions(type) }
       all_actions.flatten
     end
-    
+
     # Invokes the templates for this generator
     def invoke!
       all_actions.each { |t| t.invoke! }
     end
-    
+
     # Renders all actions in this generator. Use this to verify that rendering templates raises no errors.
     #
     # === Returns
@@ -571,7 +571,7 @@ module Templater
     def render!
       all_actions.map { |t| t.render }
     end
-    
+
     # Returns this generator's source root
     #
     # === Returns
@@ -582,7 +582,7 @@ module Templater
     def source_root
       self.class.source_root
     end
-    
+
     # Returns the destination root that is given to the generator on initialization. If the generator is a
     # command line program, this would usually be Dir.pwd.
     #
@@ -591,9 +591,21 @@ module Templater
     def destination_root
       @destination_root # just here so it can be documented.
     end
-    
+
+    def after_run
+      # override in subclasses if necessary
+    end
+
+    def after_generation
+      # override in subclasses if necessary
+    end
+
+    def after_deletion
+      # override in subclasses if necessary
+    end
+
     protected
-    
+
     def set_argument(n, value)
       expected = self.class.arguments[n]
       raise Templater::TooManyArgumentsError, "This generator does not take this many Arguments" if expected.nil?
@@ -603,19 +615,19 @@ module Templater
       expected.valid?(value)
       @arguments[n] = value
     end
-    
+
     def get_argument(n)
       @arguments[n]
     end
-    
+
     def set_option(name, value)
       @options[name] = value
     end
-    
+
     def get_option(name)
       @options[name]
     end
-    
+
     def match_options?(options)
       options.all? do |key, value|
         key.to_sym.in?(Templater::ACTION_RESERVED_OPTIONS) or self.send(key) == value
@@ -623,5 +635,5 @@ module Templater
     end
 
   end
-  
+
 end
