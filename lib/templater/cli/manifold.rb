@@ -15,7 +15,7 @@ module Templater
 
       def self.run(destination_root, manifold, name, version, arguments)
 
-        if arguments.first and not arguments.first =~ /^-/ and not arguments.first == "help"
+        unless ["help", "-h", "--help"].include?(arguments.first)
           generator_name = arguments.shift
           if generator_class = manifold.generator(generator_name)
             Generator.new(generator_name, generator_class, destination_root, name, version).run(arguments)
