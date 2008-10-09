@@ -1,7 +1,7 @@
 module Templater
-  
+
   module CLI
-  
+
     class Manifold
 
       def initialize(destination_root, manifold, name, version)
@@ -14,15 +14,16 @@ module Templater
       end
 
       def self.run(destination_root, manifold, name, version, arguments)
+        if arguments.blank? || (arguments.first && ["help", "-h", "--help"].include?(arguments.first))
+          Manifold.new(destination_root, manifold, name, version).run(arguments)
+          return
+        end
 
-        if arguments.first && !["help", "-h", "--help"].include?(arguments.first)
-          generator_name = arguments.shift
-          if generator_class = manifold.generator(generator_name)
-            Generator.new(generator_name, generator_class, destination_root, name, version).run(arguments)
-          else
-            Manifold.new(destination_root, manifold, name, version).run(arguments)
-          end
+        generator_name = arguments.shift
+        if generator_class = manifold.generator(generator_name)
+          Generator.new(generator_name, generator_class, destination_root, name, version).run(arguments)
         else
+          puts "Could not find a suitable generator in the manifold. Known generators: #{manifold.generators.keys.join(', ')}\n"
           Manifold.new(destination_root, manifold, name, version).run(arguments)
         end
       end
@@ -51,7 +52,7 @@ module Templater
       end
 
     end
-    
+
   end
-  
+
 end
