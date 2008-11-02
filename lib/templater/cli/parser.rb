@@ -67,10 +67,6 @@ module Templater
           opts.on("-h", "--help", "Show this message") do
             options[:help] = true
           end
-      
-          opts.on("--version", "Show the version") do
-            options[:version] = true
-          end
           
           opts.on("--debug", "Do not catch errors") do
             options[:debug] = true
