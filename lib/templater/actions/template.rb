@@ -23,7 +23,8 @@ module Templater
       # === Returns
       # String:: The rendered template.
       def render
-        ERB.new(::File.read(source), nil, '-').result(generator.send(:binding))
+        context = generator.instance_eval 'binding'
+        ERB.new(::File.read(source), nil, '-').result(context)
       end
 
       # Checks if the destination file already exists.
