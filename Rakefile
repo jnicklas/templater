@@ -8,8 +8,8 @@ require File.join(File.dirname(__FILE__), 'lib', 'templater')
 
 PLUGIN = "templater"
 NAME = "templater"
-AUTHOR = "Jonas Nicklas"
-EMAIL = "jonas.nicklas@gmail.com"
+AUTHOR = "Jonas Nicklas, Michael Klishin"
+EMAIL = "jonas.nicklas@gmail.com, michael.s.klishin@gmail.com"
 HOMEPAGE = "http://templater.rubyforge.org/"
 SUMMARY = "File generation system"
 
