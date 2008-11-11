@@ -44,7 +44,7 @@ spec = Gem::Specification.new do |s|
   s.homepage = HOMEPAGE
   s.require_path = 'lib'
   s.autorequire = PLUGIN
-  s.files = %w(LICENSE README Rakefile TODO) + Dir.glob("{lib,spec}/**/*")
+  s.files = %w(LICENSE README Rakefile ROADMAP) + Dir.glob("{lib,spec}/**/*")
   
   s.add_dependency "highline", ">= 1.4.0"
   s.add_dependency "diff-lcs", ">= 1.1.2"
