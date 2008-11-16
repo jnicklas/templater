@@ -2,6 +2,7 @@ path = File.dirname(__FILE__) + '/templater/'
 
 require 'rubygems'
 require 'extlib'
+require "fileutils"
 require 'highline'
 require "highline/import"
 require 'diff/lcs'
