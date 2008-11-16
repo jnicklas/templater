@@ -64,10 +64,20 @@ module Templater
       
         options[:opts] = opts
 
-        opts.parse!(args)
+        begin
+          opts.parse!(args)
+        rescue OptionParser::InvalidOption => e
+          puts
+          puts error_message(e)
+          puts
+        end
+
         options
       end
 
+      def self.error_message(e)
+        "One or more unknown options given: #{e.args.join(', ')}"
+      end
     end
   
   end
