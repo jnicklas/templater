@@ -49,7 +49,7 @@ module Templater
       when :hash
         if argument.is_a?(String)
           return argument.split(',').inject({}) do |h, pair|
-            key, value = pair.split(':')
+            key, value = pair.strip.split(':')
             raise Templater::MalformattedArgumentError, "Expected '#{argument.inspect}' to be a key/value pair" unless key and value
             h[key] = value
             h

@@ -204,6 +204,14 @@ describe Templater::Generator, '.argument as hash' do
     instance.llama['river'].should == 'road'
   end
   
+  it "should strip key/value pairs" do
+    instance = @generator_class.new('/tmp', {}, 'a monkey', 'test:unit, john:silver, river:road,   silver:bullet')
+    instance.llama['test'].should == 'unit'
+    instance.llama['john'].should == 'silver'
+    instance.llama['river'].should == 'road'
+    instance.llama['silver'].should == 'bullet'
+  end
+
   it "should raise an error if one of the remaining arguments is not a key/value pair" do
     lambda { @generator_class.new('/tmp', {}, 'a monkey', 'a:llama,duck:llama,not_a_pair,pair:blah') }.should raise_error(Templater::MalformattedArgumentError)
   end
