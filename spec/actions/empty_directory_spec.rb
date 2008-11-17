@@ -15,15 +15,15 @@ describe Templater::Actions::EmptyDirectory do
     end
 
     it 'sets destination' do
-      Templater::Actions::EmptyDirectory.new(@generator, :monkey, '/path/to/destination').
-      destination.should == '/path/to/destination'    
+      Templater::Actions::EmptyDirectory.new(@generator, :monkey, tmp('/path/to/destination')).
+      destination.should == tmp('/path/to/destination')
     end
   end
 
   describe '#relative_destination' do
     it "returns the destination relative to the generator's destination root" do
-      @generator.stub!(:destination_root).and_return('/path/to')
-      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, '/path/to/destination/with/some/more/subdirs')
+      @generator.stub!(:destination_root).and_return(tmp('/path/to'))
+      file = Templater::Actions::EmptyDirectory.new(@generator, :monkey, tmp('/path/to/destination/with/some/more/subdirs'))
       file.relative_destination.should == 'destination/with/some/more/subdirs'
     end
   end

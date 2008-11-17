@@ -67,19 +67,19 @@ describe Templater::Spec::Helpers, "#create" do
   include Templater::Spec::Helpers
   
   before do
-    @instance = Gens::Gen.new('/tmp', {})
+    @instance = Gens::Gen.new(tmp('tmp'), {})
     @instance.stub!(:source_root).and_return('/source')
   end
   
   it "should match when the generator has a template with the expected destination" do
-    @instance.should create('/tmp/blah.txt')
+    @instance.should create(tmp('/tmp/blah.txt'))
   end
   
   it "should match when the generator has a file with the expected destination" do
-    @instance.should create('/tmp/arg.txt')
+    @instance.should create(tmp('/tmp/arg.txt'))
   end
   
   it "should match when the generator has neither a file nor a template with the expected destination" do
-    @instance.should_not create('/tmp/blurns.txt')
+    @instance.should_not create(tmp('/tmp/blurns.txt'))
   end
 end
