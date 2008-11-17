@@ -163,9 +163,9 @@ module Templater
       def output_diff_line(diff)
         case diff.action
         when '-'
-          say "<%= color('-  #{diff.element.chomp}', :red) %>"
+          say "<%= color( %(-  #{diff.element.chomp}), :red) %>"
         when '+'
-          say "<%= color('+  #{diff.element.chomp}', :green) %>"
+          say "<%= color( %(+  #{diff.element.chomp}), :green) %>"
         else
           say "#{diff.action}  #{diff.element.chomp}"
         end
