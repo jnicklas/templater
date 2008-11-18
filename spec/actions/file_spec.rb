@@ -4,23 +4,23 @@ describe Templater::Actions::File do
 
   before do
     @generator = mock('a generator')
-    @generator.stub!(:source_root).and_return('/tmp/source')
-    @generator.stub!(:destination_root).and_return('/tmp/destination')
+    @generator.stub!(:source_root).and_return(tmp('source'))
+    @generator.stub!(:destination_root).and_return(tmp('destination'))
   end
 
   describe '.new' do
     it "should set name, source and destination" do
-      file = Templater::Actions::File.new(@generator, :monkey, '/path/to/source', '/path/to/destination')
+      file = Templater::Actions::File.new(@generator, :monkey, tmp('/path/to/source'), tmp('/path/to/destination'))
       file.name.should == :monkey
-      file.source.should == '/path/to/source'
-      file.destination.should == '/path/to/destination'
+      file.source.should == tmp('/path/to/source')
+      file.destination.should == tmp('/path/to/destination')
     end
   end
 
   describe '#relative_destination' do
     it "should get the destination relative to the generator's destination root" do
-      @generator.stub!(:destination_root).and_return('/path/to')
-      file = Templater::Actions::File.new(@generator, :monkey, '/path/to/source', '/path/to/destination/with/some/more/subdirs')
+      @generator.stub!(:destination_root).and_return(tmp('/path/to'))
+      file = Templater::Actions::File.new(@generator, :monkey, tmp('/path/to/source'), tmp('/path/to/destination/with/some/more/subdirs'))
       file.relative_destination.should == 'destination/with/some/more/subdirs'
     end
   end
