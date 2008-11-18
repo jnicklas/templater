@@ -38,8 +38,10 @@ module Templater
         puts ''
         puts @manifold.desc
         puts ''
-        puts 'Available Generators'
-        @manifold.public_generators.each do |name, generator|
+        puts 'Available generators'
+        @manifold.public_generators.sort do |one, other|
+          one[0].to_s <=> other[0].to_s
+        end.each do |name, generator|
           print "    "
           print name.to_s.ljust(33)
           print generator.desc.to_a.first.chomp if generator.desc
