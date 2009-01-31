@@ -541,6 +541,8 @@ module Templater
 
     # Finds and returns all templates and files for this generators whose options match its options.
     #
+    # === Parameters
+    # type<Symbol>:: The type of actions to look up (optional)
     # === Returns
     # [Templater::Actions::*]:: The found templates and files.
     def actions(type=nil)
