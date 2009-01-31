@@ -123,7 +123,7 @@ module Templater
             puts "Rendering " + template.relative_destination
             puts ""
             # outputs each line of the file with the row number prepended
-            template.render.to_a.each_with_index do |line, i|
+            template.render.each_line.each_with_index do |line, i|
               puts((i+1).to_s.rjust(4) + ':  ' + line)
             end
             puts ""
@@ -134,7 +134,7 @@ module Templater
             puts "Showing differences for " + template.relative_destination
             puts ""
 
-            diffs = Diff::LCS.diff(::File.read(template.destination).to_s.to_a, template.render.to_a).first
+            diffs = Diff::LCS.diff(::File.read(template.destination).to_s.each_line, template.render.each_line).first
 
             diffs.each do |diff|
               output_diff_line(diff)

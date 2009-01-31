@@ -325,7 +325,8 @@ module Templater
       #     template_list ['a/third/template.rb', 'and/a/fourth.js']
       #   end
       def template_list(list)
-        list.to_a.each do |item|
+        list = list.each_line if list.is_a?(String)
+        list.each do |item|
           item = item.to_s.chomp.strip
           self.template(item.gsub(/[\.\/]/, '_').to_sym, item)
         end
@@ -347,7 +348,8 @@ module Templater
       #     file_list ['a/third/file.gif', 'and/a/fourth.rb']
       #   end
       def file_list(list)
-        list.to_a.each do |item|
+        list = list.each_line if list.is_a?(String)
+        list.each do |item|
           item = item.to_s.chomp.strip
           self.file(item.gsub(/[\.\/]/, '_').to_sym, item)
         end
@@ -369,7 +371,8 @@ module Templater
       #     directory_list ['a/third/directory', 'and/a/fourth']
       #   end
       def directory_list(list)
-        list.to_a.each do |item|
+        list = list.each_line if list.is_a?(String)
+        list.each do |item|
           item = item.to_s.chomp.strip
           self.directory(item.gsub(/[\.\/]/, '_').to_sym, item)
         end

@@ -44,7 +44,7 @@ module Templater
         end.each do |name, generator|
           print "    "
           print name.to_s.ljust(33)
-          print generator.desc.to_a.first.chomp if generator.desc
+          print generator.desc.each_line.first.chomp if generator.desc
           print "\n"
         end
         puts @options[:opts]
