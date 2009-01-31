@@ -141,3 +141,8 @@ end
 
 desc 'Default: run unit tests.'
 task :default => 'spec'
+
+desc 'Generate gemspec'
+task :gemspec do
+  open("#{GEM_NAME}.gemspec", "w"){|file| file.write spec.to_ruby}
+end
