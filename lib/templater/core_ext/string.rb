@@ -10,13 +10,7 @@ class String
   # for that purpose.  Since defining to_a for ruby-1.9.1 is also bad idea,
   # even if it were necessary, it should not be to_a but such like to_lines
   # which is as follows.
-  if RUBY_VERSION <= "1.8.6"
-    def to_lines
-      to_a
-    end
-  else
-    def to_lines
-      each_line.to_a
-    end
+  def to_lines
+    Array(self)
   end
 end
