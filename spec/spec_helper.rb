@@ -12,6 +12,7 @@ end
 require 'templater.rb'
 require 'rubygems'
 require 'spec'
+require 'spec/autorun'
 require 'fileutils'
 
 # Added a cross-platform temporary directory helper
