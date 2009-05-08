@@ -49,6 +49,13 @@ module Templater
       # Hash{Symbol=>Array[Templater::ActionDescription]}:: A Hash of actions
       def actions; @actions ||= {} end
 
+      
+      def recipes; @recipes ||= [] end
+
+
+      def recipe(name, options={})
+        recipes << Templater::Recipe.new(name, options)
+      end
 
 
       # If the argument is omitted, simply returns the description for this generator, otherwise
@@ -249,6 +256,18 @@ module Templater
         actions << description.compile(self) if match_options?(description.options)
         actions
       end
+    end
+
+    def recipe(name)
+      recipes.select { |r| r.name == name }.first
+    end
+
+    def recipes
+      self.class.recipes.select { |r| r.use?(self) }
+    end
+
+    def recipe_names
+      recipes.map { |r| r.name }
     end
 
     # Finds and returns all templates and files for this generators and any of those generators it invokes,
