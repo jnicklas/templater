@@ -53,10 +53,15 @@ module Templater
       def recipes; @recipes ||= [] end
 
 
-      def recipe(name, options={})
-        recipes << Templater::Recipe.new(name, options)
+      def recipe(name, conditions=true)
+        recipes << Templater::Recipe.new(name, conditions)
       end
 
+
+      def use_recipe(name, conditions)
+        recipe = recipes.select {|r| r.name == name}.first
+        recipe.conditions = conditions
+      end
 
       # If the argument is omitted, simply returns the description for this generator, otherwise
       # sets the description to the passed string.

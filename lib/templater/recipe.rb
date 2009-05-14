@@ -1,11 +1,16 @@
 module Templater
-  class Recipe < Struct.new(:name, :options)
+  class Recipe < Struct.new(:name, :conditions)
   
     def use?(generator)
-      use = true
-      use = false if options[:if] and not generator.send(options[:if])
-      use = false if options[:unless] and generator.send(options[:unless])
-      use
+      case conditions
+      when Hash
+        use = true
+        use = false if conditions[:if] and not generator.send(conditions[:if])
+        use = false if conditions[:unless] and generator.send(conditions[:unless])
+        use
+      else
+        use = conditions
+      end
     end
   
   end
