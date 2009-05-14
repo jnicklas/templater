@@ -50,18 +50,15 @@ module Templater
       def actions; @actions ||= {} end
 
       
-      def recipes; @recipes ||= [] end
+      def recipes; @recipes ||= {} end
 
-
-      def recipe(name, conditions=true)
-        recipes << Templater::Recipe.new(name, conditions)
+      def recipe(name, conditions=true, &block)
+        recipes[name] ||= Templater::Recipe.new(name)
+        recipes[name].conditions = conditions
+        recipes[name].block = block
       end
 
-
-      def use_recipe(name, conditions)
-        recipe = recipes.select {|r| r.name == name}.first
-        recipe.conditions = conditions
-      end
+      alias_method :use_recipe, :recipe
 
       # If the argument is omitted, simply returns the description for this generator, otherwise
       # sets the description to the passed string.
@@ -267,8 +264,12 @@ module Templater
       recipes.select { |r| r.name == name }.first
     end
 
+    def invoke_recipe!(name)
+      recipe(name).invoke!(self)
+    end
+
     def recipes
-      self.class.recipes.select { |r| r.use?(self) }
+      self.class.recipes.values.select { |r| r.use?(self) }
     end
 
     def recipe_names

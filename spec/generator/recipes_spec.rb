@@ -62,6 +62,16 @@ describe Templater::Generator do
       @generator.recipe_names.should_not include(:model)
     end
 
+    it "should eval the given block when a recipe is invoked" do
+      @generator_class.recipe :model do
+        foo!
+        bar!
+      end
+      @generator.should_receive :foo!
+      @generator.should_receive :bar!
+      @generator.invoke_recipe!(:model)
+    end
+
   end
 
   describe ".use_recipe" do

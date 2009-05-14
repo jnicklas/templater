@@ -1,6 +1,10 @@
 module Templater
-  class Recipe < Struct.new(:name, :conditions)
-  
+  class Recipe < Struct.new(:name, :conditions, :block)
+
+    def invoke!(generator)
+      generator.instance_eval(&block)
+    end
+
     def use?(generator)
       case conditions
       when Hash
