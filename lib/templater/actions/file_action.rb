@@ -32,7 +32,7 @@ module Templater
       # === Returns
       # String:: The destination relative to Dir.pwd
       def relative_destination
-        @destination.relative_path_from(@generator.destination_root)
+        destination.relative_path_from(@generator.destination_root)
       end
 
     private

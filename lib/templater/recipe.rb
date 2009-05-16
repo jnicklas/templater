@@ -20,7 +20,7 @@ module Templater
     end
 
     def simple_action(description, &block)
-      action(Templater::Actions::SimpleAction.new(@generator, "Doing a foo!", &block))
+      action(Templater::Actions::SimpleAction.new(@generator, description, &block))
     end
 
     def template(source, destination)

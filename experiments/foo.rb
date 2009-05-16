@@ -1,3 +1,3 @@
 def foo
-  <%= bar %>
+  <%= monkey %>
 end
