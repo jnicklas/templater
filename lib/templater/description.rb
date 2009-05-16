@@ -10,14 +10,6 @@ module Templater
     end    
   end
   
-  class ActionDescription < Description
-    
-    def compile(generator)
-      @block.call(generator)
-    end
-    
-  end
-  
   class ArgumentDescription < Description
     
     # Checks if the given argument is valid according to this description
@@ -62,17 +54,5 @@ module Templater
     end
     
   end
-  
-  class InvocationDescription < Description
-    
-    def get(generator)
-      klass = generator.class.manifold.generator(name)
-      if klass and block
-        generator.instance_exec(klass, &block)
-      elsif klass
-        klass.new(generator.destination_root, generator.options, *generator.arguments)
-      end
-    end
-    
-  end
+
 end
