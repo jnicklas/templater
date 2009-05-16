@@ -17,6 +17,14 @@ module Templater
       actions.push(action)
     end
 
+    def simple_action(description, &block)
+      action(Templater::Actions::SimpleAction.new(@generator, "Doing a foo!", &block))
+    end
+
+    def template(source, destination)
+      action(Templater::Actions::TemplateAction.new(@generator, source, destination))
+    end
+
     def use?(generator)
       case conditions
       when Hash
