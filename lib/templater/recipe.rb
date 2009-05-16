@@ -9,6 +9,8 @@ module Templater
       @generator = nil
     end
 
+    attr_accessor :actions
+
     def actions
       @actions ||= []
     end
@@ -23,6 +25,10 @@ module Templater
 
     def template(source, destination)
       action(Templater::Actions::TemplateAction.new(@generator, source, destination))
+    end
+
+    def generate(generator, *args)
+      self.actions += generator.new(destination_root, *args).actions
     end
 
     def use?(generator)

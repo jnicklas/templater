@@ -10,13 +10,17 @@ class MyGenerator < Templater::Generator
     simple_action("dooing a foo") do
       puts "now foo"
     end
-    template "foo.rb", "bar.rb"
+    generate StupidGenerator
   end
 
-  def bar
-    "4 + 4"
-  end
+end
 
+class StupidGenerator < Templater::Generator
+  recipe :bar do
+    simple_action("doinga a bar") do
+      puts "this is BAR!"
+    end
+  end
 end
 
 foo = MyGenerator.new(File.join(File.dirname(__FILE__)))
