@@ -13,8 +13,8 @@ module Templater
       @actions ||= []
     end
 
-    def action(klass)
-      actions.push(klass.new(@generator))
+    def action(action)
+      actions.push(action)
     end
 
     def use?(generator)

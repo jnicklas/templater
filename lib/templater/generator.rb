@@ -236,7 +236,7 @@ module Templater
       # override in subclasses if necessary
     end
 
-    protected
+  private
 
     def set_argument(n, value)
       expected = self.class.arguments[n]
