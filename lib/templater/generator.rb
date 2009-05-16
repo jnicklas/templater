@@ -36,12 +36,6 @@ module Templater
       # Array[Hash{Symbol=>Object}]:: A list of options
       def options; @options ||= []; end
 
-      # Returns an array of hashes, where each hash describes a single invocation.
-      #
-      # === Returns
-      # Array[Hash{Symbol=>Object}]:: A list of invocations
-      def invocations; @invocations ||= []; end
-
       
       def recipes; @recipes ||= {} end
 
@@ -121,63 +115,6 @@ module Templater
         CLASS
       end
 
-      # Adds an invocation of another generator to this generator. This allows the interface to invoke
-      # any templates in that target generator. This requires that the generator is part of a manifold. The name
-      # provided is the name of the target generator in this generator's manifold.
-      #
-      # A hash of options can be passed, all of these options are matched against the options passed to the
-      # generator.
-      #
-      # If a block is given, the generator class is passed to the block, and it is expected that the
-      # block yields an instance. Otherwise the target generator is instantiated with the same options and
-      # arguments as this generator.
-      #
-      # === Parameters
-      # name<Symbol>:: The name in the manifold of the generator that is to be invoked
-      # options<Hash>:: A hash of requirements that are matched against the generator options
-      # &block<Proc>:: A block to execute when the generator is instantiated
-      #
-      # ==== Examples
-      #
-      #   class MyGenerator < Templater::Generator
-      #     invoke :other_generator
-      #   end
-      #
-      #   class MyGenerator < Templater::Generator
-      #     def random
-      #       rand(100000).to_s
-      #     end
-      #
-      #     # invoke :other_generator with some
-      #     invoke :other_generator do |generator|
-      #       generator.new(destination_root, options, random)
-      #     end
-      #   end
-      #
-      #   class MyGenerator < Templater::Generator
-      #     option :animal
-      #     # other_generator will be invoked only if the option 'animal' is set to 'bear'
-      #     invoke :other_generator, :animal => :bear
-      #   end
-      def invoke(name, options={}, &block)
-        self.invocations << InvocationDescription.new(name.to_sym, options, &block)
-      end
-
-      # Returns a list of the classes of all generators (recursively) that are invoked together with this one.
-      #
-      # === Returns
-      # Array[Templater::Generator]:: an array of generator classes.
-      def generators
-        generators = [self]
-        if manifold
-          generators += invocations.map do |i|
-            generator = manifold.generator(i.name)
-            generator ? generator.generators : nil
-          end
-        end
-        generators.flatten.compact
-      end
-
       # This should return the directory where source templates are located. This method must be overridden in
       # any Generator inheriting from Templater::Source.
       #
@@ -227,18 +164,6 @@ module Templater
       end
     end
 
-    # Finds and returns all templates whose options match the generator options.
-    #
-    # === Returns
-    # [Templater::Generator]:: The found templates.
-    def invocations
-      return [] unless self.class.manifold
-
-      self.class.invocations.map do |invocation|
-        invocation.get(self) if match_options?(invocation.options)
-      end.compact
-    end
-
     def actions
       actions ||= []
       recipes.each do |r|
@@ -268,7 +193,7 @@ module Templater
 
     # Invokes the templates for this generator
     def invoke!
-      all_actions.each { |t| t.invoke! }
+      actions.each { |t| t.invoke! }
     end
 
     # Renders all actions in this generator. Use this to verify that rendering templates raises no errors.
@@ -276,7 +201,7 @@ module Templater
     # === Returns
     # [String]:: The results of the rendered actions
     def render!
-      all_actions.map { |t| t.render }
+      actions.map { |t| t.render }
     end
 
     # Returns this generator's source root
