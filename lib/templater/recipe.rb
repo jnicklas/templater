@@ -1,8 +1,20 @@
 module Templater
+  # TODO: this class is fugly, refactor!
   class Recipe < Struct.new(:name, :conditions, :block)
 
     def invoke!(generator)
-      generator.instance_eval(&block)
+      @actions = []
+      @generator = generator
+      instance_eval(&block)
+      @generator = nil
+    end
+
+    def actions
+      @actions ||= []
+    end
+
+    def action(klass)
+      actions.push(klass.new(@generator))
     end
 
     def use?(generator)
@@ -16,6 +28,12 @@ module Templater
         use = conditions
       end
     end
+
+  private
   
+    def method_missing(*args)
+      @generator.send(*args)
+    end
+
   end
 end

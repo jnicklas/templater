@@ -42,13 +42,6 @@ module Templater
       # Array[Hash{Symbol=>Object}]:: A list of invocations
       def invocations; @invocations ||= []; end
 
-
-      # Returns an Hash that maps the type of action to a list of ActionDescriptions.
-      #
-      # ==== Returns
-      # Hash{Symbol=>Array[Templater::ActionDescription]}:: A Hash of actions
-      def actions; @actions ||= {} end
-
       
       def recipes; @recipes ||= {} end
 
@@ -246,19 +239,16 @@ module Templater
       end.compact
     end
 
-    # Finds and returns all templates and files for this generators whose options match its options.
-    #
-    # === Parameters
-    # type<Symbol>:: The type of actions to look up (optional)
-    # === Returns
-    # [Templater::Actions::*]:: The found templates and files.
-    def actions(type=nil)
-      actions = type ? self.class.actions[type] : self.class.actions.values.flatten
-      actions.inject([]) do |actions, description|
-        actions << description.compile(self) if match_options?(description.options)
-        actions
+    def actions
+      actions ||= []
+      recipes.each do |r|
+        r.invoke!(self)
+        actions += r.actions
       end
+      actions
     end
+
+    alias_method :all_actions, :actions
 
     def recipe(name)
       recipes.select { |r| r.name == name }.first
@@ -274,17 +264,6 @@ module Templater
 
     def recipe_names
       recipes.map { |r| r.name }
-    end
-
-    # Finds and returns all templates and files for this generators and any of those generators it invokes,
-    # whose options match that generator's options.
-    #
-    # === Returns
-    # [Templater::Actions::File, Templater::Actions::Template]:: The found templates and files.
-    def all_actions(type=nil)
-      all_actions = actions(type)
-      all_actions += invocations.map { |i| i.all_actions(type) }
-      all_actions.flatten
     end
 
     # Invokes the templates for this generator
