@@ -42,7 +42,7 @@ module Templater
       def recipe(name, conditions=true, &block)
         recipes[name] ||= Templater::Recipe.new(name)
         recipes[name].conditions = conditions
-        recipes[name].block = block
+        recipes[name].block = block if block
       end
 
       alias_method :use_recipe, :recipe

@@ -72,6 +72,27 @@ describe Templater::Generator do
       @generator.invoke_recipe!(:model)
     end
 
+    it "should change the given block" do
+      @generator_class.recipe :model do
+        foo!
+      end
+      @generator_class.recipe :model do
+        bar!
+      end
+      @generator.should_not_receive :foo!
+      @generator.should_receive :bar!
+      @generator.invoke_recipe!(:model)
+    end
+
+    it "should not change the block when none given" do
+      @generator_class.recipe :model do
+        foo!
+      end
+      @generator_class.recipe :model
+      @generator.should_receive :foo!
+      @generator.invoke_recipe!(:model)
+    end
+
   end
 
   describe ".use_recipe" do
