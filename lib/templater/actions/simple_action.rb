@@ -1,5 +1,6 @@
 module Templater
   module Actions
+    
     class SimpleAction < Action
 
       def initialize(generator, description, &block)
@@ -17,5 +18,10 @@ module Templater
       end
 
     end
+
+    def simple_action(description, &block)
+      action(Templater::Actions::SimpleAction.new(@generator, description, &block))
+    end
+
   end
 end

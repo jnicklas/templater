@@ -167,7 +167,7 @@ module Templater
     def actions
       actions ||= []
       recipes.each do |r|
-        r.invoke!(self)
+        r.invoke!
         actions += r.actions
       end
       actions

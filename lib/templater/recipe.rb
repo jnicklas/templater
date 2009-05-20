@@ -2,6 +2,8 @@ module Templater
   # TODO: this class is fugly, refactor!
   class Recipe
 
+    include Templater::Actions
+
     def initialize(generator, name, options, &block)
       @generator = generator
       @name = name
@@ -22,18 +24,6 @@ module Templater
 
     def action(action)
       actions.push(action)
-    end
-
-    def simple_action(description, &block)
-      action(Templater::Actions::SimpleAction.new(@generator, description, &block))
-    end
-
-    def template(source, destination)
-      action(Templater::Actions::TemplateAction.new(@generator, source, destination))
-    end
-
-    def generate(generator, *args)
-      self.actions += generator.new(destination_root, *args).actions
     end
 
     def use?

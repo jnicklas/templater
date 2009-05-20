@@ -1,6 +1,7 @@
 module Templater
   module Actions
-    class Directory < FileAction
+
+    class DirectoryAction < FileAction
 
       def invoke!
         ::FileUtils.mkdir_p(::File.dirname(destination))
@@ -11,5 +12,10 @@ module Templater
         ::FileUtils.rm_r(destination, :force => true)
       end
     end
+
+    def template(source, destination)
+      action(Templater::Actions::DirectoryAction.new(@generator, source, destination))
+    end
+
   end
 end

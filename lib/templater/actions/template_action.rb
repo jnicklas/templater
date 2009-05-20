@@ -29,5 +29,10 @@ module Templater
       end
 
     end
+
+    def template(source, destination)
+      action(Templater::Actions::TemplateAction.new(@generator, source, destination))
+    end
+
   end
 end
