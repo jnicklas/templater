@@ -39,9 +39,9 @@ module Templater
       
       def recipes; @recipes ||= {} end
 
-      def recipe(name, conditions=true, &block)
-        recipes[name] ||= Templater::Recipe.new(name)
-        recipes[name].conditions = conditions
+      def recipe(name, options=true, &block)
+        recipes[name] ||= Description.new(name, options, &block)
+        recipes[name].options = options
         recipes[name].block = block if block
       end
 
@@ -180,11 +180,14 @@ module Templater
     end
 
     def invoke_recipe!(name)
-      recipe(name).invoke!(self)
+      recipe(name).invoke!
     end
 
     def recipes
-      self.class.recipes.values.select { |r| r.use?(self) }
+      recipes = self.class.recipes.map do |name, description|
+        Templater::Recipe.new(self, description.name, description.options, &description.block)
+      end
+      recipes.select { |r| r.use? }
     end
 
     def recipe_names

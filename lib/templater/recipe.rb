@@ -1,15 +1,20 @@
 module Templater
   # TODO: this class is fugly, refactor!
-  class Recipe < Struct.new(:name, :conditions, :block)
+  class Recipe
 
-    def invoke!(generator)
-      @actions = []
+    def initialize(generator, name, options, &block)
       @generator = generator
-      instance_eval(&block)
-      @generator = nil
+      @name = name
+      @options = options
+      @block = block
     end
 
-    attr_accessor :actions
+    def invoke!
+      @actions = []
+      instance_eval(&block)
+    end
+
+    attr_accessor :actions, :name, :options, :block
 
     def actions
       @actions ||= []
@@ -31,15 +36,15 @@ module Templater
       self.actions += generator.new(destination_root, *args).actions
     end
 
-    def use?(generator)
-      case conditions
+    def use?
+      case options
       when Hash
         use = true
-        use = false if conditions[:if] and not generator.send(conditions[:if])
-        use = false if conditions[:unless] and generator.send(conditions[:unless])
+        use = false if options[:if] and not @generator.send(options[:if])
+        use = false if options[:unless] and @generator.send(options[:unless])
         use
       else
-        use = conditions
+        use = options
       end
     end
 
