@@ -37,7 +37,7 @@ describe Templater::Generator, ".empty_directory" do
   
   it "should add an empty directory with a complex block" do
     @generator_class.empty_directory(:my_empty_directory) do |action|
-      action.destination = 'gurr' / "gurr#{something}.rb"
+      action.destination = File.join('gurr', "gurr#{something}.rb")
     end
     @instance = @generator_class.new(tmp('destination'))
     

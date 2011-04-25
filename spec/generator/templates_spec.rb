@@ -48,8 +48,8 @@ describe Templater::Generator, '.template' do
   
   it "should add a template with a complex block" do
     @generator_class.template(:my_template) do |template|
-      template.source = 'blah' / 'blah.rbt'
-      template.destination = 'gurr' / "gurr#{something}.rb"
+      template.source = File.join('blah', 'blah.rbt')
+      template.destination = File.join('gurr', "gurr#{something}.rb")
     end
     @instance = @generator_class.new(tmp('destination'))
     

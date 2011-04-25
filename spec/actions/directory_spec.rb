@@ -1,4 +1,9 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+begin
+  require File.join(File.dirname(__FILE__), '../spec_helper')
+rescue
+  STDERR.puts $:.inspect
+  #raise
+end
 
 describe Templater::Actions::Directory do
   before(:each) do
