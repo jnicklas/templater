@@ -7,17 +7,15 @@ describe Templater::Generator, '#render!' do
   end
 
   it "should render all actions and return an array of the results" do
-    pending "RSpec 2 mocks do not handle #to_ary right yet" do
-      template1 = double('a template')
-      template2 = double('another template')
+    template1 = double('a template')
+    template2 = double('another template')
 
-      instance = @generator_class.new('/tmp')
+    instance = @generator_class.new('/tmp')
 
-      instance.should_receive(:actions).and_return([template1, template2])
-      template1.should_receive(:render).and_return("oh my")
-      template2.should_receive(:render).and_return("monkey")
+    instance.should_receive(:actions).and_return([template1, template2])
+    template1.should_receive(:render).and_return("oh my")
+    template2.should_receive(:render).and_return("monkey")
 
-      instance.render!.should == ["oh my", "monkey"]
-    end
+    instance.render!.should == ["oh my", "monkey"]
   end
 end
