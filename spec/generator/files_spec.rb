@@ -39,8 +39,8 @@ describe Templater::Generator, '.file' do
   
   it "should add a file with a complex block" do
     @generator_class.file(:my_file) do |file|
-      file.source = 'blah' / 'blah.rbt'
-      file.destination = 'gurr' / "gurr#{something}.rb"
+      file.source = File.join('blah', 'blah.rbt')
+      file.destination = File.join('gurr', "gurr#{something}.rb")
     end
     @instance = @generator_class.new(tmp('destination'))
     

@@ -1,11 +1,12 @@
 path = File.dirname(__FILE__) + '/templater/'
 
 require 'rubygems'
-require 'extlib'
 require "fileutils"
 require 'highline'
 require "highline/import"
 require 'diff/lcs'
+
+require 'active_support/core_ext/object/blank'
 
 require path + 'discovery'
 require path + 'capture_helpers'
@@ -26,7 +27,7 @@ require path + 'core_ext/kernel'
 require 'erb'
 
 module Templater
-  
+
   class TemplaterError < StandardError #:nodoc:
   end
   class GeneratorError < TemplaterError #:nodoc:
@@ -43,7 +44,7 @@ module Templater
   end
   class MalformattedArgumentError < ArgumentError #:nodoc:
   end
-  
-  VERSION = '0.5.0'
-  
+
+  VERSION = '1.1.0'
+
 end

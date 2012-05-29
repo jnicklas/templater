@@ -1,3 +1,5 @@
+require 'pathname'
+
 module Templater
   module Actions
     class Action
@@ -22,7 +24,7 @@ module Templater
       # === Returns
       # String:: The destination relative to Dir.pwd
       def relative_destination
-        @destination.relative_path_from(@generator.destination_root)
+        Pathname.new(@destination).relative_path_from(Pathname.new(@generator.destination_root)).to_s
       end
       
       protected

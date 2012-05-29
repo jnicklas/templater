@@ -1,5 +1,5 @@
 $TESTING=true
-$:.push File.join(File.dirname(__FILE__), '..', 'lib')
+$:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 
 def template_path(template)
   File.expand_path(File.join(File.dirname(__FILE__), 'templates', template))
@@ -11,8 +11,7 @@ end
 
 require 'templater.rb'
 require 'rubygems'
-require 'spec'
-require 'spec/autorun'
+require 'rspec'
 require 'fileutils'
 
 # Added a cross-platform temporary directory helper

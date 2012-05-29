@@ -7,11 +7,11 @@ describe Templater::Generator, '#invoke!' do
   end
 
   it "should invoke all actions" do
-    template1 = mock('a template')
-    template2 = mock('another template')
-    
+    template1 = double('a template')
+    template2 = double('another template')
+
     instance = @generator_class.new('/tmp')
-    
+
     instance.should_receive(:actions).and_return([template1, template2])
     template1.should_receive(:invoke!)
     template2.should_receive(:invoke!)

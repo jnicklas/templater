@@ -635,7 +635,7 @@ module Templater
 
     def match_options?(options)
       options.all? do |key, value|
-        key.to_sym.in?(Templater::ACTION_RESERVED_OPTIONS) or self.send(key) == value
+        Templater::ACTION_RESERVED_OPTIONS.include?(key.to_sym) or self.send(key) == value
       end
     end
 
