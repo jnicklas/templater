@@ -54,6 +54,7 @@ module Templater
     protected
     
     def find_latest_gem_paths
+      # make tests
       Gem::Specification.entries.map{|g| g.full_gem_path}
     end
 
